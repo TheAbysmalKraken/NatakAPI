@@ -3,17 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catan.API", "Catan.API\Catan.API.csproj", "{5C20D27C-40AD-4370-A9CE-97B8F6963E17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.API", "Catan.API\Catan.API.csproj", "{5C20D27C-40AD-4370-A9CE-97B8F6963E17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catan.Domain", "Catan.Domain\Catan.Domain.csproj", "{4689EA58-7102-465B-A864-681E9275F313}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.Domain", "Catan.Domain\Catan.Domain.csproj", "{4689EA58-7102-465B-A864-681E9275F313}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catan.Application", "Catan.Application\Catan.Application.csproj", "{8DA1E0CA-CAD2-4A0C-87D1-62FFA8B6D568}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.Application", "Catan.Application\Catan.Application.csproj", "{8DA1E0CA-CAD2-4A0C-87D1-62FFA8B6D568}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catan.Infrastructure", "Catan.Infrastructure\Catan.Infrastructure.csproj", "{BD4947F8-F9AC-4B73-9D16-8E3842DCC995}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.Infrastructure", "Catan.Infrastructure\Catan.Infrastructure.csproj", "{BD4947F8-F9AC-4B73-9D16-8E3842DCC995}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catan.UnitTests", "Catan.UnitTests\Catan.UnitTests.csproj", "{1C3A11B0-1A8E-4970-93DC-0DDC0BDF1801}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.UnitTests", "Catan.UnitTests\Catan.UnitTests.csproj", "{1C3A11B0-1A8E-4970-93DC-0DDC0BDF1801}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catan.IntegrationTests", "Catan.IntegrationTests\Catan.IntegrationTests.csproj", "{D0C9F78F-78FD-4877-B292-2857854A4F14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.IntegrationTests", "Catan.IntegrationTests\Catan.IntegrationTests.csproj", "{D0C9F78F-78FD-4877-B292-2857854A4F14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catan.Common", "Common\Catan.Common.csproj", "{CF194720-4A9B-4590-9FEE-270E5B5A0C9D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{D0C9F78F-78FD-4877-B292-2857854A4F14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0C9F78F-78FD-4877-B292-2857854A4F14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0C9F78F-78FD-4877-B292-2857854A4F14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF194720-4A9B-4590-9FEE-270E5B5A0C9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF194720-4A9B-4590-9FEE-270E5B5A0C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF194720-4A9B-4590-9FEE-270E5B5A0C9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF194720-4A9B-4590-9FEE-270E5B5A0C9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

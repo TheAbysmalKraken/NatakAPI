@@ -1,4 +1,4 @@
-﻿namespace Common
+﻿namespace Catan.Common
 {
     public static class Enumerations
     {
