@@ -2,7 +2,7 @@
 
 namespace Catan.Domain
 {
-    internal sealed class CatanTile
+    public sealed class CatanTile
     {
         private readonly CatanResourceType type;
         private readonly int activationNumber;
@@ -13,7 +13,7 @@ namespace Catan.Domain
             this.activationNumber = activationNumber;
         }
 
-        public CatanResourceType GetTileType()
+        public CatanResourceType GetResourceType()
         {
             return type;
         }

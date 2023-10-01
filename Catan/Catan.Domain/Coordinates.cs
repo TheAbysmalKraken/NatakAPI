@@ -1,4 +1,4 @@
 ﻿namespace Catan.Domain
 {
-    internal sealed record Coordinates(int x, int y);
+    public sealed record Coordinates(int x, int y);
 }

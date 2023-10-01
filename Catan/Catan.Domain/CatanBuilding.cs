@@ -2,7 +2,7 @@
 
 namespace Catan.Domain
 {
-    internal sealed class CatanBuilding
+    public sealed class CatanBuilding
     {
         private readonly CatanPlayerColour colour;
         private CatanBuildingType type;

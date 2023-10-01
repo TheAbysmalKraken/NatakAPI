@@ -2,7 +2,7 @@
 
 namespace Catan.Domain
 {
-    internal sealed class CatanPort
+    public sealed class CatanPort
     {
         private readonly CatanPortType type;
         private readonly Coordinates coordinates;
