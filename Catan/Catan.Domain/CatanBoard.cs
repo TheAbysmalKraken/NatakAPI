@@ -2,11 +2,11 @@
 
 namespace Catan.Domain
 {
-    internal sealed class CatanBoard
+    public sealed class CatanBoard
     {
-        private int boardSize = 3;
+        private int boardLength = 5;
 
-        private readonly List<List<List<CatanTile>>> tiles = new List<List<List<CatanTile>>>();
+        private readonly CatanTile[,] tiles;
         private readonly List<CatanPort> ports = new List<CatanPort>();
         private List<List<CatanBuilding>> settlementsAndCities = new List<List<CatanBuilding>>();
         private List<List<CatanBuilding>> roads = new List<List<CatanBuilding>>();
@@ -16,7 +16,19 @@ namespace Catan.Domain
 
         public CatanBoard()
         {
+            tiles = new CatanTile[boardLength, boardLength];
 
+            InitialiseTiles();
+        }
+
+        public CatanTile[,] GetTiles()
+        { 
+            return tiles;
+        }
+
+        public CatanTile GetTile(int x, int y)
+        {
+            return tiles[x, y];
         }
 
         private void InitialiseTiles()
@@ -38,6 +50,7 @@ namespace Catan.Domain
                 { 4, 2 },
                 { 5, 2 },
                 { 6, 2 },
+                { 7, 0 },
                 { 8, 2 },
                 { 9, 2 },
                 { 10, 2 },
@@ -45,15 +58,13 @@ namespace Catan.Domain
                 { 12, 1 }
             };
 
-            int maxIndex = (boardSize * 2) - 1;
-
-            for (int i = 0; i < maxIndex; i++)
+            for (int i = 0; i < boardLength; i++)
             {
-                for (int j = 0; j < maxIndex; j++)
+                for (int j = 0; j < boardLength; j++)
                 {
-                    for (int k = 0; k < maxIndex; k++)
+                    if (i + j >= 2 && i + j <= boardLength + 1)
                     {
-                        tiles[i][j][k] = CreateNewCatanTile(remainingResourceTiles, remainingActivationNumbers);
+                        tiles[i, j] = CreateNewCatanTile(remainingResourceTiles, remainingActivationNumbers);
                     }
                 }
             }
@@ -71,34 +82,34 @@ namespace Catan.Domain
                 throw new ArgumentException($"{nameof(remainingActivationNumbers)} must not be null or empty.");
             }
 
-            int tileType;
+            CatanResourceType catanTileType;
             int lowestTileTypeNum = (int)remainingResourceTiles.First().Key;
             int highestTileTypeNum = (int)remainingResourceTiles.Last().Key;
-            CatanResourceType catanTileType;
 
-            tileType = random.Next(lowestTileTypeNum, highestTileTypeNum + 1);
-
-            catanTileType = (CatanResourceType)tileType;
+            do
+            {
+                catanTileType = (CatanResourceType)random.Next(lowestTileTypeNum, highestTileTypeNum + 1);
+            }
+            while (remainingResourceTiles[catanTileType] <= 0);
 
             remainingResourceTiles[catanTileType]--;
 
-            if (remainingResourceTiles[catanTileType] == 0)
+            if (catanTileType == CatanResourceType.Desert)
             {
-                remainingResourceTiles.Remove(catanTileType);
+                return new CatanTile(catanTileType, 0);
             }
 
             int activationNumber;
             int lowestActivationNum = remainingActivationNumbers.First().Key;
             int highestActivationNum = remainingActivationNumbers.Last().Key;
 
-            activationNumber = random.Next(lowestActivationNum, highestActivationNum + 1);
+            do
+            {
+                activationNumber = random.Next(lowestActivationNum, highestActivationNum + 1);
+            }
+            while (remainingActivationNumbers[activationNumber] <= 0);
 
             remainingActivationNumbers[activationNumber]--;
-
-            if (remainingActivationNumbers[activationNumber] == 0)
-            {
-                remainingActivationNumbers.Remove(activationNumber);
-            }
 
             return new CatanTile(catanTileType, activationNumber);
         }
