@@ -2,7 +2,7 @@
 {
     internal sealed class CatanBuilding
     {
-        private CatanPlayerColour colour;
+        private readonly CatanPlayerColour colour;
         private CatanBuildingType type;
 
         public CatanBuilding(CatanPlayerColour colour, CatanBuildingType type)

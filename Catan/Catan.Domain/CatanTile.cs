@@ -2,8 +2,8 @@
 {
     internal sealed class CatanTile
     {
-        private CatanResourceType type;
-        private int activationNumber;
+        private readonly CatanResourceType type;
+        private readonly int activationNumber;
 
         public CatanTile(CatanResourceType type, int activationNumber)
         {
