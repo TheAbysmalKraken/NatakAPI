@@ -1,4 +1,6 @@
-﻿namespace Catan.Domain
+﻿using static Common.Enumerations;
+
+namespace Catan.Domain
 {
     internal sealed class CatanTile
     {
@@ -20,16 +22,5 @@
         {
             return activationNumber;
         }
-    }
-
-    public enum CatanResourceType
-    {
-        Unknown = 0,
-        Wood = 1,
-        Brick = 2,
-        Sheep = 3,
-        Wheat = 4,
-        Ore = 5,
-        Desert = 6
     }
 }

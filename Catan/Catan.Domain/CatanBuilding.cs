@@ -1,4 +1,6 @@
-﻿namespace Catan.Domain
+﻿using static Common.Enumerations;
+
+namespace Catan.Domain
 {
     internal sealed class CatanBuilding
     {
@@ -10,22 +12,5 @@
             this.colour = colour;
             this.type = type;
         }
-    }
-
-    public enum CatanPlayerColour
-    {
-        None = 0,
-        Red = 1,
-        Blue = 2,
-        Green = 3,
-        Yellow = 4
-    }
-
-    public enum CatanBuildingType
-    {
-        None = 0,
-        Road = 1,
-        Settlement = 2,
-        City = 3
     }
 }
