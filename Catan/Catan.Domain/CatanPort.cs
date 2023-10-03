@@ -4,13 +4,13 @@ namespace Catan.Domain
 {
     public sealed class CatanPort
     {
-        private readonly CatanPortType type;
-        private readonly Coordinates coordinates;
+        public CatanPortType Type { get; }
+        public Coordinates Coordinates { get; }
 
         public CatanPort(CatanPortType type, Coordinates coordinates)
         {
-            this.type = type;
-            this.coordinates = coordinates;
+            this.Type = type;
+            this.Coordinates = coordinates;
         }
     }
 }

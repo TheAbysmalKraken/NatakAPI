@@ -2,15 +2,21 @@
 
 namespace Catan.Domain
 {
-    public sealed class CatanBuilding
+    public class CatanBuilding
     {
-        private readonly CatanPlayerColour colour;
-        private CatanBuildingType type;
+        public CatanPlayerColour Colour { get; set; }
+        public CatanBuildingType Type { get; set; }
+
+        public CatanBuilding()
+        {
+            this.Colour = CatanPlayerColour.None;
+            this.Type = CatanBuildingType.None;
+        }
 
         public CatanBuilding(CatanPlayerColour colour, CatanBuildingType type)
         {
-            this.colour = colour;
-            this.type = type;
+            this.Colour = colour;
+            this.Type = type;
         }
     }
 }

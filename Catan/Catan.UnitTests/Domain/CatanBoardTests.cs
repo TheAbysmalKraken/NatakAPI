@@ -43,7 +43,7 @@ namespace Catan.UnitTests.Domain
             {
                 if (tile is null) continue;
 
-                var tileType = tile.GetResourceType();
+                var tileType = tile.Type;
 
                 resourceCounts[tileType]++;
             }
@@ -83,7 +83,7 @@ namespace Catan.UnitTests.Domain
             {
                 if (tile is null) continue;
 
-                var tileNumber = tile.GetActivationNumber();
+                var tileNumber = tile.ActivationNumber;
 
                 if (tileNumber == 0) continue;
 
@@ -108,21 +108,68 @@ namespace Catan.UnitTests.Domain
         {
             // Act
             var board = new CatanBoard();
-            var settlementsAndCities = board.GetSettlementsAndCities();
+            var houses = board.GetHouses();
+            int notNullCount = 0;
+
+            foreach(var house in houses)
+            {
+                if (house != null) notNullCount++;
+            }
 
             // Assert
-            Assert.Null(settlementsAndCities[0, 0]);
-            Assert.Null(settlementsAndCities[0, 1]);
-            Assert.Null(settlementsAndCities[1, 0]);
-            Assert.Null(settlementsAndCities[0, 4]);
-            Assert.Null(settlementsAndCities[0, 5]);
-            Assert.Null(settlementsAndCities[1, 5]);
-            Assert.Null(settlementsAndCities[9, 0]);
-            Assert.Null(settlementsAndCities[10, 0]);
-            Assert.Null(settlementsAndCities[10, 1]);
-            Assert.Null(settlementsAndCities[10, 4]);
-            Assert.Null(settlementsAndCities[10, 5]);
-            Assert.Null(settlementsAndCities[9, 5]);
+            Assert.Null(houses[0, 0]);
+            Assert.Null(houses[0, 1]);
+            Assert.Null(houses[1, 0]);
+            Assert.Null(houses[0, 4]);
+            Assert.Null(houses[0, 5]);
+            Assert.Null(houses[1, 5]);
+            Assert.Null(houses[9, 0]);
+            Assert.Null(houses[10, 0]);
+            Assert.Null(houses[10, 1]);
+            Assert.Null(houses[10, 4]);
+            Assert.Null(houses[10, 5]);
+            Assert.Null(houses[9, 5]);
+
+            Assert.Equal(54, notNullCount);
+        }
+
+        [Fact]
+        public void CreateCatanBoard_IndividualRoadCoordinatesAreAllValid()
+        {
+            // Act
+            var board = new CatanBoard();
+            var roads = board.GetRoads();
+
+            // Assert
+            foreach (var road in roads)
+            {
+                Assert.NotEqual(new Coordinates(0, 0), road.FirstCornerCoordinates);
+                Assert.NotEqual(new Coordinates(0, 0), road.SecondCornerCoordinates);
+                Assert.NotEqual(new Coordinates(0, 1), road.FirstCornerCoordinates);
+                Assert.NotEqual(new Coordinates(0, 1), road.SecondCornerCoordinates);
+                Assert.NotEqual(new Coordinates(1, 0), road.FirstCornerCoordinates);
+                Assert.NotEqual(new Coordinates(1, 0), road.SecondCornerCoordinates);
+                Assert.NotEqual(new Coordinates(0, 4), road.FirstCornerCoordinates);
+                Assert.NotEqual(new Coordinates(0, 4), road.SecondCornerCoordinates);
+                Assert.NotEqual(new Coordinates(0, 5), road.FirstCornerCoordinates);
+                Assert.NotEqual(new Coordinates(0, 5), road.SecondCornerCoordinates);
+                Assert.NotEqual(new Coordinates(1, 5), road.FirstCornerCoordinates);
+                Assert.NotEqual(new Coordinates(1, 5), road.SecondCornerCoordinates);
+                Assert.NotEqual(new Coordinates(9, 0), road.FirstCornerCoordinates);
+                Assert.NotEqual(new Coordinates(9, 0), road.SecondCornerCoordinates);
+                Assert.NotEqual(new Coordinates(10, 0), road.FirstCornerCoordinates);
+                Assert.NotEqual(new Coordinates(10, 0), road.SecondCornerCoordinates);
+                Assert.NotEqual(new Coordinates(10, 1), road.FirstCornerCoordinates);
+                Assert.NotEqual(new Coordinates(10, 1), road.SecondCornerCoordinates);
+                Assert.NotEqual(new Coordinates(10, 4), road.FirstCornerCoordinates);
+                Assert.NotEqual(new Coordinates(10, 4), road.SecondCornerCoordinates);
+                Assert.NotEqual(new Coordinates(10, 5), road.FirstCornerCoordinates);
+                Assert.NotEqual(new Coordinates(10, 5), road.SecondCornerCoordinates);
+                Assert.NotEqual(new Coordinates(9, 5), road.FirstCornerCoordinates);
+                Assert.NotEqual(new Coordinates(9, 5), road.SecondCornerCoordinates);
+            }
+
+            Assert.Equal(72, roads.Count);
         }
     }
 }

@@ -2,34 +2,24 @@
 {
     public sealed class Coordinates
     {
-        private int x { get; set; }
+        public int X { get; set; }
 
-        private int y { get; set; }
+        public int Y { get; set; }
 
         public Coordinates(int x, int y)
         {
-            this.x = x;
-            this.y = y;
-        }
-
-        public int GetX()
-        {
-            return this.x;
-        }
-
-        public int GetY()
-        {
-            return this.y;
+            this.X = x;
+            this.Y = y;
         }
 
         public static Coordinates Add(Coordinates c1, Coordinates c2)
         {
-            return new Coordinates(c1.x + c2.x, c1.y + c2.y);
+            return new Coordinates(c1.X + c2.X, c1.Y + c2.Y);
         }
 
         public static Coordinates Subtract(Coordinates c1, Coordinates c2)
         {
-            return new Coordinates(c2.x - c1.x, c2.y - c1.y);
+            return new Coordinates(c2.X - c1.X, c2.Y - c1.Y);
         }
     }
 }

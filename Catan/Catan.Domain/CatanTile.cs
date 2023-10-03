@@ -4,23 +4,13 @@ namespace Catan.Domain
 {
     public sealed class CatanTile
     {
-        private readonly CatanResourceType type;
-        private readonly int activationNumber;
+        public CatanResourceType Type { get; }
+        public int ActivationNumber { get; }
 
         public CatanTile(CatanResourceType type, int activationNumber)
         {
-            this.type = type;
-            this.activationNumber = activationNumber;
-        }
-
-        public CatanResourceType GetResourceType()
-        {
-            return type;
-        }
-
-        public int GetActivationNumber()
-        {
-            return activationNumber;
+            this.Type = type;
+            this.ActivationNumber = activationNumber;
         }
     }
 }
