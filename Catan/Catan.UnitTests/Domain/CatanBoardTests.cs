@@ -102,5 +102,27 @@ namespace Catan.UnitTests.Domain
             Assert.Equal(2, activationNumberCounts[11]);
             Assert.Equal(1, activationNumberCounts[12]);
         }
+
+        [Fact]
+        public void CreateCatanBoard_EmptySettlementsAndCitiesAreNull()
+        {
+            // Act
+            var board = new CatanBoard();
+            var settlementsAndCities = board.GetSettlementsAndCities();
+
+            // Assert
+            Assert.Null(settlementsAndCities[0, 0]);
+            Assert.Null(settlementsAndCities[0, 1]);
+            Assert.Null(settlementsAndCities[1, 0]);
+            Assert.Null(settlementsAndCities[0, 4]);
+            Assert.Null(settlementsAndCities[0, 5]);
+            Assert.Null(settlementsAndCities[1, 5]);
+            Assert.Null(settlementsAndCities[9, 0]);
+            Assert.Null(settlementsAndCities[10, 0]);
+            Assert.Null(settlementsAndCities[10, 1]);
+            Assert.Null(settlementsAndCities[10, 4]);
+            Assert.Null(settlementsAndCities[10, 5]);
+            Assert.Null(settlementsAndCities[9, 5]);
+        }
     }
 }

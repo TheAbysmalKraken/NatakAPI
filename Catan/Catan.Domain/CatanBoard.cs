@@ -8,7 +8,7 @@ namespace Catan.Domain
 
         private readonly CatanTile[,] tiles;
         private readonly List<CatanPort> ports = new List<CatanPort>();
-        private List<List<CatanBuilding>> settlementsAndCities = new List<List<CatanBuilding>>();
+        private CatanBuilding[,] settlementsAndCities;
         private List<List<CatanBuilding>> roads = new List<List<CatanBuilding>>();
         private Coordinates robberPosition;
 
@@ -17,8 +17,10 @@ namespace Catan.Domain
         public CatanBoard()
         {
             tiles = new CatanTile[boardLength, boardLength];
+            settlementsAndCities = new CatanBuilding[11, 6];
 
             InitialiseTiles();
+            InitialiseSettlementsAndCities();
         }
 
         public CatanTile[,] GetTiles()
@@ -29,6 +31,16 @@ namespace Catan.Domain
         public CatanTile GetTile(int x, int y)
         {
             return tiles[x, y];
+        }
+
+        public CatanBuilding[,] GetSettlementsAndCities()
+        {
+            return settlementsAndCities;
+        }
+
+        public CatanBuilding GetSettlementOrCity(int x, int y)
+        {
+            return settlementsAndCities[x, y];
         }
 
         private void InitialiseTiles()
@@ -65,6 +77,20 @@ namespace Catan.Domain
                     if (i + j >= 2 && i + j <= boardLength + 1)
                     {
                         tiles[i, j] = CreateNewCatanTile(remainingResourceTiles, remainingActivationNumbers);
+                    }
+                }
+            }
+        }
+
+        private void InitialiseSettlementsAndCities()
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                for (int j = 0; j < 6; j++)
+                {
+                    if (i + j >= 2 && i + j <= 13 && j - i <= 3 && j - i >= -8)
+                    {
+                        settlementsAndCities[i, j] = new CatanBuilding(CatanPlayerColour.None, CatanBuildingType.None);
                     }
                 }
             }
