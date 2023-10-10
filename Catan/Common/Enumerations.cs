@@ -4,7 +4,7 @@
     {
         public enum CatanResourceType
         {
-            Unknown = 0,
+            None = 0,
             Wood = 1,
             Brick = 2,
             Sheep = 3,
@@ -39,6 +39,16 @@
             Wheat = 4,
             Ore = 5,
             ThreeToOne = 6
+        }
+
+        public enum CatanDevelopmentCardType
+        {
+            None = 0,
+            Knight = 1,
+            RoadBuilding = 2,
+            YearOfPlenty = 3,
+            Monopoly = 4,
+            VictoryPoint = 5
         }
     }
 }
