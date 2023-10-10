@@ -10,7 +10,7 @@
 
             for (var i = 0; i < numberOfDice; i++)
             {
-                var numberRolled = random.Next(diceSides);
+                var numberRolled = random.Next(diceSides) + 1;
                 rolledDice.Add(numberRolled);
             }
 
