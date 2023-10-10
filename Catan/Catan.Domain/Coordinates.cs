@@ -12,6 +12,11 @@
             this.Y = y;
         }
 
+        public bool Equals(Coordinates coordinatesToCompare)
+        {
+            return (this.X == coordinatesToCompare.X && this.Y == coordinatesToCompare.Y);
+        }
+
         public static Coordinates Add(Coordinates c1, Coordinates c2)
         {
             return new Coordinates(c1.X + c2.X, c1.Y + c2.Y);
