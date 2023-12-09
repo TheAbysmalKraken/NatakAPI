@@ -1,22 +1,22 @@
 ﻿using static Catan.Common.Enumerations;
 
-namespace Catan.Domain
+namespace Catan.Domain;
+
+public class CatanBuilding
 {
-    public class CatanBuilding
+    public CatanBuilding()
     {
-        public CatanPlayerColour Colour { get; set; }
-        public CatanBuildingType Type { get; set; }
-
-        public CatanBuilding()
-        {
-            this.Colour = CatanPlayerColour.None;
-            this.Type = CatanBuildingType.None;
-        }
-
-        public CatanBuilding(CatanPlayerColour colour, CatanBuildingType type)
-        {
-            this.Colour = colour;
-            this.Type = type;
-        }
+        Colour = CatanPlayerColour.None;
+        Type = CatanBuildingType.None;
     }
+
+    public CatanBuilding(CatanPlayerColour colour, CatanBuildingType type)
+    {
+        Colour = colour;
+        Type = type;
+    }
+
+    public CatanPlayerColour Colour { get; private set; }
+    
+    public CatanBuildingType Type { get; private set; }
 }

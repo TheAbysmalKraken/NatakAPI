@@ -1,42 +1,41 @@
 ﻿using static Catan.Common.Enumerations;
 
-namespace Catan.Domain
+namespace Catan.Domain;
+
+public class CatanGame
 {
-    public class CatanGame
+    private CatanBoard board;
+    private List<CatanPlayer> players;
+    private List<int> rolledDice = new();
+    private int diceTotal;
+
+    public CatanGame(int numberOfPlayers)
     {
-        private CatanBoard board;
-        private List<CatanPlayer> players;
-        private List<int> rolledDice = new();
-        private int diceTotal;
+        board = new CatanBoard();
+        players = new List<CatanPlayer>();
 
-        public CatanGame(int numberOfPlayers)
+        RollDice();
+        InitialisePlayers(numberOfPlayers);
+    }
+
+    private void InitialisePlayers(int numberOfPlayers)
+    {
+        List<CatanPlayer> newPlayers = new();
+
+        for (var i = 0; i < numberOfPlayers; i++)
         {
-            board = new CatanBoard();
-            players = new List<CatanPlayer>();
+            CatanPlayerColour playerColour = (CatanPlayerColour)(i + 1);
+            var newPlayer = new CatanPlayer(playerColour);
 
-            RollDice();
-            players = InitialisePlayers(numberOfPlayers);
+            newPlayers.Add(newPlayer);
         }
 
-        private List<CatanPlayer> InitialisePlayers(int numberOfPlayers)
-        {
-            List<CatanPlayer> newPlayers = new();
+        players = newPlayers;
+    }
 
-            for (var i = 0; i < numberOfPlayers; i++)
-            {
-                CatanPlayerColour playerColour = (CatanPlayerColour)(i + 1);
-                var newPlayer = new CatanPlayer(playerColour);
-
-                newPlayers.Add(newPlayer);
-            }
-
-            return newPlayers;
-        }
-
-        private void RollDice()
-        {
-            rolledDice = DiceRoller.RollDice(2, 6);
-            diceTotal = rolledDice.Sum();
-        }
+    private void RollDice()
+    {
+        rolledDice = DiceRoller.RollDice(2, 6);
+        diceTotal = rolledDice.Sum();
     }
 }
