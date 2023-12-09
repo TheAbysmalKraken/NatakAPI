@@ -1,16 +1,16 @@
 ﻿using static Catan.Common.Enumerations;
 
-namespace Catan.Domain
-{
-    public sealed class CatanTile
-    {
-        public CatanResourceType Type { get; }
-        public int ActivationNumber { get; }
+namespace Catan.Domain;
 
-        public CatanTile(CatanResourceType type, int activationNumber)
-        {
-            this.Type = type;
-            this.ActivationNumber = activationNumber;
-        }
+public sealed class CatanTile
+{
+    public CatanTile(CatanResourceType type, int activationNumber)
+    {
+        Type = type;
+        ActivationNumber = activationNumber;
     }
+
+    public CatanResourceType Type { get; private set; }
+    
+    public int ActivationNumber { get; private set; }
 }
