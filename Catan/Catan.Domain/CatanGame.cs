@@ -4,38 +4,42 @@ namespace Catan.Domain;
 
 public class CatanGame
 {
-    private CatanBoard board;
-    private List<CatanPlayer> players;
-    private List<int> rolledDice = new();
-    private int diceTotal;
+    private readonly List<CatanPlayer> players = new();
+    private readonly List<int> rolledDice = new();
 
     public CatanGame(int numberOfPlayers)
     {
-        board = new CatanBoard();
+        Board = new CatanBoard();
         players = new List<CatanPlayer>();
 
         RollDice();
         InitialisePlayers(numberOfPlayers);
     }
 
+    public CatanBoard Board { get; private set; } = new();
+
+    public int DiceTotal => rolledDice.Sum();
+
+    public List<CatanPlayer> GetPlayers() => players;
+
+    public List<int> GetRolledDice() => rolledDice;
+
     private void InitialisePlayers(int numberOfPlayers)
     {
-        List<CatanPlayer> newPlayers = new();
-
+        players.Clear();
+        
         for (var i = 0; i < numberOfPlayers; i++)
         {
             CatanPlayerColour playerColour = (CatanPlayerColour)(i + 1);
             var newPlayer = new CatanPlayer(playerColour);
 
-            newPlayers.Add(newPlayer);
+            players.Add(newPlayer);
         }
-
-        players = newPlayers;
     }
 
     private void RollDice()
     {
-        rolledDice = DiceRoller.RollDice(2, 6);
-        diceTotal = rolledDice.Sum();
+        rolledDice.Clear();
+        rolledDice.AddRange(DiceRoller.RollDice(2, 6));
     }
 }

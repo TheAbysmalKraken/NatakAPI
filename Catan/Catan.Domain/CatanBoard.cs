@@ -5,9 +5,9 @@ namespace Catan.Domain;
 public sealed class CatanBoard
 {
     private readonly CatanTile[,] tiles;
-    private readonly List<CatanPort> ports;
+    private readonly List<CatanPort> ports = new();
     private readonly CatanBuilding[,] houses;
-    private readonly List<CatanRoad> roads;
+    private readonly List<CatanRoad> roads = new();
 
     private readonly Random random = new();
 

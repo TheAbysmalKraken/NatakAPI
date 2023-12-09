@@ -9,6 +9,7 @@ public sealed class CatanPort
         Type = type;
         Coordinates = coordinates;
     }
+    
     public CatanPortType Type { get; private set; }
 
     public Coordinates Coordinates { get; private set; }
