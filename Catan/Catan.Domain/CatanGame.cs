@@ -29,7 +29,7 @@ public class CatanGame
 
     public CatanPlayer? LongestRoadPlayer { get; set; } = null;
 
-    public CatanPlayer? LargestArmyPlayer { get; set; } = null;
+    public CatanPlayer? LargestArmyPlayer => players.FirstOrDefault(p => p.HasLargestArmy);
 
     public int DiceTotal => rolledDice.Sum();
 
@@ -121,7 +121,12 @@ public class CatanGame
 
         if (player != null && LargestArmyPlayer != player && player.KnightsPlayed >= knightsRequiredForLargestArmy)
         {
-            LargestArmyPlayer = player;
+            if (LargestArmyPlayer != null)
+            {
+                LargestArmyPlayer.HasLargestArmy = false;
+            }
+
+            player.HasLargestArmy = true;
             knightsRequiredForLargestArmy = player.KnightsPlayed + 1;
         }
     }

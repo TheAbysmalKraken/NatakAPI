@@ -21,7 +21,11 @@ public class CatanPlayer
 
     public int KnightsPlayed { get; set; } = 0;
 
-    public int VictoryPoints => playableDevelopmentCards[CatanDevelopmentCardType.VictoryPoint];
+    public int VictoryPoints => CalculateVictoryPoints();
+
+    public bool HasLargestArmy { get; set; } = false;
+
+    public bool HasLongestRoad { get; set; } = false;
 
     public Dictionary<CatanResourceType, int> GetResourceCards()
     {
@@ -112,5 +116,24 @@ public class CatanPlayer
             { CatanDevelopmentCardType.Monopoly, 0 },
             { CatanDevelopmentCardType.VictoryPoint, 0 }
         };
+    }
+
+    private int CalculateVictoryPoints()
+    {
+        var victoryPoints = 0;
+
+        victoryPoints += playableDevelopmentCards[CatanDevelopmentCardType.VictoryPoint];
+
+        if (HasLargestArmy)
+        {
+            victoryPoints += 2;
+        }
+
+        if (HasLongestRoad)
+        {
+            victoryPoints += 2;
+        }
+
+        return victoryPoints;
     }
 }
