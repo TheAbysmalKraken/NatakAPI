@@ -65,4 +65,24 @@ public static class DomainConstants
             { CatanPortType.Ore, 1 },
             { CatanPortType.ThreeToOne, 4 }
         };
+
+    public static Dictionary<CatanDevelopmentCardType, int> GetDevelopmentCardTypeTotals()
+        => new()
+        {
+            { CatanDevelopmentCardType.Knight, 14 },
+            { CatanDevelopmentCardType.RoadBuilding, 2 },
+            { CatanDevelopmentCardType.YearOfPlenty, 2 },
+            { CatanDevelopmentCardType.Monopoly, 2 },
+            { CatanDevelopmentCardType.VictoryPoint, 5 }
+        };
+
+    public static Dictionary<CatanResourceType, int> GetBankResourceTotals()
+        => new()
+        {
+            { CatanResourceType.Wood, 19 },
+            { CatanResourceType.Brick, 19 },
+            { CatanResourceType.Sheep, 19 },
+            { CatanResourceType.Wheat, 19 },
+            { CatanResourceType.Ore, 19 }
+        };
 }
