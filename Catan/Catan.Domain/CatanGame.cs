@@ -56,10 +56,12 @@ public class CatanGame
 
         developmentCardPlayedThisTurn = false;
 
-        CurrentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
+        var currentPlayer = CurrentPlayer;
 
-        players.Remove(CurrentPlayer);
-        players.Add(CurrentPlayer);
+        currentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
+
+        players.Remove(currentPlayer);
+        players.Add(currentPlayer);
     }
 
     public void RollDice()

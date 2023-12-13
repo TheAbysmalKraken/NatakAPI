@@ -7,6 +7,8 @@ public class CatanPlayer
     private readonly Dictionary<CatanResourceType, int> resourceCards;
     private readonly Dictionary<CatanDevelopmentCardType, int> playableDevelopmentCards;
     private readonly Dictionary<CatanDevelopmentCardType, int> developmentCardsOnHold;
+    private int victoryPointsFromBuildings;
+    private int victoryPointsExcludingBuildings => CalculateVictoryPointsExcludingBuildings();
 
     public CatanPlayer(CatanPlayerColour colour)
     {
@@ -15,13 +17,15 @@ public class CatanPlayer
         resourceCards = InitialiseResourceCards();
         playableDevelopmentCards = InitialiseDevelopmentCards();
         developmentCardsOnHold = InitialiseDevelopmentCards();
+
+        victoryPointsFromBuildings = 0;
     }
 
     public CatanPlayerColour Colour { get; private set; }
 
     public int KnightsPlayed { get; set; } = 0;
 
-    public int VictoryPoints => CalculateVictoryPoints();
+    public int VictoryPoints => victoryPointsFromBuildings + victoryPointsExcludingBuildings;
 
     public bool HasLargestArmy { get; set; } = false;
 
@@ -62,9 +66,8 @@ public class CatanPlayer
         foreach (var developmentCard in developmentCardsOnHold)
         {
             playableDevelopmentCards[developmentCard.Key] += developmentCard.Value;
+            developmentCardsOnHold[developmentCard.Key] = 0;
         }
-
-        developmentCardsOnHold.Clear();
     }
 
     public bool CanPlayDevelopmentCardOfType(CatanDevelopmentCardType type)
@@ -129,7 +132,7 @@ public class CatanPlayer
         };
     }
 
-    private int CalculateVictoryPoints()
+    private int CalculateVictoryPointsExcludingBuildings()
     {
         var victoryPoints = 0;
 
