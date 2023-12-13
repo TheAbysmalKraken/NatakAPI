@@ -19,6 +19,10 @@ public class CatanPlayer
 
     public CatanPlayerColour Colour { get; private set; }
 
+    public int KnightsPlayed { get; set; } = 0;
+
+    public int VictoryPoints => playableDevelopmentCards[CatanDevelopmentCardType.VictoryPoint];
+
     public Dictionary<CatanResourceType, int> GetResourceCards()
     {
         return resourceCards;
@@ -32,6 +36,46 @@ public class CatanPlayer
     public Dictionary<CatanDevelopmentCardType, int> GetDevelopmentCardsOnHold()
     {
         return developmentCardsOnHold;
+    }
+
+    public void PlayResourceCard(CatanResourceType type)
+    {
+        if (resourceCards[type] == 0)
+        {
+            return;
+        }
+
+        resourceCards[type]--;
+    }
+
+    public void AddResourceCard(CatanResourceType type)
+    {
+        resourceCards[type]++;
+    }
+
+    public void MoveOnHoldDevelopmentCardsToPlayable()
+    {
+        foreach (var developmentCard in developmentCardsOnHold)
+        {
+            playableDevelopmentCards[developmentCard.Key] += developmentCard.Value;
+        }
+
+        developmentCardsOnHold.Clear();
+    }
+
+    public void PlayDevelopmentCard(CatanDevelopmentCardType type)
+    {
+        if (type == CatanDevelopmentCardType.VictoryPoint)
+        {
+            return;
+        }
+
+        if (playableDevelopmentCards[type] == 0)
+        {
+            return;
+        }
+
+        playableDevelopmentCards[type]--;
     }
 
     public void AddDevelopmentCard(CatanDevelopmentCardType type)

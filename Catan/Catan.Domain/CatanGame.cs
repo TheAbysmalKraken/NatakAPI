@@ -8,6 +8,8 @@ public class CatanGame
     private readonly List<int> rolledDice = new();
     private readonly Dictionary<CatanResourceType, int> remainingResourceCards = new();
     private readonly Dictionary<CatanDevelopmentCardType, int> remainingDevelopmentCards = new();
+    private int knightsRequiredForLargestArmy;
+    private int roadsRequiredForLongestRoad;
 
     public CatanGame(int numberOfPlayers)
     {
@@ -17,15 +19,38 @@ public class CatanGame
         InitialisePlayers(numberOfPlayers);
         InitialiseResourceCards();
         InitialiseDevelopmentCards();
+
+        knightsRequiredForLargestArmy = 3;
+        roadsRequiredForLongestRoad = 5;
     }
 
     public CatanBoard Board { get; private set; } = new();
+
+    public CatanPlayer? LongestRoadPlayer { get; set; } = null;
+
+    public CatanPlayer? LargestArmyPlayer { get; set; } = null;
 
     public int DiceTotal => rolledDice.Sum();
 
     public List<CatanPlayer> GetPlayers() => players;
 
     public List<int> GetRolledDice() => rolledDice;
+
+    public Dictionary<CatanResourceType, int> GetRemainingResourceCards() => remainingResourceCards;
+
+    public Dictionary<CatanDevelopmentCardType, int> GetRemainingDevelopmentCards() => remainingDevelopmentCards;
+
+    public void NextPlayer()
+    {
+        UpdateLargestArmyPlayer();
+
+        var currentPlayer = players.First();
+
+        currentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
+
+        players.Remove(currentPlayer);
+        players.Add(currentPlayer);
+    }
 
     private void InitialisePlayers(int numberOfPlayers)
     {
@@ -68,5 +93,28 @@ public class CatanGame
     {
         rolledDice.Clear();
         rolledDice.AddRange(DiceRoller.RollDice(2, 6));
+    }
+
+    private void UpdateLargestArmyPlayer()
+    {
+        var player = players.OrderByDescending(p => p.KnightsPlayed).FirstOrDefault();
+
+        if (player != null && LargestArmyPlayer != player && player.KnightsPlayed >= knightsRequiredForLargestArmy)
+        {
+            LargestArmyPlayer = player;
+            knightsRequiredForLargestArmy = player.KnightsPlayed + 1;
+        }
+    }
+
+    private void PlayDevelopmentCard(CatanPlayer player, CatanDevelopmentCardType type)
+    {
+        player.PlayDevelopmentCard(type);
+        remainingDevelopmentCards[type]++;
+    }
+
+    private void PlayKnightCard(CatanPlayer player)
+    {
+        player.KnightsPlayed++;
+        PlayDevelopmentCard(player, CatanDevelopmentCardType.Knight);
     }
 }
