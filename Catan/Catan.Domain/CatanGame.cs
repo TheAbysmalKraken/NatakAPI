@@ -7,7 +7,8 @@ public class CatanGame
     private readonly List<CatanPlayer> players = new();
     private readonly List<int> rolledDice = new();
     private readonly Dictionary<CatanResourceType, int> remainingResourceCards = new();
-    private readonly Dictionary<CatanDevelopmentCardType, int> remainingDevelopmentCards = new();
+    private readonly Dictionary<CatanDevelopmentCardType, int> remainingDevelopmentCardTotals = new();
+    private readonly List<CatanDevelopmentCardType> remainingDevelopmentCards = new();
     private int knightsRequiredForLargestArmy;
     private int roadsRequiredForLongestRoad;
 
@@ -32,24 +33,24 @@ public class CatanGame
 
     public int DiceTotal => rolledDice.Sum();
 
+    public CatanPlayer CurrentPlayer => players.First();
+
     public List<CatanPlayer> GetPlayers() => players;
 
     public List<int> GetRolledDice() => rolledDice;
 
     public Dictionary<CatanResourceType, int> GetRemainingResourceCards() => remainingResourceCards;
 
-    public Dictionary<CatanDevelopmentCardType, int> GetRemainingDevelopmentCards() => remainingDevelopmentCards;
+    public Dictionary<CatanDevelopmentCardType, int> GetRemainingDevelopmentCards() => remainingDevelopmentCardTotals;
 
     public void NextPlayer()
     {
         UpdateLargestArmyPlayer();
 
-        var currentPlayer = players.First();
+        CurrentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
 
-        currentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
-
-        players.Remove(currentPlayer);
-        players.Add(currentPlayer);
+        players.Remove(CurrentPlayer);
+        players.Add(CurrentPlayer);
     }
 
     private void InitialisePlayers(int numberOfPlayers)
@@ -67,13 +68,32 @@ public class CatanGame
 
     private void InitialiseDevelopmentCards()
     {
-        remainingDevelopmentCards.Clear();
+        remainingDevelopmentCardTotals.Clear();
 
         var totals = DomainConstants.GetDevelopmentCardTypeTotals();
 
         foreach (var type in totals.Keys)
         {
-            remainingDevelopmentCards.Add(type, totals[type]);
+            remainingDevelopmentCardTotals.Add(type, totals[type]);
+            for (var i = 0; i < totals[type]; i++)
+            {
+                remainingDevelopmentCards.Add(type);
+            }
+        }
+
+        ShuffleDevelopmentCards();
+    }
+
+    private void ShuffleDevelopmentCards()
+    {
+        var random = new Random();
+        var totalDevelopmentCards = remainingDevelopmentCards.Count;
+
+        while (totalDevelopmentCards > 1)
+        {
+            var cardIndexToSwapWith = random.Next(totalDevelopmentCards);
+            totalDevelopmentCards--;
+            (remainingDevelopmentCards[totalDevelopmentCards], remainingDevelopmentCards[cardIndexToSwapWith]) = (remainingDevelopmentCards[cardIndexToSwapWith], remainingDevelopmentCards[totalDevelopmentCards]);
         }
     }
 
@@ -109,7 +129,8 @@ public class CatanGame
     private void PlayDevelopmentCard(CatanPlayer player, CatanDevelopmentCardType type)
     {
         player.PlayDevelopmentCard(type);
-        remainingDevelopmentCards[type]++;
+        remainingDevelopmentCardTotals[type]++;
+        remainingDevelopmentCards.Add(type);
     }
 
     private void PlayKnightCard(CatanPlayer player)
