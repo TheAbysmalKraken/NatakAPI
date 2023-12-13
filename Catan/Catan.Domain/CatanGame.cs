@@ -11,6 +11,7 @@ public class CatanGame
     private readonly List<CatanDevelopmentCardType> remainingDevelopmentCards = new();
     private int knightsRequiredForLargestArmy;
     private int roadsRequiredForLongestRoad;
+    private bool developmentCardPlayedThisTurn;
 
     public CatanGame(int numberOfPlayers)
     {
@@ -23,6 +24,7 @@ public class CatanGame
 
         knightsRequiredForLargestArmy = 3;
         roadsRequiredForLongestRoad = 5;
+        developmentCardPlayedThisTurn = false;
     }
 
     public CatanBoard Board { get; private set; } = new();
@@ -39,18 +41,56 @@ public class CatanGame
 
     public List<int> GetRolledDice() => rolledDice;
 
-    public Dictionary<CatanResourceType, int> GetRemainingResourceCards() => remainingResourceCards;
+    public Dictionary<CatanResourceType, int> GetRemainingResourceCards()
+        => remainingResourceCards;
 
-    public Dictionary<CatanDevelopmentCardType, int> GetRemainingDevelopmentCards() => remainingDevelopmentCardTotals;
+    public Dictionary<CatanDevelopmentCardType, int> GetRemainingDevelopmentCardTotals
+        => remainingDevelopmentCardTotals;
+
+    public List<CatanDevelopmentCardType> GetRemainingDevelopmentCards()
+        => remainingDevelopmentCards;
 
     public void NextPlayer()
     {
         UpdateLargestArmyPlayer();
 
+        developmentCardPlayedThisTurn = false;
+
         CurrentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
 
         players.Remove(CurrentPlayer);
         players.Add(CurrentPlayer);
+    }
+
+    public void RollDice()
+    {
+        rolledDice.Clear();
+        rolledDice.AddRange(DiceRoller.RollDice(2, 6));
+    }
+
+    public void PlayDevelopmentCard(CatanPlayer player, CatanDevelopmentCardType type)
+    {
+        if (developmentCardPlayedThisTurn || !player.CanPlayDevelopmentCardOfType(type))
+        {
+            return;
+        }
+
+        developmentCardPlayedThisTurn = true;
+
+        switch (type)
+        {
+            case CatanDevelopmentCardType.Knight:
+                PlayKnightCard(player);
+                break;
+
+            default:
+                throw new ArgumentException($"Invalid development card type: '{type}'");
+        }
+
+        player.PlayDevelopmentCard(type);
+
+        remainingDevelopmentCardTotals[type]++;
+        remainingDevelopmentCards.Add(type);
     }
 
     private void InitialisePlayers(int numberOfPlayers)
@@ -109,12 +149,6 @@ public class CatanGame
         }
     }
 
-    private void RollDice()
-    {
-        rolledDice.Clear();
-        rolledDice.AddRange(DiceRoller.RollDice(2, 6));
-    }
-
     private void UpdateLargestArmyPlayer()
     {
         var player = players.OrderByDescending(p => p.KnightsPlayed).FirstOrDefault();
@@ -131,16 +165,8 @@ public class CatanGame
         }
     }
 
-    private void PlayDevelopmentCard(CatanPlayer player, CatanDevelopmentCardType type)
-    {
-        player.PlayDevelopmentCard(type);
-        remainingDevelopmentCardTotals[type]++;
-        remainingDevelopmentCards.Add(type);
-    }
-
     private void PlayKnightCard(CatanPlayer player)
     {
         player.KnightsPlayed++;
-        PlayDevelopmentCard(player, CatanDevelopmentCardType.Knight);
     }
 }

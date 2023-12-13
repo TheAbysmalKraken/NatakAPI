@@ -67,6 +67,17 @@ public class CatanPlayer
         developmentCardsOnHold.Clear();
     }
 
+    public bool CanPlayDevelopmentCardOfType(CatanDevelopmentCardType type)
+    {
+        if (type == CatanDevelopmentCardType.VictoryPoint
+            || playableDevelopmentCards[type] <= 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public void PlayDevelopmentCard(CatanDevelopmentCardType type)
     {
         if (type == CatanDevelopmentCardType.VictoryPoint)
@@ -94,7 +105,7 @@ public class CatanPlayer
         }
     }
 
-    private Dictionary<CatanResourceType, int> InitialiseResourceCards()
+    private static Dictionary<CatanResourceType, int> InitialiseResourceCards()
     {
         return new Dictionary<CatanResourceType, int>()
         {
@@ -106,7 +117,7 @@ public class CatanPlayer
         };
     }
 
-    private Dictionary<CatanDevelopmentCardType, int> InitialiseDevelopmentCards()
+    private static Dictionary<CatanDevelopmentCardType, int> InitialiseDevelopmentCards()
     {
         return new Dictionary<CatanDevelopmentCardType, int>()
         {
