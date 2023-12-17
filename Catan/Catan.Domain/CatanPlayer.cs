@@ -7,8 +7,8 @@ public class CatanPlayer
     private readonly Dictionary<CatanResourceType, int> resourceCards;
     private readonly Dictionary<CatanDevelopmentCardType, int> playableDevelopmentCards;
     private readonly Dictionary<CatanDevelopmentCardType, int> developmentCardsOnHold;
+    private int victoryPointDevelopmentCardCount;
     private int victoryPointsFromBuildings;
-    private int victoryPointsExcludingBuildings => CalculateVictoryPointsExcludingBuildings();
 
     public CatanPlayer(CatanPlayerColour colour)
     {
@@ -19,17 +19,19 @@ public class CatanPlayer
         developmentCardsOnHold = InitialiseDevelopmentCards();
 
         victoryPointsFromBuildings = 0;
+        victoryPointDevelopmentCardCount = 0;
     }
 
     public CatanPlayerColour Colour { get; private set; }
 
-    public int KnightsPlayed { get; set; } = 0;
+    public int KnightsPlayed { get; private set; } = 0;
 
-    public int VictoryPoints => victoryPointsFromBuildings + victoryPointsExcludingBuildings;
+    public int VictoryPoints
+        => victoryPointsFromBuildings + CalculateVictoryPointsExcludingBuildings();
 
-    public bool HasLargestArmy { get; set; } = false;
+    public bool HasLargestArmy { get; private set; } = false;
 
-    public bool HasLongestRoad { get; set; } = false;
+    public bool HasLongestRoad { get; private set; } = false;
 
     public Dictionary<CatanResourceType, int> GetResourceCards()
     {
@@ -45,6 +47,14 @@ public class CatanPlayer
     {
         return developmentCardsOnHold;
     }
+
+    public void AddLargestArmyCard() => HasLargestArmy = true;
+
+    public void RemoveLargestArmyCard() => HasLargestArmy = false;
+
+    public void AddLongestRoadCard() => HasLongestRoad = true;
+
+    public void RemoveLongestRoadCard() => HasLongestRoad = false;
 
     public void PlayResourceCard(CatanResourceType type)
     {
@@ -93,6 +103,11 @@ public class CatanPlayer
             return;
         }
 
+        if (type == CatanDevelopmentCardType.Knight)
+        {
+            KnightsPlayed++;
+        }
+
         playableDevelopmentCards[type]--;
     }
 
@@ -100,12 +115,22 @@ public class CatanPlayer
     {
         if (type == CatanDevelopmentCardType.VictoryPoint)
         {
-            playableDevelopmentCards[CatanDevelopmentCardType.VictoryPoint]++;
+            victoryPointDevelopmentCardCount++;
         }
         else
         {
             developmentCardsOnHold[type]++;
         }
+    }
+
+    public void SetVictoryPointsFromBuildings(int settlementCount, int cityCount)
+    {
+        if (settlementCount < 0 || cityCount < 0)
+        {
+            throw new ArgumentException("Method arguments must be positive integers.");
+        }
+
+        victoryPointsFromBuildings = settlementCount + 2 * cityCount;
     }
 
     private static Dictionary<CatanResourceType, int> InitialiseResourceCards()
@@ -136,7 +161,7 @@ public class CatanPlayer
     {
         var victoryPoints = 0;
 
-        victoryPoints += playableDevelopmentCards[CatanDevelopmentCardType.VictoryPoint];
+        victoryPoints += victoryPointDevelopmentCardCount;
 
         if (HasLargestArmy)
         {

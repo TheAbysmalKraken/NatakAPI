@@ -159,16 +159,16 @@ public class CatanGame
         {
             if (LargestArmyPlayer != null)
             {
-                LargestArmyPlayer.HasLargestArmy = false;
+                LargestArmyPlayer.RemoveLargestArmyCard();
             }
 
-            player.HasLargestArmy = true;
+            player.AddLargestArmyCard();
             knightsRequiredForLargestArmy = player.KnightsPlayed + 1;
         }
     }
 
     private void PlayKnightCard(CatanPlayer player)
     {
-        player.KnightsPlayed++;
+
     }
 }

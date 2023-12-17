@@ -13,14 +13,13 @@ public class CatanPlayerTests
     }
 
     [Fact]
-    public void AddDevelopmentCard_VictoryPointAddedToPlayable()
+    public void AddDevelopmentCard_VictoryPointAddedToCount()
     {
         // Act
         testPlayer.AddDevelopmentCard(CatanDevelopmentCardType.VictoryPoint);
 
         // Assert
-        Assert.Equal(0, testPlayer.GetDevelopmentCardsOnHold()[CatanDevelopmentCardType.VictoryPoint]);
-        Assert.Equal(1, testPlayer.GetPlayableDevelopmentCards()[CatanDevelopmentCardType.VictoryPoint]);
+        Assert.Equal(1, testPlayer.VictoryPoints);
     }
 
     [Theory]
@@ -131,5 +130,62 @@ public class CatanPlayerTests
 
         // Assert
         Assert.True(canPlay);
+    }
+
+    [Theory]
+    [InlineData(CatanDevelopmentCardType.Knight)]
+    [InlineData(CatanDevelopmentCardType.RoadBuilding)]
+    [InlineData(CatanDevelopmentCardType.YearOfPlenty)]
+    [InlineData(CatanDevelopmentCardType.Monopoly)]
+    public void PlayDevelopmentCard_HasNoneOfThatType_CardCountIsZero(
+        CatanDevelopmentCardType cardType)
+    {
+        // Act
+        testPlayer.PlayDevelopmentCard(cardType);
+        var cards = testPlayer.GetPlayableDevelopmentCards();
+
+        // Assert
+        Assert.Equal(0, cards[cardType]);
+    }
+
+    [Theory]
+    [InlineData(CatanDevelopmentCardType.Knight)]
+    [InlineData(CatanDevelopmentCardType.RoadBuilding)]
+    [InlineData(CatanDevelopmentCardType.YearOfPlenty)]
+    [InlineData(CatanDevelopmentCardType.Monopoly)]
+    public void PlayDevelopmentCard_HasSomeOfThatType_CardCountOneLess(
+        CatanDevelopmentCardType cardType)
+    {
+        // Arrange
+        testPlayer.AddDevelopmentCard(cardType);
+        testPlayer.AddDevelopmentCard(cardType);
+        testPlayer.MoveOnHoldDevelopmentCardsToPlayable();
+
+        var initialCardCount = testPlayer.GetPlayableDevelopmentCards()[cardType];
+
+        // Act
+        testPlayer.PlayDevelopmentCard(cardType);
+        var cards = testPlayer.GetPlayableDevelopmentCards();
+
+        // Assert
+        Assert.Equal(initialCardCount - 1, cards[cardType]);
+    }
+
+    [Theory]
+    [InlineData(2, 6)]
+    [InlineData(1, 0)]
+    [InlineData(0, 1)]
+    [InlineData(9, 4)]
+    public void SetVictoryPointsFromBuildings_CorrectPointsAdded(
+        int settlementCount, int cityCount)
+    {
+        // Arrange
+        var initialVictoryPoints = testPlayer.VictoryPoints;
+
+        // Act
+        testPlayer.SetVictoryPointsFromBuildings(settlementCount, cityCount);
+
+        // Assert
+        Assert.Equal(initialVictoryPoints + settlementCount + cityCount * 2, testPlayer.VictoryPoints);
     }
 }
