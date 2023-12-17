@@ -33,6 +33,12 @@ public class CatanPlayer
 
     public bool HasLongestRoad { get; private set; } = false;
 
+    public int RemainingSettlements { get; private set; } = 0;
+
+    public int RemainingCities { get; private set; } = 0;
+
+    public int RemainingRoads { get; private set; } = 0;
+
     public Dictionary<CatanResourceType, int> GetResourceCards()
     {
         return resourceCards;
@@ -55,6 +61,164 @@ public class CatanPlayer
     public void AddLongestRoadCard() => HasLongestRoad = true;
 
     public void RemoveLongestRoadCard() => HasLongestRoad = false;
+
+    public bool CanPlaceRoad()
+    {
+        if (RemainingRoads <= 0)
+        {
+            return false;
+        }
+
+        if (resourceCards[CatanResourceType.Wood] < 1
+        || resourceCards[CatanResourceType.Brick] < 1)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void PlaceRoad()
+    {
+        resourceCards[CatanResourceType.Wood]--;
+        resourceCards[CatanResourceType.Brick]--;
+
+        RemainingRoads--;
+    }
+
+    public bool CanPlaceSettlement()
+    {
+        if (RemainingSettlements <= 0)
+        {
+            return false;
+        }
+
+        if (resourceCards[CatanResourceType.Wood] < 1
+        || resourceCards[CatanResourceType.Brick] < 1
+        || resourceCards[CatanResourceType.Sheep] < 1
+        || resourceCards[CatanResourceType.Wheat] < 1)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void PlaceSettlement()
+    {
+        resourceCards[CatanResourceType.Wood]--;
+        resourceCards[CatanResourceType.Brick]--;
+        resourceCards[CatanResourceType.Sheep]--;
+        resourceCards[CatanResourceType.Wheat]--;
+
+        RemainingSettlements--;
+    }
+
+    public bool CanPlaceCity()
+    {
+        if (RemainingCities <= 0)
+        {
+            return false;
+        }
+
+        if (resourceCards[CatanResourceType.Wheat] < 2
+        || resourceCards[CatanResourceType.Ore] < 3)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void PlaceCity()
+    {
+        resourceCards[CatanResourceType.Wheat] -= 2;
+        resourceCards[CatanResourceType.Ore] -= 3;
+
+        RemainingCities--;
+    }
+
+    public bool CanBuyDevelopmentCard()
+    {
+        if (resourceCards[CatanResourceType.Sheep] < 1
+        || resourceCards[CatanResourceType.Wheat] < 1
+        || resourceCards[CatanResourceType.Ore] < 1)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void BuyDevelopmentCard(CatanDevelopmentCardType type)
+    {
+        if (type == CatanDevelopmentCardType.VictoryPoint)
+        {
+            victoryPointDevelopmentCardCount++;
+        }
+        else
+        {
+            resourceCards[CatanResourceType.Sheep]--;
+            resourceCards[CatanResourceType.Wheat]--;
+            resourceCards[CatanResourceType.Ore]--;
+
+            developmentCardsOnHold[type]++;
+        }
+    }
+
+    public bool CanTradeTwoToOneOfCardType(CatanResourceType type)
+    {
+        if (resourceCards[type] < 2)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void TradeTwoToOne(
+        CatanResourceType typeToGive,
+        CatanResourceType typeToReceive)
+    {
+        resourceCards[typeToGive] -= 2;
+        resourceCards[typeToReceive]++;
+    }
+
+    public bool CanTradeThreeToOneOfCardType(CatanResourceType type)
+    {
+        if (resourceCards[type] < 3)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void TradeThreeToOne(
+        CatanResourceType typeToGive,
+        CatanResourceType typeToReceive)
+    {
+        resourceCards[typeToGive] -= 3;
+        resourceCards[typeToReceive]++;
+    }
+
+    public bool CanTradeFourToOneOfCardType(CatanResourceType type)
+    {
+        if (resourceCards[type] < 4)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void TradeFourToOne(
+        CatanResourceType typeToGive,
+        CatanResourceType typeToReceive)
+    {
+        resourceCards[typeToGive] -= 4;
+        resourceCards[typeToReceive]++;
+    }
 
     public void PlayResourceCard(CatanResourceType type)
     {
@@ -109,18 +273,6 @@ public class CatanPlayer
         }
 
         playableDevelopmentCards[type]--;
-    }
-
-    public void AddDevelopmentCard(CatanDevelopmentCardType type)
-    {
-        if (type == CatanDevelopmentCardType.VictoryPoint)
-        {
-            victoryPointDevelopmentCardCount++;
-        }
-        else
-        {
-            developmentCardsOnHold[type]++;
-        }
     }
 
     public void SetVictoryPointsFromBuildings(int settlementCount, int cityCount)

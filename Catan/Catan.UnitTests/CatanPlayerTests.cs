@@ -13,10 +13,10 @@ public class CatanPlayerTests
     }
 
     [Fact]
-    public void AddDevelopmentCard_VictoryPointAddedToCount()
+    public void BuyDevelopmentCard_VictoryPointCardAdded_VictoryPointAddedToCount()
     {
         // Act
-        testPlayer.AddDevelopmentCard(CatanDevelopmentCardType.VictoryPoint);
+        testPlayer.BuyDevelopmentCard(CatanDevelopmentCardType.VictoryPoint);
 
         // Assert
         Assert.Equal(1, testPlayer.VictoryPoints);
@@ -27,10 +27,10 @@ public class CatanPlayerTests
     [InlineData(CatanDevelopmentCardType.RoadBuilding)]
     [InlineData(CatanDevelopmentCardType.YearOfPlenty)]
     [InlineData(CatanDevelopmentCardType.Monopoly)]
-    public void AddDevelopmentCard_DevelopmentCardAddedToOnHold(CatanDevelopmentCardType cardType)
+    public void BuyDevelopmentCard_DevelopmentCardAddedToOnHold(CatanDevelopmentCardType cardType)
     {
         // Act
-        testPlayer.AddDevelopmentCard(cardType);
+        testPlayer.BuyDevelopmentCard(cardType);
 
         // Assert
         Assert.Equal(1, testPlayer.GetDevelopmentCardsOnHold()[cardType]);
@@ -50,7 +50,7 @@ public class CatanPlayerTests
 
         for (var i = 0; i < cardsToAdd; i++)
         {
-            testPlayer.AddDevelopmentCard(cardType);
+            testPlayer.BuyDevelopmentCard(cardType);
         }
 
         // Act
@@ -73,7 +73,7 @@ public class CatanPlayerTests
 
         for (var i = 0; i < cardsToAdd; i++)
         {
-            testPlayer.AddDevelopmentCard(cardType);
+            testPlayer.BuyDevelopmentCard(cardType);
         }
 
         // Act
@@ -102,9 +102,9 @@ public class CatanPlayerTests
         CatanDevelopmentCardType cardType)
     {
         // Arrange
-        testPlayer.AddDevelopmentCard(CatanDevelopmentCardType.Knight);
+        testPlayer.BuyDevelopmentCard(CatanDevelopmentCardType.Knight);
         testPlayer.MoveOnHoldDevelopmentCardsToPlayable();
-        testPlayer.AddDevelopmentCard(cardType);
+        testPlayer.BuyDevelopmentCard(cardType);
 
         // Act
         var canPlay = testPlayer.CanPlayDevelopmentCardOfType(cardType);
@@ -122,7 +122,7 @@ public class CatanPlayerTests
         CatanDevelopmentCardType cardType)
     {
         // Arrange
-        testPlayer.AddDevelopmentCard(cardType);
+        testPlayer.BuyDevelopmentCard(cardType);
         testPlayer.MoveOnHoldDevelopmentCardsToPlayable();
 
         // Act
@@ -157,8 +157,8 @@ public class CatanPlayerTests
         CatanDevelopmentCardType cardType)
     {
         // Arrange
-        testPlayer.AddDevelopmentCard(cardType);
-        testPlayer.AddDevelopmentCard(cardType);
+        testPlayer.BuyDevelopmentCard(cardType);
+        testPlayer.BuyDevelopmentCard(cardType);
         testPlayer.MoveOnHoldDevelopmentCardsToPlayable();
 
         var initialCardCount = testPlayer.GetPlayableDevelopmentCards()[cardType];
