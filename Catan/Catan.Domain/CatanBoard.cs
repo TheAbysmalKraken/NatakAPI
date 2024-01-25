@@ -41,6 +41,172 @@ public sealed class CatanBoard
 
     public List<CatanPort> GetPorts() => ports;
 
+    public void PlaceHouse(Coordinates coordinates, CatanPlayerColour colour)
+    {
+        /* if (!CanPlaceHouseAtCoordinates(coordinates, colour))
+        {
+            throw new ArgumentException("Cannot place house at these coordinates.");
+        } */
+
+        houses[coordinates.X, coordinates.Y].SetColour(colour);
+        houses[coordinates.X, coordinates.Y].SetTypeToHouse();
+    }
+
+    public bool CanPlaceRoadBetweenCoordinates(Coordinates coordinates1, Coordinates coordinates2, CatanPlayerColour colour)
+    {
+        if (colour == CatanPlayerColour.None
+            || !RoadCoordinatesAreValid(coordinates1, coordinates2)
+            || RoadIsClaimed(coordinates1, coordinates2)
+            || RoadAtCoordinatesIsBlockedByOpposingHouse(coordinates1, coordinates2, colour)
+            || !RoadIsConnectedToHouseOrRoadOfSameColour(coordinates1, coordinates2, colour))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void PlaceRoad(Coordinates coordinates1, Coordinates coordinates2, CatanPlayerColour colour)
+    {
+        if (!CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, colour))
+        {
+            throw new ArgumentException("Cannot place road between these coordinates.");
+        }
+
+        var roadInList = GetRoadAtCoordinates(coordinates1, coordinates2);
+
+        if (roadInList is null)
+        {
+            throw new ArgumentException("Cannot find road in list.");
+        }
+
+        roadInList.SetColour(colour);
+    }
+
+    private bool RoadCoordinatesAreValid(Coordinates coordinates1, Coordinates coordinates2)
+    {
+        if (GetRoadAtCoordinates(coordinates1, coordinates2) is null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool RoadIsClaimed(Coordinates coordinates1, Coordinates coordinates2)
+    {
+        var road = GetRoadAtCoordinates(coordinates1, coordinates2);
+
+        if (road is null || road.Colour == CatanPlayerColour.None)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool RoadAtCoordinatesIsBlockedByOpposingHouse(Coordinates coordinates1, Coordinates coordinates2, CatanPlayerColour colour)
+    {
+        if ((PointContainsHouseNotOfColour(coordinates1, colour) && GetOccupiedRoadsOfColourConnectedToPoint(coordinates2, colour).Count == 0)
+            || (PointContainsHouseNotOfColour(coordinates2, colour) && GetOccupiedRoadsOfColourConnectedToPoint(coordinates1, colour).Count == 0))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool RoadIsConnectedToHouseOrRoadOfSameColour(Coordinates coordinates1, Coordinates coordinates2, CatanPlayerColour colour)
+    {
+        if (PointContainsHouseOfColour(coordinates1, colour) || PointContainsHouseOfColour(coordinates2, colour))
+        {
+            return true;
+        }
+
+        if (GetOccupiedRoadsOfColourConnectedToPoint(coordinates1, colour).Count > 0
+            || GetOccupiedRoadsOfColourConnectedToPoint(coordinates2, colour).Count > 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool PointContainsHouseNotOfColour(Coordinates coordinates, CatanPlayerColour colour)
+    {
+        var house = houses[coordinates.X, coordinates.Y];
+        return house.Colour != colour && house.Type != CatanBuildingType.None;
+    }
+
+    private bool PointContainsHouseOfColour(Coordinates coordinates, CatanPlayerColour colour)
+    {
+        return houses[coordinates.X, coordinates.Y].Colour == colour;
+    }
+
+    private bool PointContainsHouse(Coordinates coordinates)
+    {
+        return houses[coordinates.X, coordinates.Y].Type != CatanBuildingType.None;
+    }
+
+    private CatanRoad? GetRoadAtCoordinates(Coordinates coordinates1, Coordinates coordinates2)
+    {
+        var roadInList = roads.FirstOrDefault(r => r.FirstCornerCoordinates.Equals(coordinates1) && r.SecondCornerCoordinates.Equals(coordinates2));
+
+        if (roadInList is null)
+        {
+            roadInList = roads.FirstOrDefault(r => r.FirstCornerCoordinates.Equals(coordinates2) && r.SecondCornerCoordinates.Equals(coordinates1));
+        }
+
+        return roadInList;
+    }
+
+    private List<CatanRoad> GetOccupiedRoadsOfColourConnectedToPoint(Coordinates coordinates, CatanPlayerColour colour)
+    {
+        var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(coordinates);
+        var occupiedRoadsConnectedToPoint = new List<CatanRoad>();
+
+        foreach (var road in roadsConnectedToPoint)
+        {
+            if (road.Colour == colour)
+            {
+                occupiedRoadsConnectedToPoint.Add(road);
+            }
+        }
+
+        return occupiedRoadsConnectedToPoint;
+    }
+
+    private List<CatanRoad> GetOccupiedRoadsConnectedToPoint(Coordinates coordinates)
+    {
+        var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(coordinates);
+        var occupiedRoadsConnectedToPoint = new List<CatanRoad>();
+
+        foreach (var road in roadsConnectedToPoint)
+        {
+            if (road.Colour != CatanPlayerColour.None)
+            {
+                occupiedRoadsConnectedToPoint.Add(road);
+            }
+        }
+
+        return occupiedRoadsConnectedToPoint;
+    }
+
+    private List<CatanRoad> GetRoadsPositionsConnectedToPoint(Coordinates coordinates)
+    {
+        var roadsConnectedToPoint = new List<CatanRoad>();
+
+        foreach (var road in roads)
+        {
+            if (road.FirstCornerCoordinates.Equals(coordinates) || road.SecondCornerCoordinates.Equals(coordinates))
+            {
+                roadsConnectedToPoint.Add(road);
+            }
+        }
+
+        return roadsConnectedToPoint;
+    }
+
     private void InitialiseTilesAndSetRobber()
     {
         var remainingResourceTileTypes = DomainConstants.GetTileResourceTypeTotals();
@@ -119,7 +285,7 @@ public sealed class CatanBoard
         var remainingPortTypes = DomainConstants.GetPortTypeTotals();
         var allPortLocations = DomainConstants.GetStartingPortCoordinates();
 
-        for (var i = 0; i < allPortLocations.Count; i+=2)
+        for (var i = 0; i < allPortLocations.Count; i += 2)
         {
             CatanPortType catanPortType;
             int lowestPortTypeNum = (int)remainingPortTypes.First().Key;
@@ -134,7 +300,7 @@ public sealed class CatanBoard
             remainingPortTypes[catanPortType]--;
 
             var newPort1 = new CatanPort(catanPortType, allPortLocations[i]);
-            var newPort2 = new CatanPort(catanPortType, allPortLocations[i+1]);
+            var newPort2 = new CatanPort(catanPortType, allPortLocations[i + 1]);
 
             ports.Add(newPort1);
             ports.Add(newPort2);

@@ -1,5 +1,4 @@
 using Catan.Domain;
-using static Catan.Common.Enumerations;
 
 namespace Catan.UnitTests.Domain;
 

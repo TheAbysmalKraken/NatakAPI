@@ -16,7 +16,22 @@ public class CatanBuilding
         Type = type;
     }
 
-    public CatanPlayerColour Colour { get; private set; }
-    
+    public CatanPlayerColour Colour { get; protected set; }
+
     public CatanBuildingType Type { get; private set; }
+
+    public void SetColour(CatanPlayerColour colour)
+    {
+        Colour = colour;
+    }
+
+    public void SetTypeToHouse()
+    {
+        Type = CatanBuildingType.Settlement;
+    }
+
+    public void SetTypeToCity()
+    {
+        Type = CatanBuildingType.City;
+    }
 }
