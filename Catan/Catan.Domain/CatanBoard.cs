@@ -41,12 +41,25 @@ public sealed class CatanBoard
 
     public List<CatanPort> GetPorts() => ports;
 
+    public bool CanPlaceHouseAtCoordinates(Coordinates coordinates, CatanPlayerColour colour)
+    {
+        if (colour == CatanPlayerColour.None
+            || !HouseCoordinatesAreValid(coordinates)
+            || PointContainsHouse(coordinates)
+            || HouseCoordinatesAreTooCloseToAnotherHouse(coordinates))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public void PlaceHouse(Coordinates coordinates, CatanPlayerColour colour)
     {
-        /* if (!CanPlaceHouseAtCoordinates(coordinates, colour))
+        if (!CanPlaceHouseAtCoordinates(coordinates, colour))
         {
             throw new ArgumentException("Cannot place house at these coordinates.");
-        } */
+        }
 
         houses[coordinates.X, coordinates.Y].SetColour(colour);
         houses[coordinates.X, coordinates.Y].SetTypeToHouse();
@@ -81,6 +94,36 @@ public sealed class CatanBoard
         }
 
         roadInList.SetColour(colour);
+    }
+
+    private bool HouseCoordinatesAreTooCloseToAnotherHouse(Coordinates coordinates)
+    {
+        var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(coordinates);
+
+        foreach (var road in roadsConnectedToPoint)
+        {
+            if (PointContainsHouse(road.FirstCornerCoordinates) || PointContainsHouse(road.SecondCornerCoordinates))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool HouseCoordinatesAreValid(Coordinates coordinates)
+    {
+        if (coordinates.X < 0 || coordinates.Y < 0 || coordinates.X >= houses.GetLength(0) || coordinates.Y >= houses.GetLength(1))
+        {
+            return false;
+        }
+
+        if (houses[coordinates.X, coordinates.Y] is null)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private bool RoadCoordinatesAreValid(Coordinates coordinates1, Coordinates coordinates2)
@@ -135,17 +178,18 @@ public sealed class CatanBoard
     private bool PointContainsHouseNotOfColour(Coordinates coordinates, CatanPlayerColour colour)
     {
         var house = houses[coordinates.X, coordinates.Y];
-        return house.Colour != colour && house.Type != CatanBuildingType.None;
+        return house?.Colour != colour && house?.Type != CatanBuildingType.None;
     }
 
     private bool PointContainsHouseOfColour(Coordinates coordinates, CatanPlayerColour colour)
     {
-        return houses[coordinates.X, coordinates.Y].Colour == colour;
+        var house = houses[coordinates.X, coordinates.Y];
+        return house?.Colour == colour && house?.Type != CatanBuildingType.None;
     }
 
     private bool PointContainsHouse(Coordinates coordinates)
     {
-        return houses[coordinates.X, coordinates.Y].Type != CatanBuildingType.None;
+        return houses[coordinates.X, coordinates.Y]?.Type != CatanBuildingType.None;
     }
 
     private CatanRoad? GetRoadAtCoordinates(Coordinates coordinates1, Coordinates coordinates2)

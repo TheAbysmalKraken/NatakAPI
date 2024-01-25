@@ -221,8 +221,7 @@ public sealed class CatanBoardTests
     {
         // Arrange
         var board = new CatanBoard();
-        var roads = board.GetRoads();
-        var road = roads[0];
+        var road = new CatanRoad(CatanPlayerColour.None, new Coordinates(0, 2), new Coordinates(0, 3));
 
         var playerColour = CatanPlayerColour.Blue;
 
@@ -253,8 +252,7 @@ public sealed class CatanBoardTests
     {
         // Arrange
         var board = new CatanBoard();
-        var roads = board.GetRoads();
-        var road = roads[0];
+        var road = new CatanRoad(CatanPlayerColour.None, new Coordinates(0, 2), new Coordinates(0, 3));
 
         // Act
         var canPlaceRoad = board.CanPlaceRoadBetweenCoordinates(road.FirstCornerCoordinates, road.SecondCornerCoordinates, CatanPlayerColour.None);
@@ -281,8 +279,7 @@ public sealed class CatanBoardTests
     {
         // Arrange
         var board = new CatanBoard();
-        var roads = board.GetRoads();
-        var road = roads[0];
+        var road = new CatanRoad(CatanPlayerColour.None, new Coordinates(0, 2), new Coordinates(0, 3));
 
         var playerColour = CatanPlayerColour.Blue;
 
@@ -302,8 +299,7 @@ public sealed class CatanBoardTests
     {
         // Arrange
         var board = new CatanBoard();
-        var roads = board.GetRoads();
-        var road = roads[0];
+        var road = new CatanRoad(CatanPlayerColour.None, new Coordinates(0, 2), new Coordinates(0, 3));
 
         var playerColour = CatanPlayerColour.Blue;
 
@@ -322,22 +318,102 @@ public sealed class CatanBoardTests
     {
         // Arrange
         var board = new CatanBoard();
-        var roads = board.GetRoads();
-        var road = roads[0];
-        var roadConnectedToFirst = roads.First(x => x.SecondCornerCoordinates.Equals(road.SecondCornerCoordinates)
-            && !x.FirstCornerCoordinates.Equals(road.FirstCornerCoordinates));
+        var road = new CatanRoad(CatanPlayerColour.None, new Coordinates(0, 3), new Coordinates(0, 2));
+        var roadConnectedToFirst = new CatanRoad(CatanPlayerColour.None, new Coordinates(0, 2), new Coordinates(1, 2));
+        var roadConnectedToSecond = new CatanRoad(CatanPlayerColour.None, new Coordinates(1, 2), new Coordinates(1, 3));
 
         var playerColour = CatanPlayerColour.Blue;
 
         board.PlaceHouse(road.FirstCornerCoordinates, playerColour);
         board.PlaceRoad(road.FirstCornerCoordinates, road.SecondCornerCoordinates, playerColour);
-        board.PlaceHouse(road.SecondCornerCoordinates, CatanPlayerColour.Red);
+        board.PlaceRoad(roadConnectedToFirst.FirstCornerCoordinates, roadConnectedToFirst.SecondCornerCoordinates, playerColour);
+        board.PlaceHouse(roadConnectedToFirst.SecondCornerCoordinates, CatanPlayerColour.Red);
 
         // Act
         var canPlaceRoad = board.CanPlaceRoadBetweenCoordinates(
-            roadConnectedToFirst.FirstCornerCoordinates, roadConnectedToFirst.SecondCornerCoordinates, playerColour);
+            roadConnectedToSecond.FirstCornerCoordinates, roadConnectedToSecond.SecondCornerCoordinates, playerColour);
 
         // Assert
         Assert.False(canPlaceRoad);
+    }
+
+    [Fact]
+    public void CanPlaceHouseAtCoordinates_ReturnsTrue()
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        var playerColour = CatanPlayerColour.Blue;
+
+        // Act
+        var canPlaceHouse = board.CanPlaceHouseAtCoordinates(new Coordinates(0, 2), playerColour);
+
+        // Assert
+        Assert.True(canPlaceHouse);
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(0, -1)]
+    [InlineData(0, 6)]
+    [InlineData(11, 0)]
+    [InlineData(11, 6)]
+    public void CanPlaceHouseAtCoordinates_OutsideOfBoard_ReturnsFalse(int x, int y)
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        // Act
+        var canPlaceHouse = board.CanPlaceHouseAtCoordinates(new Coordinates(x, y), CatanPlayerColour.Blue);
+
+        // Assert
+        Assert.False(canPlaceHouse);
+    }
+
+    [Fact]
+    public void CanPlaceHouseAtCoordinates_ColourIsNone_ReturnsFalse()
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        // Act
+        var canPlaceHouse = board.CanPlaceHouseAtCoordinates(new Coordinates(0, 2), CatanPlayerColour.None);
+
+        // Assert
+        Assert.False(canPlaceHouse);
+    }
+
+    [Fact]
+    public void CanPlaceHouseAtCoordinates_CoordinatesAlreadyOccupied_ReturnsFalse()
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        var playerColour = CatanPlayerColour.Blue;
+
+        board.PlaceHouse(new Coordinates(0, 2), playerColour);
+
+        // Act
+        var canPlaceHouse = board.CanPlaceHouseAtCoordinates(new Coordinates(0, 2), playerColour);
+
+        // Assert
+        Assert.False(canPlaceHouse);
+    }
+
+    [Fact]
+    public void CanPlaceHouseAtCoordinates_TooCloseToAnotherHouse_ReturnsFalse()
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        var playerColour = CatanPlayerColour.Blue;
+
+        board.PlaceHouse(new Coordinates(0, 2), playerColour);
+
+        // Act
+        var canPlaceHouse = board.CanPlaceHouseAtCoordinates(new Coordinates(0, 3), playerColour);
+
+        // Assert
+        Assert.False(canPlaceHouse);
     }
 }
