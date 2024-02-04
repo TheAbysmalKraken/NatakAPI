@@ -41,6 +41,26 @@ public sealed class CatanBoard
 
     public List<CatanPort> GetPorts() => ports;
 
+    public bool CanMoveRobberToCoordinates(Coordinates coordinates)
+    {
+        if (!TileCoordinatesAreValid(coordinates) || coordinates.Equals(RobberPosition))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void MoveRobberToCoordinates(Coordinates coordinates)
+    {
+        if (!CanMoveRobberToCoordinates(coordinates))
+        {
+            throw new ArgumentException("Cannot move robber to these coordinates.");
+        }
+
+        RobberPosition = coordinates;
+    }
+
     public bool CanUpgradeHouseAtCoordinates(Coordinates coordinates, CatanPlayerColour colour)
     {
         if (colour == CatanPlayerColour.None
@@ -152,6 +172,21 @@ public sealed class CatanBoard
     private bool RoadCoordinatesAreValid(Coordinates coordinates1, Coordinates coordinates2)
     {
         if (GetRoadAtCoordinates(coordinates1, coordinates2) is null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool TileCoordinatesAreValid(Coordinates coordinates)
+    {
+        if (coordinates.X < 0 || coordinates.Y < 0 || coordinates.X >= tiles.GetLength(0) || coordinates.Y >= tiles.GetLength(1))
+        {
+            return false;
+        }
+
+        if (tiles[coordinates.X, coordinates.Y] is null)
         {
             return false;
         }

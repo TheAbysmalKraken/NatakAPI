@@ -483,4 +483,54 @@ public sealed class CatanBoardTests
         // Assert
         Assert.True(canUpgradeHouse);
     }
+
+    [Fact]
+    public void CanMoveRobberToCoordinates_RobberAlreadyAtCoordinates_ReturnsFalse()
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        board.MoveRobberToCoordinates(new Coordinates(1, 1));
+
+        // Act
+        var canMoveRobber = board.CanMoveRobberToCoordinates(new Coordinates(1, 1));
+
+        // Assert
+        Assert.False(canMoveRobber);
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(0, -1)]
+    [InlineData(0, 6)]
+    [InlineData(11, 0)]
+    [InlineData(11, 6)]
+    public void CanMoveRobberToCoordinates_CoordinatesAreInvalid_ReturnsFalse(int x, int y)
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        var coordinates = new Coordinates(x, y);
+
+        // Act
+        var canMoveRobber = board.CanMoveRobberToCoordinates(coordinates);
+
+        // Assert
+        Assert.False(canMoveRobber);
+    }
+
+    [Fact]
+    public void CanMoveRobberToCoordinates_ReturnsTrue()
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        var coordinates = new Coordinates(1, 1);
+
+        // Act
+        var canMoveRobber = board.CanMoveRobberToCoordinates(coordinates);
+
+        // Assert
+        Assert.True(canMoveRobber);
+    }
 }
