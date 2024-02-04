@@ -41,6 +41,66 @@ public sealed class CatanBoard
 
     public List<CatanPort> GetPorts() => ports;
 
+    public CatanLongestRoadInfo GetLongestRoadInfo()
+    {
+        var longestRoadPlayer = CatanPlayerColour.None;
+        var longestRoadLength = 0;
+
+        foreach (var colour in Enum.GetValues<CatanPlayerColour>())
+        {
+            if (colour == CatanPlayerColour.None) continue;
+
+            var lengthOfLongestRoadForColour = GetLengthOfLongestRoadForColour(colour);
+
+            if (lengthOfLongestRoadForColour > longestRoadLength)
+            {
+                longestRoadLength = lengthOfLongestRoadForColour;
+                longestRoadPlayer = colour;
+            }
+        }
+
+        return new CatanLongestRoadInfo(longestRoadPlayer, longestRoadLength);
+    }
+
+    public int GetLengthOfLongestRoadForColour(CatanPlayerColour colour)
+    {
+        if (colour == CatanPlayerColour.None)
+        {
+            throw new ArgumentException($"{nameof(colour)} must not be {CatanPlayerColour.None}.");
+        }
+
+        var roadsOfColour = roads.Where(r => r.Colour == colour).ToList();
+
+        var endRoads = roadsOfColour.Where(r => GetOccupiedRoadsConnectedToPoint(r.FirstCornerCoordinates).Count == 1
+            || GetOccupiedRoadsConnectedToPoint(r.SecondCornerCoordinates).Count == 1).ToList();
+
+        var endCoordinates = endRoads.Select(r =>
+        {
+            if (GetOccupiedRoadsConnectedToPoint(r.FirstCornerCoordinates).Count == 1)
+            {
+                return r.FirstCornerCoordinates;
+            }
+            else
+            {
+                return r.SecondCornerCoordinates;
+            }
+        }).ToList();
+
+        int furthestDistance = 0;
+
+        foreach (var endCoordinate in endCoordinates)
+        {
+            var distanceFromEnd = GetFurthestDistanceFromCoordinateAlongRoads(0, new List<CatanRoad>(), endCoordinate, roadsOfColour, colour);
+
+            if (distanceFromEnd > furthestDistance)
+            {
+                furthestDistance = distanceFromEnd;
+            }
+        }
+
+        return furthestDistance;
+    }
+
     public bool ColourHasPortOfType(CatanPlayerColour colour, CatanPortType portType)
     {
         return ports.Any(p => p.Type == portType && houses[p.Coordinates.X, p.Coordinates.Y].Colour == colour);
@@ -89,12 +149,13 @@ public sealed class CatanBoard
         houses[coordinates.X, coordinates.Y].SetTypeToCity();
     }
 
-    public bool CanPlaceHouseAtCoordinates(Coordinates coordinates, CatanPlayerColour colour)
+    public bool CanPlaceHouseAtCoordinates(Coordinates coordinates, CatanPlayerColour colour, bool isFirstTurn = false)
     {
         if (colour == CatanPlayerColour.None
             || !HouseCoordinatesAreValid(coordinates)
             || PointContainsHouse(coordinates)
-            || HouseCoordinatesAreTooCloseToAnotherHouse(coordinates))
+            || HouseCoordinatesAreTooCloseToAnotherHouse(coordinates)
+            || (!isFirstTurn && GetOccupiedRoadsOfColourConnectedToPoint(coordinates, colour).Count == 0))
         {
             return false;
         }
@@ -102,9 +163,9 @@ public sealed class CatanBoard
         return true;
     }
 
-    public void PlaceHouse(Coordinates coordinates, CatanPlayerColour colour)
+    public void PlaceHouse(Coordinates coordinates, CatanPlayerColour colour, bool isFirstTurn = false)
     {
-        if (!CanPlaceHouseAtCoordinates(coordinates, colour))
+        if (!CanPlaceHouseAtCoordinates(coordinates, colour, isFirstTurn))
         {
             throw new ArgumentException("Cannot place house at these coordinates.");
         }
@@ -134,12 +195,7 @@ public sealed class CatanBoard
             throw new ArgumentException("Cannot place road between these coordinates.");
         }
 
-        var roadInList = GetRoadAtCoordinates(coordinates1, coordinates2);
-
-        if (roadInList is null)
-        {
-            throw new ArgumentException("Cannot find road in list.");
-        }
+        var roadInList = GetRoadAtCoordinates(coordinates1, coordinates2) ?? throw new ArgumentException("Cannot find road in list.");
 
         roadInList.SetColour(colour);
     }
@@ -259,10 +315,7 @@ public sealed class CatanBoard
     {
         var roadInList = roads.FirstOrDefault(r => r.FirstCornerCoordinates.Equals(coordinates1) && r.SecondCornerCoordinates.Equals(coordinates2));
 
-        if (roadInList is null)
-        {
-            roadInList = roads.FirstOrDefault(r => r.FirstCornerCoordinates.Equals(coordinates2) && r.SecondCornerCoordinates.Equals(coordinates1));
-        }
+        roadInList ??= roads.FirstOrDefault(r => r.FirstCornerCoordinates.Equals(coordinates2) && r.SecondCornerCoordinates.Equals(coordinates1));
 
         return roadInList;
     }
@@ -312,6 +365,49 @@ public sealed class CatanBoard
         }
 
         return roadsConnectedToPoint;
+    }
+
+    private int GetFurthestDistanceFromCoordinateAlongRoads(
+        int distanceTravelled,
+        List<CatanRoad> checkedRoads,
+        Coordinates coordinates,
+        List<CatanRoad> roads,
+        CatanPlayerColour colour)
+    {
+        if (colour == CatanPlayerColour.None)
+        {
+            throw new ArgumentException($"{nameof(colour)} must not be {CatanPlayerColour.None}.");
+        }
+
+        var connectedRoads = GetOccupiedRoadsConnectedToPoint(coordinates);
+
+        var connectedRoadsNotChecked = connectedRoads.Where(r => !checkedRoads.Contains(r)).ToList();
+
+        if (connectedRoadsNotChecked.Count == 0
+        || PointContainsHouseNotOfColour(coordinates, colour))
+        {
+            return distanceTravelled;
+        }
+
+        var furthestDistanceFromPoint = 0;
+
+        foreach (var road in connectedRoadsNotChecked)
+        {
+            checkedRoads.Add(road);
+
+            var newCoordinates = road.FirstCornerCoordinates.Equals(coordinates)
+                ? road.SecondCornerCoordinates
+                : road.FirstCornerCoordinates;
+
+            var distanceAlongRoad = GetFurthestDistanceFromCoordinateAlongRoads(distanceTravelled + 1, checkedRoads, newCoordinates, roads, colour);
+
+            if (distanceAlongRoad > furthestDistanceFromPoint)
+            {
+                furthestDistanceFromPoint = distanceAlongRoad;
+            }
+        }
+
+        return furthestDistanceFromPoint;
     }
 
     private void InitialiseTilesAndSetRobber()
