@@ -41,6 +41,11 @@ public sealed class CatanBoard
 
     public List<CatanPort> GetPorts() => ports;
 
+    public bool ColourHasPortOfType(CatanPlayerColour colour, CatanPortType portType)
+    {
+        return ports.Any(p => p.Type == portType && houses[p.Coordinates.X, p.Coordinates.Y].Colour == colour);
+    }
+
     public bool CanMoveRobberToCoordinates(Coordinates coordinates)
     {
         if (!TileCoordinatesAreValid(coordinates) || coordinates.Equals(RobberPosition))

@@ -489,11 +489,16 @@ public sealed class CatanBoardTests
     {
         // Arrange
         var board = new CatanBoard();
+        var robberPosition = board.RobberPosition;
+        var initialCoordinates = new Coordinates(1, 1);
 
-        board.MoveRobberToCoordinates(new Coordinates(1, 1));
+        if (!robberPosition.Equals(initialCoordinates))
+        {
+            board.MoveRobberToCoordinates(initialCoordinates);
+        }
 
         // Act
-        var canMoveRobber = board.CanMoveRobberToCoordinates(new Coordinates(1, 1));
+        var canMoveRobber = board.CanMoveRobberToCoordinates(initialCoordinates);
 
         // Assert
         Assert.False(canMoveRobber);
@@ -502,9 +507,9 @@ public sealed class CatanBoardTests
     [Theory]
     [InlineData(0, 0)]
     [InlineData(0, -1)]
-    [InlineData(0, 6)]
-    [InlineData(11, 0)]
-    [InlineData(11, 6)]
+    [InlineData(0, 5)]
+    [InlineData(5, 0)]
+    [InlineData(5, 5)]
     public void CanMoveRobberToCoordinates_CoordinatesAreInvalid_ReturnsFalse(int x, int y)
     {
         // Arrange
@@ -524,13 +529,55 @@ public sealed class CatanBoardTests
     {
         // Arrange
         var board = new CatanBoard();
+        var initialCoordinates = new Coordinates(1, 1);
 
-        var coordinates = new Coordinates(1, 1);
+        if (!board.RobberPosition.Equals(initialCoordinates))
+        {
+            board.MoveRobberToCoordinates(initialCoordinates);
+        }
+
+        var newCoordinates = new Coordinates(1, 2);
 
         // Act
-        var canMoveRobber = board.CanMoveRobberToCoordinates(coordinates);
+        var canMoveRobber = board.CanMoveRobberToCoordinates(newCoordinates);
 
         // Assert
         Assert.True(canMoveRobber);
+    }
+
+    [Fact]
+    public void ColourHasPortOfType_ReturnsFalse()
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        var playerColour = CatanPlayerColour.Blue;
+
+        // Act
+        var hasPort = board.ColourHasPortOfType(playerColour, CatanPortType.Wood);
+
+        // Assert
+        Assert.False(hasPort);
+    }
+
+    [Fact]
+    public void ColourHasPortOfType_ReturnsTrue()
+    {
+        // Arrange
+        var board = new CatanBoard();
+        var ports = board.GetPorts();
+
+        var playerColour = CatanPlayerColour.Blue;
+        var portType = CatanPortType.Wood;
+
+        var port = ports.First(x => x.Type == portType);
+
+        board.PlaceHouse(port.Coordinates, playerColour);
+
+        // Act
+        var hasPort = board.ColourHasPortOfType(playerColour, portType);
+
+        // Assert
+        Assert.True(hasPort);
     }
 }
