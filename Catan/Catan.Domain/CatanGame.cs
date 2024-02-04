@@ -4,6 +4,9 @@ namespace Catan.Domain;
 
 public class CatanGame
 {
+    private const int MIN_PLAYERS = 3;
+    private const int MAX_PLAYERS = 4;
+
     private readonly List<CatanPlayer> players = new();
     private readonly List<int> rolledDice = new();
     private readonly Dictionary<CatanResourceType, int> remainingResourceCards = new();
@@ -14,6 +17,11 @@ public class CatanGame
 
     public CatanGame(int numberOfPlayers)
     {
+        if (numberOfPlayers < MIN_PLAYERS || numberOfPlayers > MAX_PLAYERS)
+        {
+            throw new ArgumentException($"Invalid number of players: '{numberOfPlayers}'");
+        }
+
         Board = new CatanBoard();
 
         RollDice();
@@ -42,7 +50,7 @@ public class CatanGame
     public Dictionary<CatanResourceType, int> GetRemainingResourceCards()
         => remainingResourceCards;
 
-    public Dictionary<CatanDevelopmentCardType, int> GetRemainingDevelopmentCardTotals
+    public Dictionary<CatanDevelopmentCardType, int> GetRemainingDevelopmentCardTotals()
         => remainingDevelopmentCardTotals;
 
     public List<CatanDevelopmentCardType> GetRemainingDevelopmentCards()
@@ -68,9 +76,9 @@ public class CatanGame
         rolledDice.AddRange(DiceRoller.RollDice(2, 6));
     }
 
-    public bool PlayDevelopmentCard(CatanPlayer player, CatanDevelopmentCardType type)
+    public bool PlayDevelopmentCard(CatanDevelopmentCardType type)
     {
-        if (developmentCardPlayedThisTurn || !player.CanPlayDevelopmentCardOfType(type))
+        if (developmentCardPlayedThisTurn || !CurrentPlayer.CanPlayDevelopmentCardOfType(type))
         {
             return false;
         }
@@ -80,14 +88,14 @@ public class CatanGame
         switch (type)
         {
             case CatanDevelopmentCardType.Knight:
-                PlayKnightCard(player);
+                PlayKnightCard(CurrentPlayer);
                 break;
 
             default:
                 throw new ArgumentException($"Invalid development card type: '{type}'");
         }
 
-        player.PlayDevelopmentCard(type);
+        CurrentPlayer.PlayDevelopmentCard(type);
 
         remainingDevelopmentCardTotals[type]++;
         remainingDevelopmentCards.Add(type);
@@ -95,69 +103,69 @@ public class CatanGame
         return true;
     }
 
-    public bool BuildInitialRoad(CatanPlayer player, Coordinates coordinates1, Coordinates coordinates2)
+    public bool BuildInitialRoad(Coordinates coordinates1, Coordinates coordinates2)
     {
-        if (!Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, player.Colour))
+        if (!Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, CurrentPlayer.Colour))
         {
             return false;
         }
 
-        Board.PlaceRoad(coordinates1, coordinates2, player.Colour);
+        Board.PlaceRoad(coordinates1, coordinates2, CurrentPlayer.Colour);
 
         return true;
     }
 
-    public bool BuildRoad(CatanPlayer player, Coordinates coordinates1, Coordinates coordinates2)
+    public bool BuildRoad(Coordinates coordinates1, Coordinates coordinates2)
     {
-        if (!player.CanPlaceRoad() || !Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, player.Colour))
+        if (!CurrentPlayer.CanPlaceRoad() || !Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, CurrentPlayer.Colour))
         {
             return false;
         }
 
-        player.PlaceRoad();
-        Board.PlaceRoad(coordinates1, coordinates2, player.Colour);
+        CurrentPlayer.PlaceRoad();
+        Board.PlaceRoad(coordinates1, coordinates2, CurrentPlayer.Colour);
 
         UpdateLargestRoadPlayer();
 
         return true;
     }
 
-    public bool BuildInitialSettlement(CatanPlayer player, Coordinates coordinates)
+    public bool BuildInitialSettlement(Coordinates coordinates)
     {
-        if (!Board.CanPlaceHouseAtCoordinates(coordinates, player.Colour, true))
+        if (!Board.CanPlaceHouseAtCoordinates(coordinates, CurrentPlayer.Colour, true))
         {
             return false;
         }
 
-        Board.PlaceHouse(coordinates, player.Colour, true);
+        Board.PlaceHouse(coordinates, CurrentPlayer.Colour, true);
 
         return true;
     }
 
-    public bool BuildSettlement(CatanPlayer player, Coordinates coordinates)
+    public bool BuildSettlement(Coordinates coordinates)
     {
-        if (!player.CanPlaceSettlement() || !Board.CanPlaceHouseAtCoordinates(coordinates, player.Colour))
+        if (!CurrentPlayer.CanPlaceSettlement() || !Board.CanPlaceHouseAtCoordinates(coordinates, CurrentPlayer.Colour))
         {
             return false;
         }
 
-        player.PlaceSettlement();
-        Board.PlaceHouse(coordinates, player.Colour);
+        CurrentPlayer.PlaceSettlement();
+        Board.PlaceHouse(coordinates, CurrentPlayer.Colour);
 
         UpdateLargestRoadPlayer();
 
         return true;
     }
 
-    public bool BuildCity(CatanPlayer player, Coordinates coordinates)
+    public bool BuildCity(Coordinates coordinates)
     {
-        if (!player.CanPlaceCity() || !Board.CanUpgradeHouseAtCoordinates(coordinates, player.Colour))
+        if (!CurrentPlayer.CanPlaceCity() || !Board.CanUpgradeHouseAtCoordinates(coordinates, CurrentPlayer.Colour))
         {
             return false;
         }
 
-        player.PlaceCity();
-        Board.UpgradeHouse(coordinates, player.Colour);
+        CurrentPlayer.PlaceCity();
+        Board.UpgradeHouse(coordinates, CurrentPlayer.Colour);
 
         return true;
     }
@@ -170,6 +178,42 @@ public class CatanGame
         }
 
         Board.MoveRobberToCoordinates(coordinates);
+
+        return true;
+    }
+
+    public bool StealResourceCard(CatanPlayerColour victimColour)
+    {
+        var victim = GetPlayerByColour(victimColour);
+
+        if (victim == null || victim == CurrentPlayer)
+        {
+            return false;
+        }
+
+        var stolenCard = victim.RemoveRandomResourceCard();
+
+        if (stolenCard != null)
+        {
+            CurrentPlayer.AddResourceCard(stolenCard.Value);
+        }
+
+        return true;
+    }
+
+    public bool DiscardCards(Dictionary<CatanResourceType, int> cardsToDiscard)
+    {
+        if (!CurrentPlayer.CanDiscardResourceCards(cardsToDiscard))
+        {
+            return false;
+        }
+
+        CurrentPlayer.DiscardResourceCards(cardsToDiscard);
+
+        foreach (var type in cardsToDiscard.Keys)
+        {
+            remainingResourceCards[type] += cardsToDiscard[type];
+        }
 
         return true;
     }
@@ -218,6 +262,11 @@ public class CatanGame
         }
     }
 
+    private CatanPlayer? GetPlayerByColour(CatanPlayerColour colour)
+    {
+        return players.FirstOrDefault(p => p.Colour == colour);
+    }
+
     private void InitialiseResourceCards()
     {
         remainingResourceCards.Clear();
@@ -236,10 +285,7 @@ public class CatanGame
 
         if (player != null && LargestArmyPlayer != player && player.KnightsPlayed >= knightsRequiredForLargestArmy)
         {
-            if (LargestArmyPlayer != null)
-            {
-                LargestArmyPlayer.RemoveLargestArmyCard();
-            }
+            LargestArmyPlayer?.RemoveLargestArmyCard();
 
             player.AddLargestArmyCard();
             knightsRequiredForLargestArmy = player.KnightsPlayed + 1;

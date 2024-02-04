@@ -17,9 +17,4 @@ public class CatanRoad : CatanBuilding
     public Coordinates FirstCornerCoordinates { get; private set; }
 
     public Coordinates SecondCornerCoordinates { get; private set; }
-
-    public void SetColour(CatanPlayerColour colour)
-    {
-        Colour = colour;
-    }
 }

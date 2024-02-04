@@ -10,6 +10,8 @@ public class CatanPlayer
     private int victoryPointDevelopmentCardCount;
     private int victoryPointsFromBuildings;
 
+    private static readonly Random random = new();
+
     public CatanPlayer(CatanPlayerColour colour)
     {
         Colour = colour;
@@ -220,6 +222,32 @@ public class CatanPlayer
         resourceCards[typeToReceive]++;
     }
 
+    public bool CanDiscardResourceCards(Dictionary<CatanResourceType, int> cardsToDiscard)
+    {
+        foreach (var type in cardsToDiscard.Keys)
+        {
+            if (resourceCards[type] < cardsToDiscard[type])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void DiscardResourceCards(Dictionary<CatanResourceType, int> cardsToDiscard)
+    {
+        if (!CanDiscardResourceCards(cardsToDiscard))
+        {
+            throw new ArgumentException("Player does not have enough of the specified resource cards to discard.");
+        }
+
+        foreach (var type in cardsToDiscard.Keys)
+        {
+            resourceCards[type] -= cardsToDiscard[type];
+        }
+    }
+
     public void PlayResourceCard(CatanResourceType type)
     {
         if (resourceCards[type] == 0)
@@ -228,6 +256,23 @@ public class CatanPlayer
         }
 
         resourceCards[type]--;
+    }
+
+    public CatanResourceType? RemoveRandomResourceCard()
+    {
+        var availableResourceTypes = resourceCards.Keys.Where(k => resourceCards[k] > 0).ToList();
+
+        if (availableResourceTypes.Count == 0)
+        {
+            return null;
+        }
+
+        var randomIndex = random.Next(0, availableResourceTypes.Count);
+
+        var resourceType = availableResourceTypes[randomIndex];
+        resourceCards[resourceType]--;
+
+        return resourceType;
     }
 
     public void AddResourceCard(CatanResourceType type)
