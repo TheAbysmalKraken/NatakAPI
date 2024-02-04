@@ -59,6 +59,11 @@ public sealed class CatanBoard
             }
         }
 
+        if (longestRoadLength < 5)
+        {
+            return new CatanLongestRoadInfo(CatanPlayerColour.None, 0);
+        }
+
         return new CatanLongestRoadInfo(longestRoadPlayer, longestRoadLength);
     }
 

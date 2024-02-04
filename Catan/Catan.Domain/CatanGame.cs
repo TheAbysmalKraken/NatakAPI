@@ -10,7 +10,6 @@ public class CatanGame
     private readonly Dictionary<CatanDevelopmentCardType, int> remainingDevelopmentCardTotals = new();
     private readonly List<CatanDevelopmentCardType> remainingDevelopmentCards = new();
     private int knightsRequiredForLargestArmy;
-    private int roadsRequiredForLongestRoad;
     private bool developmentCardPlayedThisTurn;
 
     public CatanGame(int numberOfPlayers)
@@ -23,7 +22,6 @@ public class CatanGame
         InitialiseDevelopmentCards();
 
         knightsRequiredForLargestArmy = 3;
-        roadsRequiredForLongestRoad = 5;
         developmentCardPlayedThisTurn = false;
     }
 
@@ -70,11 +68,11 @@ public class CatanGame
         rolledDice.AddRange(DiceRoller.RollDice(2, 6));
     }
 
-    public void PlayDevelopmentCard(CatanPlayer player, CatanDevelopmentCardType type)
+    public bool PlayDevelopmentCard(CatanPlayer player, CatanDevelopmentCardType type)
     {
         if (developmentCardPlayedThisTurn || !player.CanPlayDevelopmentCardOfType(type))
         {
-            return;
+            return false;
         }
 
         developmentCardPlayedThisTurn = true;
@@ -93,6 +91,87 @@ public class CatanGame
 
         remainingDevelopmentCardTotals[type]++;
         remainingDevelopmentCards.Add(type);
+
+        return true;
+    }
+
+    public bool BuildInitialRoad(CatanPlayer player, Coordinates coordinates1, Coordinates coordinates2)
+    {
+        if (!Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, player.Colour))
+        {
+            return false;
+        }
+
+        Board.PlaceRoad(coordinates1, coordinates2, player.Colour);
+
+        return true;
+    }
+
+    public bool BuildRoad(CatanPlayer player, Coordinates coordinates1, Coordinates coordinates2)
+    {
+        if (!player.CanPlaceRoad() || !Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, player.Colour))
+        {
+            return false;
+        }
+
+        player.PlaceRoad();
+        Board.PlaceRoad(coordinates1, coordinates2, player.Colour);
+
+        UpdateLargestRoadPlayer();
+
+        return true;
+    }
+
+    public bool BuildInitialSettlement(CatanPlayer player, Coordinates coordinates)
+    {
+        if (!Board.CanPlaceHouseAtCoordinates(coordinates, player.Colour, true))
+        {
+            return false;
+        }
+
+        Board.PlaceHouse(coordinates, player.Colour, true);
+
+        return true;
+    }
+
+    public bool BuildSettlement(CatanPlayer player, Coordinates coordinates)
+    {
+        if (!player.CanPlaceSettlement() || !Board.CanPlaceHouseAtCoordinates(coordinates, player.Colour))
+        {
+            return false;
+        }
+
+        player.PlaceSettlement();
+        Board.PlaceHouse(coordinates, player.Colour);
+
+        UpdateLargestRoadPlayer();
+
+        return true;
+    }
+
+    public bool BuildCity(CatanPlayer player, Coordinates coordinates)
+    {
+        if (!player.CanPlaceCity() || !Board.CanUpgradeHouseAtCoordinates(coordinates, player.Colour))
+        {
+            return false;
+        }
+
+        player.PlaceCity();
+        Board.UpgradeHouse(coordinates, player.Colour);
+
+        return true;
+    }
+
+    public bool MoveRobber(Coordinates coordinates)
+    {
+        if (!Board.CanMoveRobberToCoordinates(coordinates))
+        {
+            return false;
+        }
+
+        Board.MoveRobberToCoordinates(coordinates);
+
+        return true;
     }
 
     private void InitialisePlayers(int numberOfPlayers)
@@ -164,6 +243,20 @@ public class CatanGame
 
             player.AddLargestArmyCard();
             knightsRequiredForLargestArmy = player.KnightsPlayed + 1;
+        }
+    }
+
+    private void UpdateLargestRoadPlayer()
+    {
+        var longestRoadInfo = Board.GetLongestRoadInfo();
+
+        var player = players.FirstOrDefault(p => p.Colour == longestRoadInfo.Colour);
+
+        if (LongestRoadPlayer != player)
+        {
+            LongestRoadPlayer?.RemoveLongestRoadCard();
+
+            player?.AddLongestRoadCard();
         }
     }
 
