@@ -416,4 +416,71 @@ public sealed class CatanBoardTests
         // Assert
         Assert.False(canPlaceHouse);
     }
+
+    [Fact]
+    public void CanUpgradeHouseAtCoordinates_NoHouseAtCoordinates_ReturnsFalse()
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        var playerColour = CatanPlayerColour.Blue;
+
+        // Act
+        var canUpgradeHouse = board.CanUpgradeHouseAtCoordinates(new Coordinates(0, 2), playerColour);
+
+        // Assert
+        Assert.False(canUpgradeHouse);
+    }
+
+    [Fact]
+    public void CanUpgradeHouseAtCoordinates_HouseIsNotOwnedByPlayer_ReturnsFalse()
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        var playerColour = CatanPlayerColour.Blue;
+
+        board.PlaceHouse(new Coordinates(0, 2), CatanPlayerColour.Red);
+
+        // Act
+        var canUpgradeHouse = board.CanUpgradeHouseAtCoordinates(new Coordinates(0, 2), playerColour);
+
+        // Assert
+        Assert.False(canUpgradeHouse);
+    }
+
+    [Fact]
+    public void CanUpgradeHouseAtCoordinates_HouseIsAlreadyACity_ReturnsFalse()
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        var playerColour = CatanPlayerColour.Blue;
+
+        board.PlaceHouse(new Coordinates(0, 2), playerColour);
+        board.UpgradeHouse(new Coordinates(0, 2), playerColour);
+
+        // Act
+        var canUpgradeHouse = board.CanUpgradeHouseAtCoordinates(new Coordinates(0, 2), playerColour);
+
+        // Assert
+        Assert.False(canUpgradeHouse);
+    }
+
+    [Fact]
+    public void CanUpgradeHouseAtCoordinates_ReturnsTrue()
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        var playerColour = CatanPlayerColour.Blue;
+
+        board.PlaceHouse(new Coordinates(0, 2), playerColour);
+
+        // Act
+        var canUpgradeHouse = board.CanUpgradeHouseAtCoordinates(new Coordinates(0, 2), playerColour);
+
+        // Assert
+        Assert.True(canUpgradeHouse);
+    }
 }

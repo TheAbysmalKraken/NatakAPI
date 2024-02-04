@@ -41,6 +41,29 @@ public sealed class CatanBoard
 
     public List<CatanPort> GetPorts() => ports;
 
+    public bool CanUpgradeHouseAtCoordinates(Coordinates coordinates, CatanPlayerColour colour)
+    {
+        if (colour == CatanPlayerColour.None
+            || !HouseCoordinatesAreValid(coordinates)
+            || !PointContainsHouseOfColour(coordinates, colour)
+            || houses[coordinates.X, coordinates.Y].Type != CatanBuildingType.Settlement)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void UpgradeHouse(Coordinates coordinates, CatanPlayerColour colour)
+    {
+        if (!CanUpgradeHouseAtCoordinates(coordinates, colour))
+        {
+            throw new ArgumentException("Cannot upgrade house at these coordinates.");
+        }
+
+        houses[coordinates.X, coordinates.Y].SetTypeToCity();
+    }
+
     public bool CanPlaceHouseAtCoordinates(Coordinates coordinates, CatanPlayerColour colour)
     {
         if (colour == CatanPlayerColour.None
