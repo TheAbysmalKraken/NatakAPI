@@ -100,6 +100,51 @@ public class CatanGame
         rolledDice.AddRange(DiceRoller.RollDice(2, 6));
     }
 
+    public bool DistributeResourcesToPlayers()
+    {
+        var diceTotal = DiceTotal;
+
+        if (diceTotal == 7)
+        {
+            return false;
+        }
+
+        var tileCoordinatesWithActivationNumber = Board.GetCoordinatesOfTilesWithActivationNumber(diceTotal);
+
+        foreach (var coordinates in tileCoordinatesWithActivationNumber)
+        {
+            var houses = Board.GetHousesOnTile(coordinates);
+
+            foreach (var house in houses)
+            {
+                var player = GetPlayerByColour(house.Colour);
+
+                if (player == null)
+                {
+                    continue;
+                }
+
+                var isCity = house.Type == CatanBuildingType.City;
+
+                var resourceType = Board.GetTile(coordinates.X, coordinates.Y).Type;
+
+                if (remainingResourceCards[resourceType] > 0)
+                {
+                    player.AddResourceCard(resourceType);
+                    remainingResourceCards[resourceType]--;
+
+                    if (isCity && remainingResourceCards[resourceType] > 0)
+                    {
+                        player.AddResourceCard(resourceType);
+                        remainingResourceCards[resourceType]--;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
     public bool TradeTwoToOne(CatanResourceType resourceTypeToGive, CatanResourceType resourceTypeToReceive)
     {
         var portTypeValid = Enum.TryParse<CatanPortType>(resourceTypeToReceive.ToString(), out var portType);

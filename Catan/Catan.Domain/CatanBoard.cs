@@ -205,6 +205,29 @@ public sealed class CatanBoard
         roadInList.SetColour(colour);
     }
 
+    public List<Coordinates> GetCoordinatesOfTilesWithActivationNumber(int activationNumber)
+    {
+        if (activationNumber < 2 || activationNumber > 12)
+        {
+            throw new ArgumentException("Activation number must be between 2 and 12.");
+        }
+
+        var tilesWithActivationNumber = new List<Coordinates>();
+
+        for (int x = 0; x < BoardLength; x++)
+        {
+            for (int y = 0; y < BoardLength; y++)
+            {
+                if (tiles[x, y].ActivationNumber == activationNumber)
+                {
+                    tilesWithActivationNumber.Add(new(x, y));
+                }
+            }
+        }
+
+        return tilesWithActivationNumber;
+    }
+
     public List<CatanPlayerColour> GetHouseColoursOnTile(Coordinates coordinates)
     {
         if (!TileCoordinatesAreValid(coordinates))
@@ -463,17 +486,17 @@ public sealed class CatanBoard
         var remainingResourceTileTypes = DomainConstants.GetTileResourceTypeTotals();
         var remainingActivationNumbers = DomainConstants.GetTileActivationNumberTotals();
 
-        for (int i = 0; i < BoardLength; i++)
+        for (int x = 0; x < BoardLength; x++)
         {
-            for (int j = 0; j < BoardLength; j++)
+            for (int y = 0; y < BoardLength; y++)
             {
-                if (i + j >= 2 && i + j <= BoardLength + 1)
+                if (x + y >= 2 && x + y <= BoardLength + 1)
                 {
-                    tiles[i, j] = CreateNewCatanTile(remainingResourceTileTypes, remainingActivationNumbers);
+                    tiles[x, y] = CreateNewCatanTile(remainingResourceTileTypes, remainingActivationNumbers);
 
-                    if (tiles[i, j].Type == CatanResourceType.Desert)
+                    if (tiles[x, y].Type == CatanResourceType.Desert)
                     {
-                        RobberPosition = new Coordinates(i, j);
+                        RobberPosition = new Coordinates(x, y);
                     }
                 }
             }
@@ -482,13 +505,13 @@ public sealed class CatanBoard
 
     private void InitialiseHouses()
     {
-        for (int i = 0; i < 11; i++)
+        for (int x = 0; x < 11; x++)
         {
-            for (int j = 0; j < 6; j++)
+            for (int y = 0; y < 6; y++)
             {
-                if (i + j >= 2 && i + j <= 13 && j - i <= 3 && j - i >= -8)
+                if (x + y >= 2 && x + y <= 13 && y - x <= 3 && y - x >= -8)
                 {
-                    houses[i, j] = new CatanBuilding(CatanPlayerColour.None, CatanBuildingType.None);
+                    houses[x, y] = new CatanBuilding(CatanPlayerColour.None, CatanBuildingType.None);
                 }
             }
         }
@@ -502,15 +525,15 @@ public sealed class CatanBoard
             new Coordinates(-1, 0)
         };
 
-        for (int i = 0; i < 11; i++)
+        for (int x = 0; x < 11; x++)
         {
-            for (int j = 0; j < 6; j++)
+            for (int y = 0; y < 6; y++)
             {
-                var house = houses[i, j];
+                var house = houses[x, y];
 
                 if (house is null) continue;
 
-                var roadCorner1 = new Coordinates(i, j);
+                var roadCorner1 = new Coordinates(x, y);
 
                 foreach (var vector in roadVectors)
                 {
@@ -602,7 +625,7 @@ public sealed class CatanBoard
         return new CatanTile(catanTileType, activationNumber);
     }
 
-    private List<Coordinates> TileToSurroundingHouseCoordinates(Coordinates tileCoordinates)
+    private static List<Coordinates> TileToSurroundingHouseCoordinates(Coordinates tileCoordinates)
     {
         var surroundingHouseCoordinates = new List<Coordinates>();
 
