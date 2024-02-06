@@ -96,7 +96,7 @@ public class CatanPlayer
         embargoedPlayers.Remove(colour);
     }
 
-    public bool CanPlaceRoad()
+    public bool CanBuyRoad()
     {
         if (RemainingRoads <= 0)
         {
@@ -112,7 +112,7 @@ public class CatanPlayer
         return true;
     }
 
-    public void PlaceRoad()
+    public void BuyRoad()
     {
         resourceCards[CatanResourceType.Wood]--;
         resourceCards[CatanResourceType.Brick]--;
@@ -120,7 +120,7 @@ public class CatanPlayer
         RemainingRoads--;
     }
 
-    public bool CanPlaceSettlement()
+    public bool CanBuySettlement()
     {
         if (RemainingSettlements <= 0)
         {
@@ -138,7 +138,7 @@ public class CatanPlayer
         return true;
     }
 
-    public void PlaceSettlement()
+    public void BuySettlement()
     {
         resourceCards[CatanResourceType.Wood]--;
         resourceCards[CatanResourceType.Brick]--;
@@ -148,7 +148,7 @@ public class CatanPlayer
         RemainingSettlements--;
     }
 
-    public bool CanPlaceCity()
+    public bool CanBuyCity()
     {
         if (RemainingCities <= 0)
         {
@@ -164,7 +164,7 @@ public class CatanPlayer
         return true;
     }
 
-    public void PlaceCity()
+    public void BuyCity()
     {
         resourceCards[CatanResourceType.Wheat] -= 2;
         resourceCards[CatanResourceType.Ore] -= 3;
@@ -280,11 +280,16 @@ public class CatanPlayer
         }
     }
 
+    public bool CanPlayResourceCard(CatanResourceType type)
+    {
+        return resourceCards[type] > 0;
+    }
+
     public void PlayResourceCard(CatanResourceType type)
     {
-        if (resourceCards[type] == 0)
+        if (!CanPlayResourceCard(type))
         {
-            return;
+            throw new ArgumentException("Player does not have the specified resource card to play.");
         }
 
         resourceCards[type]--;

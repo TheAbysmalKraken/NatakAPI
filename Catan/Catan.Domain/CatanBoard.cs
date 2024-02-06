@@ -31,15 +31,38 @@ public sealed class CatanBoard
 
     public CatanTile[,] GetTiles() => tiles;
 
-    public CatanTile GetTile(int x, int y) => tiles[x, y];
-
     public CatanBuilding[,] GetHouses() => houses;
-
-    public CatanBuilding GetHouse(int x, int y) => houses[x, y];
 
     public List<CatanRoad> GetRoads() => roads;
 
     public List<CatanPort> GetPorts() => ports;
+
+    public CatanTile? GetTile(Coordinates coordinates)
+    {
+        if (TileCoordinatesAreValid(coordinates))
+        {
+            return tiles[coordinates.X, coordinates.Y];
+        }
+
+        return null;
+    }
+
+    public CatanBuilding? GetHouse(Coordinates coordinates)
+    {
+        if (HouseCoordinatesAreValid(coordinates))
+        {
+            var house = houses[coordinates.X, coordinates.Y];
+
+            if (house?.Type != CatanBuildingType.Settlement && house?.Type != CatanBuildingType.City)
+            {
+                return null;
+            }
+
+            return houses[coordinates.X, coordinates.Y];
+        }
+
+        return null;
+    }
 
     public CatanLongestRoadInfo GetLongestRoadInfo()
     {

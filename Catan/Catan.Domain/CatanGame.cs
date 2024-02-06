@@ -126,7 +126,16 @@ public class CatanGame
 
                 var isCity = house.Type == CatanBuildingType.City;
 
-                var resourceType = Board.GetTile(coordinates.X, coordinates.Y).Type;
+                var tile = Board.GetTile(coordinates);
+
+                if (tile is null
+                || tile.Type == CatanResourceType.Desert
+                || tile.Type == CatanResourceType.None)
+                {
+                    continue;
+                }
+
+                var resourceType = tile.Type;
 
                 if (remainingResourceCards[resourceType] > 0)
                 {
@@ -152,6 +161,11 @@ public class CatanGame
         foreach (var tile in tiles)
         {
             var resourceType = tile.Type;
+
+            if (resourceType == CatanResourceType.None || resourceType == CatanResourceType.Desert)
+            {
+                continue;
+            }
 
             if (remainingResourceCards[resourceType] > 0)
             {
@@ -322,12 +336,12 @@ public class CatanGame
 
     public bool BuildRoad(Coordinates coordinates1, Coordinates coordinates2)
     {
-        if (!CurrentPlayer.CanPlaceRoad() || !Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, CurrentPlayer.Colour))
+        if (!CurrentPlayer.CanBuyRoad() || !Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, CurrentPlayer.Colour))
         {
             return false;
         }
 
-        CurrentPlayer.PlaceRoad();
+        CurrentPlayer.BuyRoad();
         Board.PlaceRoad(coordinates1, coordinates2, CurrentPlayer.Colour);
 
         UpdateLargestRoadPlayer();
@@ -349,12 +363,12 @@ public class CatanGame
 
     public bool BuildSettlement(Coordinates coordinates)
     {
-        if (!CurrentPlayer.CanPlaceSettlement() || !Board.CanPlaceHouseAtCoordinates(coordinates, CurrentPlayer.Colour))
+        if (!CurrentPlayer.CanBuySettlement() || !Board.CanPlaceHouseAtCoordinates(coordinates, CurrentPlayer.Colour))
         {
             return false;
         }
 
-        CurrentPlayer.PlaceSettlement();
+        CurrentPlayer.BuySettlement();
         Board.PlaceHouse(coordinates, CurrentPlayer.Colour);
 
         UpdateLargestRoadPlayer();
@@ -364,12 +378,12 @@ public class CatanGame
 
     public bool BuildCity(Coordinates coordinates)
     {
-        if (!CurrentPlayer.CanPlaceCity() || !Board.CanUpgradeHouseAtCoordinates(coordinates, CurrentPlayer.Colour))
+        if (!CurrentPlayer.CanBuyCity() || !Board.CanUpgradeHouseAtCoordinates(coordinates, CurrentPlayer.Colour))
         {
             return false;
         }
 
-        CurrentPlayer.PlaceCity();
+        CurrentPlayer.BuyCity();
         Board.UpgradeHouse(coordinates, CurrentPlayer.Colour);
 
         return true;
