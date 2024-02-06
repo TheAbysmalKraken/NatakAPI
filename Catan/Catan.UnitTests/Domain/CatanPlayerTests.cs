@@ -88,7 +88,7 @@ public class CatanPlayerTests
     public void CanPlayDevelopmentCardOfType_VictoryPointReturnsFalse()
     {
         // Act
-        var canPlay = testPlayer.CanPlayDevelopmentCardOfType(CatanDevelopmentCardType.VictoryPoint);
+        var canPlay = testPlayer.CanRemoveDevelopmentCard(CatanDevelopmentCardType.VictoryPoint);
 
         // Assert
         Assert.False(canPlay);
@@ -107,7 +107,7 @@ public class CatanPlayerTests
         testPlayer.BuyDevelopmentCard(cardType);
 
         // Act
-        var canPlay = testPlayer.CanPlayDevelopmentCardOfType(cardType);
+        var canPlay = testPlayer.CanRemoveDevelopmentCard(cardType);
 
         // Assert
         Assert.False(canPlay);
@@ -126,7 +126,7 @@ public class CatanPlayerTests
         testPlayer.MoveOnHoldDevelopmentCardsToPlayable();
 
         // Act
-        var canPlay = testPlayer.CanPlayDevelopmentCardOfType(cardType);
+        var canPlay = testPlayer.CanRemoveDevelopmentCard(cardType);
 
         // Assert
         Assert.True(canPlay);
@@ -141,7 +141,7 @@ public class CatanPlayerTests
         CatanDevelopmentCardType cardType)
     {
         // Act
-        testPlayer.PlayDevelopmentCard(cardType);
+        testPlayer.RemoveDevelopmentCard(cardType);
         var cards = testPlayer.GetPlayableDevelopmentCards();
 
         // Assert
@@ -164,7 +164,7 @@ public class CatanPlayerTests
         var initialCardCount = testPlayer.GetPlayableDevelopmentCards()[cardType];
 
         // Act
-        testPlayer.PlayDevelopmentCard(cardType);
+        testPlayer.RemoveDevelopmentCard(cardType);
         var cards = testPlayer.GetPlayableDevelopmentCards();
 
         // Assert

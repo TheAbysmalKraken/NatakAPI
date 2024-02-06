@@ -296,6 +296,11 @@ public class CatanGame
 
     public bool PlayYearOfPlentyCard(CatanResourceType resourceType1, CatanResourceType resourceType2)
     {
+        if (resourceType1 == CatanResourceType.None || resourceType2 == CatanResourceType.None)
+        {
+            return false;
+        }
+
         if (!CanPlayDevelopmentCard(CatanDevelopmentCardType.YearOfPlenty))
         {
             return false;
@@ -318,6 +323,36 @@ public class CatanGame
         CurrentPlayer.AddResourceCard(resourceType2);
 
         PlayDevelopmentCard(CatanDevelopmentCardType.YearOfPlenty);
+
+        return true;
+    }
+
+    public bool PlayMonopolyCard(CatanResourceType resourceType)
+    {
+        if (resourceType == CatanResourceType.None)
+        {
+            return false;
+        }
+
+        if (!CanPlayDevelopmentCard(CatanDevelopmentCardType.Monopoly))
+        {
+            return false;
+        }
+
+        var playersToStealFrom = players.Where(p => p.Colour != CurrentPlayer.Colour);
+
+        foreach (var player in playersToStealFrom)
+        {
+            var resourceCount = player.GetResourceCards()[resourceType];
+
+            if (resourceCount > 0)
+            {
+                player.RemoveResourceCard(resourceType, resourceCount);
+                CurrentPlayer.AddResourceCard(resourceType, resourceCount);
+            }
+        }
+
+        PlayDevelopmentCard(CatanDevelopmentCardType.Monopoly);
 
         return true;
     }
@@ -540,7 +575,7 @@ public class CatanGame
 
     private bool CanPlayDevelopmentCard(CatanDevelopmentCardType type)
     {
-        return !developmentCardPlayedThisTurn && CurrentPlayer.CanPlayDevelopmentCardOfType(type);
+        return !developmentCardPlayedThisTurn && CurrentPlayer.CanRemoveDevelopmentCard(type);
     }
 
     private void PlayDevelopmentCard(CatanDevelopmentCardType type)
@@ -552,7 +587,7 @@ public class CatanGame
 
         developmentCardPlayedThisTurn = true;
 
-        CurrentPlayer.PlayDevelopmentCard(type);
+        CurrentPlayer.RemoveDevelopmentCard(type);
 
         remainingDevelopmentCardTotals[type]++;
         remainingDevelopmentCards.Add(type);

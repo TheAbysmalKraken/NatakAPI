@@ -280,19 +280,19 @@ public class CatanPlayer
         }
     }
 
-    public bool CanPlayResourceCard(CatanResourceType type)
+    public bool CanRemoveResourceCard(CatanResourceType type, int count = 1)
     {
-        return resourceCards[type] > 0;
+        return resourceCards[type] >= count;
     }
 
-    public void PlayResourceCard(CatanResourceType type)
+    public void RemoveResourceCard(CatanResourceType type, int count = 1)
     {
-        if (!CanPlayResourceCard(type))
+        if (!CanRemoveResourceCard(type, count))
         {
             throw new ArgumentException("Player does not have the specified resource card to play.");
         }
 
-        resourceCards[type]--;
+        resourceCards[type] -= count;
     }
 
     public CatanResourceType? RemoveRandomResourceCard()
@@ -312,9 +312,9 @@ public class CatanPlayer
         return resourceType;
     }
 
-    public void AddResourceCard(CatanResourceType type)
+    public void AddResourceCard(CatanResourceType type, int count = 1)
     {
-        resourceCards[type]++;
+        resourceCards[type] += count;
     }
 
     public void MoveOnHoldDevelopmentCardsToPlayable()
@@ -326,7 +326,7 @@ public class CatanPlayer
         }
     }
 
-    public bool CanPlayDevelopmentCardOfType(CatanDevelopmentCardType type)
+    public bool CanRemoveDevelopmentCard(CatanDevelopmentCardType type)
     {
         if (type == CatanDevelopmentCardType.VictoryPoint
             || playableDevelopmentCards[type] <= 0)
@@ -337,7 +337,7 @@ public class CatanPlayer
         return true;
     }
 
-    public void PlayDevelopmentCard(CatanDevelopmentCardType type)
+    public void RemoveDevelopmentCard(CatanDevelopmentCardType type)
     {
         if (type == CatanDevelopmentCardType.VictoryPoint)
         {
