@@ -193,6 +193,34 @@ public class CatanGame
         return true;
     }
 
+    public bool PlayYearOfPlentyCard(CatanResourceType resourceType1, CatanResourceType resourceType2)
+    {
+        if (!CanPlayDevelopmentCard(CatanDevelopmentCardType.YearOfPlenty))
+        {
+            return false;
+        }
+
+        var resourceTotal1 = remainingResourceCards[resourceType1];
+        var resourceTotal2 = remainingResourceCards[resourceType2];
+
+        if (resourceTotal1 == 0 || resourceTotal2 == 0)
+        {
+            return false;
+        }
+
+        if (resourceType1 == resourceType2 && resourceTotal1 < 2)
+        {
+            return false;
+        }
+
+        CurrentPlayer.AddResourceCard(resourceType1);
+        CurrentPlayer.AddResourceCard(resourceType2);
+
+        PlayDevelopmentCard(CatanDevelopmentCardType.YearOfPlenty);
+
+        return true;
+    }
+
     public bool BuildInitialRoad(Coordinates coordinates1, Coordinates coordinates2)
     {
         if (!Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, CurrentPlayer.Colour))
