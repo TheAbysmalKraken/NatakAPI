@@ -76,6 +76,93 @@ public class CatanGame
         rolledDice.AddRange(DiceRoller.RollDice(2, 6));
     }
 
+    public bool TradeTwoToOne(CatanResourceType resourceTypeToGive, CatanResourceType resourceTypeToReceive)
+    {
+        var portTypeValid = Enum.TryParse<CatanPortType>(resourceTypeToReceive.ToString(), out var portType);
+
+        if (!portTypeValid)
+        {
+            return false;
+        }
+
+        if (!CurrentPlayer.CanTradeTwoToOneOfCardType(resourceTypeToGive)
+        || !Board.ColourHasPortOfType(CurrentPlayer.Colour, portType))
+        {
+            return false;
+        }
+
+        CurrentPlayer.TradeTwoToOne(resourceTypeToGive, resourceTypeToReceive);
+
+        return true;
+    }
+
+    public bool TradeThreeToOne(CatanResourceType resourceTypeToGive, CatanResourceType resourceTypeToReceive)
+    {
+        if (!CurrentPlayer.CanTradeThreeToOneOfCardType(resourceTypeToGive)
+        || !Board.ColourHasPortOfType(CurrentPlayer.Colour, CatanPortType.ThreeToOne))
+        {
+            return false;
+        }
+
+        CurrentPlayer.TradeThreeToOne(resourceTypeToGive, resourceTypeToReceive);
+
+        return true;
+    }
+
+    public bool TradeFourToOne(CatanResourceType resourceTypeToGive, CatanResourceType resourceTypeToReceive)
+    {
+        if (!CurrentPlayer.CanTradeFourToOneOfCardType(resourceTypeToGive))
+        {
+            return false;
+        }
+
+        CurrentPlayer.TradeFourToOne(resourceTypeToGive, resourceTypeToReceive);
+
+        return true;
+    }
+
+    public bool EmbargoPlayer(CatanPlayerColour colourEmbargoedBy, CatanPlayerColour colourToEmbargo)
+    {
+        if (colourEmbargoedBy == colourToEmbargo
+        || colourEmbargoedBy == CatanPlayerColour.None
+        || colourToEmbargo == CatanPlayerColour.None)
+        {
+            return false;
+        }
+
+        var playerEmbargoedBy = GetPlayerByColour(colourEmbargoedBy);
+
+        if (playerEmbargoedBy == null)
+        {
+            return false;
+        }
+
+        playerEmbargoedBy.EmbargoPlayer(colourToEmbargo);
+
+        return true;
+    }
+
+    public bool RemovePlayerEmbargo(CatanPlayerColour colourEmbargoedBy, CatanPlayerColour colourToEmbargo)
+    {
+        if (colourEmbargoedBy == colourToEmbargo
+        || colourEmbargoedBy == CatanPlayerColour.None
+        || colourToEmbargo == CatanPlayerColour.None)
+        {
+            return false;
+        }
+
+        var playerEmbargoedBy = GetPlayerByColour(colourEmbargoedBy);
+
+        if (playerEmbargoedBy == null)
+        {
+            return false;
+        }
+
+        playerEmbargoedBy.RemoveEmbargo(colourToEmbargo);
+
+        return true;
+    }
+
     public bool PlayDevelopmentCard(CatanDevelopmentCardType type)
     {
         if (developmentCardPlayedThisTurn || !CurrentPlayer.CanPlayDevelopmentCardOfType(type))

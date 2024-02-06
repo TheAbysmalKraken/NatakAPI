@@ -7,6 +7,7 @@ public class CatanPlayer
     private readonly Dictionary<CatanResourceType, int> resourceCards;
     private readonly Dictionary<CatanDevelopmentCardType, int> playableDevelopmentCards;
     private readonly Dictionary<CatanDevelopmentCardType, int> developmentCardsOnHold;
+    private readonly List<CatanPlayerColour> embargoedPlayers;
     private int victoryPointDevelopmentCardCount;
     private int victoryPointsFromBuildings;
 
@@ -19,6 +20,7 @@ public class CatanPlayer
         resourceCards = InitialiseResourceCards();
         playableDevelopmentCards = InitialiseDevelopmentCards();
         developmentCardsOnHold = InitialiseDevelopmentCards();
+        embargoedPlayers = new List<CatanPlayerColour>();
 
         victoryPointsFromBuildings = 0;
         victoryPointDevelopmentCardCount = 0;
@@ -56,6 +58,11 @@ public class CatanPlayer
         return developmentCardsOnHold;
     }
 
+    public List<CatanPlayerColour> GetEmbargoedPlayers()
+    {
+        return embargoedPlayers;
+    }
+
     public void AddLargestArmyCard() => HasLargestArmy = true;
 
     public void RemoveLargestArmyCard() => HasLargestArmy = false;
@@ -63,6 +70,31 @@ public class CatanPlayer
     public void AddLongestRoadCard() => HasLongestRoad = true;
 
     public void RemoveLongestRoadCard() => HasLongestRoad = false;
+
+    public void EmbargoPlayer(CatanPlayerColour colour)
+    {
+        if (colour == CatanPlayerColour.None || colour == Colour)
+        {
+            throw new ArgumentException("Player cannot embargo themselves or no player.");
+        }
+
+        if (embargoedPlayers.Contains(colour))
+        {
+            return;
+        }
+
+        embargoedPlayers.Add(colour);
+    }
+
+    public void RemoveEmbargo(CatanPlayerColour colour)
+    {
+        if (colour == CatanPlayerColour.None || colour == Colour)
+        {
+            throw new ArgumentException("Player cannot remove embargo from themselves or no player.");
+        }
+
+        embargoedPlayers.Remove(colour);
+    }
 
     public bool CanPlaceRoad()
     {
