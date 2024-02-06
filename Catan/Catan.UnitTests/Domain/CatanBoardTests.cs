@@ -831,7 +831,7 @@ public sealed class CatanBoardTests
     }
 
     [Fact]
-    public void GetLongestRoadInfo_ReturnsCorrectColourAndLength()
+    public void GetLongestRoadInfo_RoadLessThanFive_ReturnsCorrectColourAndLength()
     {
         // Arrange
         var board = new CatanBoard();
@@ -860,7 +860,43 @@ public sealed class CatanBoardTests
         var longestRoadInfo = board.GetLongestRoadInfo();
 
         // Assert
+        Assert.Equal(CatanPlayerColour.None, longestRoadInfo.Colour);
+        Assert.Equal(0, longestRoadInfo.Length);
+    }
+
+    [Fact]
+    public void GetLongestRoadInfo_ReturnsCorrectColourAndLength()
+    {
+        // Arrange
+        var board = new CatanBoard();
+
+        var playerColour1 = CatanPlayerColour.Blue;
+        var playerColour2 = CatanPlayerColour.Red;
+
+        var roads = new List<CatanRoad>
+        {
+            new(playerColour1, new(2, 0), new(3, 0)),
+            new(playerColour1, new(3, 0), new(4, 0)),
+            new(playerColour2, new(3, 1), new(4, 1)),
+            new(playerColour2, new(4, 1), new(5, 1)),
+            new(playerColour2, new(5, 1), new(5, 2)),
+            new(playerColour2, new(5, 2), new(4, 2)),
+            new(playerColour2, new(4, 2), new(3, 2)),
+        };
+
+        board.PlaceHouse(roads[0].FirstCornerCoordinates, playerColour1, true);
+        board.PlaceHouse(roads[2].FirstCornerCoordinates, playerColour2, true);
+
+        foreach (var road in roads)
+        {
+            board.PlaceRoad(road.FirstCornerCoordinates, road.SecondCornerCoordinates, road.Colour);
+        }
+
+        // Act
+        var longestRoadInfo = board.GetLongestRoadInfo();
+
+        // Assert
         Assert.Equal(playerColour2, longestRoadInfo.Colour);
-        Assert.Equal(3, longestRoadInfo.Length);
+        Assert.Equal(5, longestRoadInfo.Length);
     }
 }

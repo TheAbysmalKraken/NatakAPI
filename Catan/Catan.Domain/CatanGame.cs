@@ -12,8 +12,10 @@ public class CatanGame
     private readonly Dictionary<CatanResourceType, int> remainingResourceCards = new();
     private readonly Dictionary<CatanDevelopmentCardType, int> remainingDevelopmentCardTotals = new();
     private readonly List<CatanDevelopmentCardType> remainingDevelopmentCards = new();
+    private int currentPlayerIndex = 0;
     private int knightsRequiredForLargestArmy;
     private bool developmentCardPlayedThisTurn;
+    private readonly Random random = new();
 
     public CatanGame(int numberOfPlayers)
     {
@@ -31,6 +33,8 @@ public class CatanGame
 
         knightsRequiredForLargestArmy = 3;
         developmentCardPlayedThisTurn = false;
+
+        GamePhase = 0;
     }
 
     public CatanBoard Board { get; private set; } = new();
@@ -41,7 +45,9 @@ public class CatanGame
 
     public int DiceTotal => rolledDice.Sum();
 
-    public CatanPlayer CurrentPlayer => players.First();
+    public CatanPlayer CurrentPlayer => players[currentPlayerIndex];
+
+    public int GamePhase { get; set; }
 
     public List<CatanPlayer> GetPlayers() => players;
 
@@ -62,12 +68,9 @@ public class CatanGame
 
         developmentCardPlayedThisTurn = false;
 
-        var currentPlayer = CurrentPlayer;
+        CurrentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
 
-        currentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
-
-        players.Remove(currentPlayer);
-        players.Add(currentPlayer);
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
     }
 
     public void RollDice()
@@ -347,6 +350,20 @@ public class CatanGame
 
             players.Add(newPlayer);
         }
+
+        ShufflePlayers();
+    }
+
+    private void ShufflePlayers()
+    {
+        var totalPlayers = players.Count;
+
+        while (totalPlayers > 1)
+        {
+            var playerIndexToSwapWith = random.Next(totalPlayers);
+            totalPlayers--;
+            (players[totalPlayers], players[playerIndexToSwapWith]) = (players[playerIndexToSwapWith], players[totalPlayers]);
+        }
     }
 
     private void InitialiseDevelopmentCards()
@@ -369,7 +386,6 @@ public class CatanGame
 
     private void ShuffleDevelopmentCards()
     {
-        var random = new Random();
         var totalDevelopmentCards = remainingDevelopmentCards.Count;
 
         while (totalDevelopmentCards > 1)

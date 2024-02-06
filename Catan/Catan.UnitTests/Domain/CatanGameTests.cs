@@ -75,6 +75,7 @@ public class CatanGameTests
         game.NextPlayer();
 
         // Assert
-        Assert.StrictEqual(currentPlayer, game.GetPlayers().Last());
+        var newCurrentPlayer = game.CurrentPlayer;
+        Assert.NotEqual(currentPlayer, newCurrentPlayer);
     }
 }
