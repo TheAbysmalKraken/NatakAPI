@@ -205,6 +205,49 @@ public sealed class CatanBoard
         roadInList.SetColour(colour);
     }
 
+    public List<CatanPlayerColour> GetHouseColoursOnTile(Coordinates coordinates)
+    {
+        if (!TileCoordinatesAreValid(coordinates))
+        {
+            throw new ArgumentException("Coordinates are not valid.");
+        }
+
+        var surroundingHouses = GetHousesOnTile(coordinates);
+
+        var houseColours = new List<CatanPlayerColour>();
+
+        foreach (var house in surroundingHouses)
+        {
+            houseColours.Add(house.Colour);
+        }
+
+        return houseColours;
+    }
+
+    public List<CatanBuilding> GetHousesOnTile(Coordinates coordinates)
+    {
+        if (!TileCoordinatesAreValid(coordinates))
+        {
+            throw new ArgumentException("Coordinates are not valid.");
+        }
+
+        var surroundingHouseCoordinates = TileToSurroundingHouseCoordinates(coordinates);
+
+        var housesOnTile = new List<CatanBuilding>();
+
+        foreach (var houseCoordinate in surroundingHouseCoordinates)
+        {
+            var house = houses[houseCoordinate.X, houseCoordinate.Y];
+
+            if (house != null && house.Type != CatanBuildingType.None)
+            {
+                housesOnTile.Add(house);
+            }
+        }
+
+        return housesOnTile;
+    }
+
     private bool HouseCoordinatesAreTooCloseToAnotherHouse(Coordinates coordinates)
     {
         var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(coordinates);
@@ -557,5 +600,24 @@ public sealed class CatanBoard
         remainingActivationNumbers[activationNumber]--;
 
         return new CatanTile(catanTileType, activationNumber);
+    }
+
+    private List<Coordinates> TileToSurroundingHouseCoordinates(Coordinates tileCoordinates)
+    {
+        var surroundingHouseCoordinates = new List<Coordinates>();
+
+        int y = tileCoordinates.Y;
+
+        int firstX = 2 * (tileCoordinates.X - 1) + y;
+
+        for (int x = firstX; x < firstX + 3; x++)
+        {
+            for (int j = 0; j < 2; j++)
+            {
+                surroundingHouseCoordinates.Add(new(x, y + j));
+            }
+        }
+
+        return surroundingHouseCoordinates;
     }
 }

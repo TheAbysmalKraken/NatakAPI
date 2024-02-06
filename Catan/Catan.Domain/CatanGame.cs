@@ -163,29 +163,32 @@ public class CatanGame
         return true;
     }
 
-    public bool PlayDevelopmentCard(CatanDevelopmentCardType type)
+    public bool PlayKnightCard(Coordinates robberCoordinates, CatanPlayerColour colourToStealFrom)
     {
-        if (developmentCardPlayedThisTurn || !CurrentPlayer.CanPlayDevelopmentCardOfType(type))
+        if (!CanPlayDevelopmentCard(CatanDevelopmentCardType.Knight)
+        || !Board.GetHouseColoursOnTile(robberCoordinates).Contains(colourToStealFrom))
         {
             return false;
         }
 
-        developmentCardPlayedThisTurn = true;
+        var originalRobberCoordinates = Board.RobberPosition;
 
-        switch (type)
+        var moveRobberSuccess = MoveRobber(robberCoordinates);
+
+        if (!moveRobberSuccess)
         {
-            case CatanDevelopmentCardType.Knight:
-                PlayKnightCard(CurrentPlayer);
-                break;
-
-            default:
-                throw new ArgumentException($"Invalid development card type: '{type}'");
+            return false;
         }
 
-        CurrentPlayer.PlayDevelopmentCard(type);
+        var stealResourceSuccess = StealResourceCard(colourToStealFrom);
 
-        remainingDevelopmentCardTotals[type]++;
-        remainingDevelopmentCards.Add(type);
+        if (!stealResourceSuccess)
+        {
+            Board.MoveRobberToCoordinates(originalRobberCoordinates);
+            return false;
+        }
+
+        PlayDevelopmentCard(CatanDevelopmentCardType.Knight);
 
         return true;
     }
@@ -393,8 +396,23 @@ public class CatanGame
         }
     }
 
-    private void PlayKnightCard(CatanPlayer player)
+    private bool CanPlayDevelopmentCard(CatanDevelopmentCardType type)
     {
+        return !developmentCardPlayedThisTurn && CurrentPlayer.CanPlayDevelopmentCardOfType(type);
+    }
 
+    private void PlayDevelopmentCard(CatanDevelopmentCardType type)
+    {
+        if (!CanPlayDevelopmentCard(type))
+        {
+            throw new InvalidOperationException($"Cannot play development card of type: '{type}'");
+        }
+
+        developmentCardPlayedThisTurn = true;
+
+        CurrentPlayer.PlayDevelopmentCard(type);
+
+        remainingDevelopmentCardTotals[type]++;
+        remainingDevelopmentCards.Add(type);
     }
 }
