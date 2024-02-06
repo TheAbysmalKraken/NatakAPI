@@ -78,4 +78,38 @@ public class CatanGameTests
         var newCurrentPlayer = game.CurrentPlayer;
         Assert.NotEqual(currentPlayer, newCurrentPlayer);
     }
+
+    [Fact]
+    public void NextPlayer_CyclesThroughAllPlayers_ChangesToGamePhase1()
+    {
+        // Arrange
+        var game = new CatanGame(defaultPlayerCount);
+
+        // Act
+        for (int i = 0; i < defaultPlayerCount; i++)
+        {
+            game.NextPlayer();
+        }
+
+        // Assert
+        Assert.Equal(1, game.GamePhase);
+        Assert.StrictEqual(game.GetPlayers().Last(), game.CurrentPlayer);
+    }
+
+    [Fact]
+    public void NextPlayer_CyclesThroughAllPlayers_ChangesToGamePhase2()
+    {
+        // Arrange
+        var game = new CatanGame(defaultPlayerCount);
+
+        // Act
+        for (int i = 0; i < defaultPlayerCount * 2; i++)
+        {
+            game.NextPlayer();
+        }
+
+        // Assert
+        Assert.Equal(2, game.GamePhase);
+        Assert.StrictEqual(game.GetPlayers().First(), game.CurrentPlayer);
+    }
 }

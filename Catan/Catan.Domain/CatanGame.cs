@@ -39,7 +39,7 @@ public class CatanGame
 
     public CatanBoard Board { get; private set; } = new();
 
-    public CatanPlayer? LongestRoadPlayer { get; set; } = null;
+    public CatanPlayer? LongestRoadPlayer { get; private set; } = null;
 
     public CatanPlayer? LargestArmyPlayer => players.FirstOrDefault(p => p.HasLargestArmy);
 
@@ -47,7 +47,7 @@ public class CatanGame
 
     public CatanPlayer CurrentPlayer => players[currentPlayerIndex];
 
-    public int GamePhase { get; set; }
+    public int GamePhase { get; private set; }
 
     public List<CatanPlayer> GetPlayers() => players;
 
@@ -70,7 +70,28 @@ public class CatanGame
 
         CurrentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
 
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
+        if (GamePhase == 1)
+        {
+            if (currentPlayerIndex == 0)
+            {
+                GamePhase = 2;
+            }
+            else
+            {
+                currentPlayerIndex = (currentPlayerIndex - 1) % players.Count;
+            }
+        }
+        else
+        {
+            if (GamePhase == 0 && currentPlayerIndex == players.Count - 1)
+            {
+                GamePhase = 1;
+            }
+            else
+            {
+                currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
+            }
+        }
     }
 
     public void RollDice()
@@ -224,7 +245,7 @@ public class CatanGame
         return true;
     }
 
-    public bool BuildInitialRoad(Coordinates coordinates1, Coordinates coordinates2)
+    public bool BuildFreeRoad(Coordinates coordinates1, Coordinates coordinates2)
     {
         if (!Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, CurrentPlayer.Colour))
         {
@@ -251,7 +272,7 @@ public class CatanGame
         return true;
     }
 
-    public bool BuildInitialSettlement(Coordinates coordinates)
+    public bool BuildFreeSettlement(Coordinates coordinates)
     {
         if (!Board.CanPlaceHouseAtCoordinates(coordinates, CurrentPlayer.Colour, true))
         {
