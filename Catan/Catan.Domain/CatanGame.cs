@@ -145,6 +145,24 @@ public class CatanGame
         return true;
     }
 
+    public bool GiveResourcesSurroundingHouse(Coordinates coordinates)
+    {
+        var tiles = Board.GetTilesSurroundingHouse(coordinates);
+
+        foreach (var tile in tiles)
+        {
+            var resourceType = tile.Type;
+
+            if (remainingResourceCards[resourceType] > 0)
+            {
+                CurrentPlayer.AddResourceCard(resourceType);
+                remainingResourceCards[resourceType]--;
+            }
+        }
+
+        return true;
+    }
+
     public bool TradeTwoToOne(CatanResourceType resourceTypeToGive, CatanResourceType resourceTypeToReceive)
     {
         var portTypeValid = Enum.TryParse<CatanPortType>(resourceTypeToReceive.ToString(), out var portType);

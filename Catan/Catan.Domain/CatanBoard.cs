@@ -260,6 +260,11 @@ public sealed class CatanBoard
 
         foreach (var houseCoordinate in surroundingHouseCoordinates)
         {
+            if (!HouseCoordinatesAreValid(houseCoordinate))
+            {
+                continue;
+            }
+
             var house = houses[houseCoordinate.X, houseCoordinate.Y];
 
             if (house != null && house.Type != CatanBuildingType.None)
@@ -269,6 +274,35 @@ public sealed class CatanBoard
         }
 
         return housesOnTile;
+    }
+
+    public List<CatanTile> GetTilesSurroundingHouse(Coordinates coordinates)
+    {
+        if (!HouseCoordinatesAreValid(coordinates))
+        {
+            throw new ArgumentException("Coordinates are not valid.");
+        }
+
+        var surroundingTileCoordinates = HouseToSurroundingTileCoordinates(coordinates);
+
+        var tilesSurroundingHouse = new List<CatanTile>();
+
+        foreach (var tileCoordinate in surroundingTileCoordinates)
+        {
+            if (!TileCoordinatesAreValid(tileCoordinate))
+            {
+                continue;
+            }
+
+            var tile = tiles[tileCoordinate.X, tileCoordinate.Y];
+
+            if (tile != null)
+            {
+                tilesSurroundingHouse.Add(tile);
+            }
+        }
+
+        return tilesSurroundingHouse;
     }
 
     private bool HouseCoordinatesAreTooCloseToAnotherHouse(Coordinates coordinates)
@@ -642,5 +676,20 @@ public sealed class CatanBoard
         }
 
         return surroundingHouseCoordinates;
+    }
+
+    private static List<Coordinates> HouseToSurroundingTileCoordinates(Coordinates houseCoordinates)
+    {
+        var surroundingTileCoordinates = new List<Coordinates>();
+
+        int y = houseCoordinates.Y;
+
+        int x = (int)(0.5 * (houseCoordinates.X - houseCoordinates.Y) + 1);
+
+        surroundingTileCoordinates.Add(new(x, y));
+        surroundingTileCoordinates.Add(new(x, y - 1));
+        surroundingTileCoordinates.Add(new(x + 1, y - 1));
+
+        return surroundingTileCoordinates;
     }
 }
