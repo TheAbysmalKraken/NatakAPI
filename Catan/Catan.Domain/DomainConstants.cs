@@ -32,8 +32,8 @@ public static class DomainConstants
         };
 
     public static List<Coordinates> GetStartingPortCoordinates()
-        => new()
-        {
+    {
+        return [
             new(2, 0),
             new(3, 0),
             new(5, 0),
@@ -52,7 +52,8 @@ public static class DomainConstants
             new(3, 5),
             new(5, 5),
             new(6, 5)
-        };
+        ];
+    }
 
     public static Dictionary<CatanPortType, int> GetPortTypeTotals()
         => new()

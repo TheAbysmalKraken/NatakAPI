@@ -1,16 +1,10 @@
 ﻿namespace Catan.Domain;
 
-public sealed class Coordinates
+public sealed class Coordinates(int x, int y)
 {
-    public Coordinates(int x, int y)
-    {
-        X = x;
-        Y = y;
-    }
+    public int X { get; private set; } = x;
 
-    public int X { get; private set; }
-
-    public int Y { get; private set; }
+    public int Y { get; private set; } = y;
 
     public bool Equals(Coordinates coordinatesToCompare)
         => X == coordinatesToCompare.X && Y == coordinatesToCompare.Y;

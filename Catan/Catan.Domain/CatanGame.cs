@@ -7,11 +7,11 @@ public class CatanGame
     private const int MIN_PLAYERS = 3;
     private const int MAX_PLAYERS = 4;
 
-    private readonly List<CatanPlayer> players = new();
-    private readonly List<int> rolledDice = new();
-    private readonly Dictionary<CatanResourceType, int> remainingResourceCards = new();
-    private readonly Dictionary<CatanDevelopmentCardType, int> remainingDevelopmentCardTotals = new();
-    private readonly List<CatanDevelopmentCardType> remainingDevelopmentCards = new();
+    private readonly List<CatanPlayer> players = [];
+    private readonly List<int> rolledDice = [];
+    private readonly Dictionary<CatanResourceType, int> remainingResourceCards = [];
+    private readonly Dictionary<CatanDevelopmentCardType, int> remainingDevelopmentCardTotals = [];
+    private readonly List<CatanDevelopmentCardType> remainingDevelopmentCards = [];
     private int currentPlayerIndex = 0;
     private int knightsRequiredForLargestArmy;
     private bool developmentCardPlayedThisTurn;

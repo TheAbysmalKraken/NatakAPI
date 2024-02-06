@@ -2,19 +2,12 @@
 
 namespace Catan.Domain;
 
-public class CatanRoad : CatanBuilding
+public class CatanRoad(
+    CatanPlayerColour colour,
+    Coordinates firstCornerCoordinates,
+    Coordinates secondCornerCoordinates) : CatanBuilding(colour, CatanBuildingType.Road)
 {
-    public CatanRoad(
-        CatanPlayerColour colour,
-        Coordinates firstCornerCoordinates,
-        Coordinates secondCornerCoordinates)
-        : base(colour, CatanBuildingType.Road)
-    {
-        FirstCornerCoordinates = firstCornerCoordinates;
-        SecondCornerCoordinates = secondCornerCoordinates;
-    }
+    public Coordinates FirstCornerCoordinates { get; private set; } = firstCornerCoordinates;
 
-    public Coordinates FirstCornerCoordinates { get; private set; }
-
-    public Coordinates SecondCornerCoordinates { get; private set; }
+    public Coordinates SecondCornerCoordinates { get; private set; } = secondCornerCoordinates;
 }

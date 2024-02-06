@@ -5,18 +5,18 @@ namespace Catan.Domain;
 public sealed class CatanBoard
 {
     private readonly CatanTile[,] tiles;
-    private readonly List<CatanPort> ports = new();
+    private readonly List<CatanPort> ports = [];
     private readonly CatanBuilding[,] houses;
-    private readonly List<CatanRoad> roads = new();
+    private readonly List<CatanRoad> roads = [];
 
     private readonly Random random = new();
 
     public CatanBoard()
     {
         tiles = new CatanTile[BoardLength, BoardLength];
-        ports = new List<CatanPort>();
+        ports = [];
         houses = new CatanBuilding[11, 6];
-        roads = new List<CatanRoad>();
+        roads = [];
         RobberPosition = new Coordinates(0, 0);
 
         InitialiseTilesAndSetRobber();
@@ -118,7 +118,7 @@ public sealed class CatanBoard
 
         foreach (var endCoordinate in endCoordinates)
         {
-            var distanceFromEnd = GetFurthestDistanceFromCoordinateAlongRoads(0, new List<CatanRoad>(), endCoordinate, roadsOfColour, colour);
+            var distanceFromEnd = GetFurthestDistanceFromCoordinateAlongRoads(0, [], endCoordinate, roadsOfColour, colour);
 
             if (distanceFromEnd > furthestDistance)
             {
@@ -576,11 +576,11 @@ public sealed class CatanBoard
 
     private void InitialiseRoads()
     {
-        List<Coordinates> roadVectors = new()
-        {
+        List<Coordinates> roadVectors =
+        [
             new Coordinates(0, -1),
             new Coordinates(-1, 0)
-        };
+        ];
 
         for (int x = 0; x < 11; x++)
         {

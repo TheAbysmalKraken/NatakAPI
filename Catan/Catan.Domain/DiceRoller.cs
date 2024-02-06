@@ -6,7 +6,7 @@ public static class DiceRoller
 
     public static List<int> RollDice(int numberOfDice, int diceSides)
     {
-        List<int> rolledDice = new();
+        List<int> rolledDice = [];
 
         for (var i = 0; i < numberOfDice; i++)
         {

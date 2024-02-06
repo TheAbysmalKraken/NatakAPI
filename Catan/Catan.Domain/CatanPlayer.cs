@@ -2,31 +2,18 @@
 
 namespace Catan.Domain;
 
-public class CatanPlayer
+public class CatanPlayer(CatanPlayerColour colour)
 {
-    private readonly Dictionary<CatanResourceType, int> resourceCards;
-    private readonly Dictionary<CatanDevelopmentCardType, int> playableDevelopmentCards;
-    private readonly Dictionary<CatanDevelopmentCardType, int> developmentCardsOnHold;
-    private readonly List<CatanPlayerColour> embargoedPlayers;
-    private int victoryPointDevelopmentCardCount;
-    private int victoryPointsFromBuildings;
+    private readonly Dictionary<CatanResourceType, int> resourceCards = InitialiseResourceCards();
+    private readonly Dictionary<CatanDevelopmentCardType, int> playableDevelopmentCards = InitialiseDevelopmentCards();
+    private readonly Dictionary<CatanDevelopmentCardType, int> developmentCardsOnHold = InitialiseDevelopmentCards();
+    private readonly List<CatanPlayerColour> embargoedPlayers = [];
+    private int victoryPointDevelopmentCardCount = 0;
+    private int victoryPointsFromBuildings = 0;
 
     private static readonly Random random = new();
 
-    public CatanPlayer(CatanPlayerColour colour)
-    {
-        Colour = colour;
-
-        resourceCards = InitialiseResourceCards();
-        playableDevelopmentCards = InitialiseDevelopmentCards();
-        developmentCardsOnHold = InitialiseDevelopmentCards();
-        embargoedPlayers = new List<CatanPlayerColour>();
-
-        victoryPointsFromBuildings = 0;
-        victoryPointDevelopmentCardCount = 0;
-    }
-
-    public CatanPlayerColour Colour { get; private set; }
+    public CatanPlayerColour Colour { get; private set; } = colour;
 
     public int KnightsPlayed { get; private set; } = 0;
 
