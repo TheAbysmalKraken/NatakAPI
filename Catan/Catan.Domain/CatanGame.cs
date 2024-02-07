@@ -62,6 +62,13 @@ public class CatanGame
     public List<CatanDevelopmentCardType> GetRemainingDevelopmentCards()
         => remainingDevelopmentCards;
 
+    public CatanPlayerColour CheckWinner()
+    {
+        var player = players.FirstOrDefault(p => p.VictoryPoints >= 10);
+
+        return player?.Colour ?? CatanPlayerColour.None;
+    }
+
     public void NextPlayer()
     {
         UpdateLargestArmyPlayer();
