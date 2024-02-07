@@ -83,6 +83,11 @@ public class CatanPlayer(CatanPlayerColour colour)
         embargoedPlayers.Remove(colour);
     }
 
+    public bool CanTradeWithPlayer(CatanPlayerColour colour)
+    {
+        return !embargoedPlayers.Contains(colour) && colour != Colour;
+    }
+
     public bool CanBuyRoad()
     {
         if (RemainingRoads <= 0)
@@ -241,7 +246,7 @@ public class CatanPlayer(CatanPlayerColour colour)
         resourceCards[typeToReceive]++;
     }
 
-    public bool CanDiscardResourceCards(Dictionary<CatanResourceType, int> cardsToDiscard)
+    public bool HasAdequateResourceCardsOfTypes(Dictionary<CatanResourceType, int> cardsToDiscard)
     {
         foreach (var type in cardsToDiscard.Keys)
         {
@@ -254,9 +259,17 @@ public class CatanPlayer(CatanPlayerColour colour)
         return true;
     }
 
-    public void DiscardResourceCards(Dictionary<CatanResourceType, int> cardsToDiscard)
+    public void AddResourceCards(Dictionary<CatanResourceType, int> cardsToAdd)
     {
-        if (!CanDiscardResourceCards(cardsToDiscard))
+        foreach (var type in cardsToAdd.Keys)
+        {
+            resourceCards[type] += cardsToAdd[type];
+        }
+    }
+
+    public void RemoveResourceCards(Dictionary<CatanResourceType, int> cardsToDiscard)
+    {
+        if (!HasAdequateResourceCardsOfTypes(cardsToDiscard))
         {
             throw new ArgumentException("Player does not have enough of the specified resource cards to discard.");
         }

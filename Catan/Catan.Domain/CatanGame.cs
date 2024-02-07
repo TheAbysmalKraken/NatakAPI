@@ -377,6 +377,30 @@ public class CatanGame
         return true;
     }
 
+    public bool MakeTradeWithPlayer(
+        CatanPlayerColour otherPlayerColour,
+        Dictionary<CatanResourceType, int> resourcesGivenByCurrentPlayer,
+        Dictionary<CatanResourceType, int> resourcesReceivedByCurrentPlayer)
+    {
+        var playerToTradeWith = GetPlayerByColour(otherPlayerColour);
+
+        if (playerToTradeWith == null
+        || !CurrentPlayer.CanTradeWithPlayer(otherPlayerColour)
+        || !playerToTradeWith.CanTradeWithPlayer(CurrentPlayer.Colour)
+        || !CurrentPlayer.HasAdequateResourceCardsOfTypes(resourcesGivenByCurrentPlayer)
+        || !playerToTradeWith.HasAdequateResourceCardsOfTypes(resourcesReceivedByCurrentPlayer))
+        {
+            return false;
+        }
+
+        CurrentPlayer.AddResourceCards(resourcesReceivedByCurrentPlayer);
+        CurrentPlayer.RemoveResourceCards(resourcesGivenByCurrentPlayer);
+        playerToTradeWith.AddResourceCards(resourcesGivenByCurrentPlayer);
+        playerToTradeWith.RemoveResourceCards(resourcesReceivedByCurrentPlayer);
+
+        return true;
+    }
+
     public bool BuildFreeRoad(Coordinates coordinates1, Coordinates coordinates2)
     {
         if (!Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, CurrentPlayer.Colour))
@@ -477,12 +501,12 @@ public class CatanGame
 
     public bool DiscardCards(Dictionary<CatanResourceType, int> cardsToDiscard)
     {
-        if (!CurrentPlayer.CanDiscardResourceCards(cardsToDiscard))
+        if (!CurrentPlayer.HasAdequateResourceCardsOfTypes(cardsToDiscard))
         {
             return false;
         }
 
-        CurrentPlayer.DiscardResourceCards(cardsToDiscard);
+        CurrentPlayer.RemoveResourceCards(cardsToDiscard);
 
         foreach (var type in cardsToDiscard.Keys)
         {
