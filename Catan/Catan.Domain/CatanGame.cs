@@ -357,6 +357,26 @@ public class CatanGame
         return true;
     }
 
+    public bool PlayRoadBuildingCard(
+        Coordinates coordinates1,
+        Coordinates coordinates2,
+        Coordinates coordinates3,
+        Coordinates coordinates4)
+    {
+        if (!CanPlayDevelopmentCard(CatanDevelopmentCardType.RoadBuilding)
+        || !Board.CanPlaceTwoRoadsBetweenCoordinates(coordinates1, coordinates2, coordinates3, coordinates4, CurrentPlayer.Colour))
+        {
+            return false;
+        }
+
+        Board.PlaceRoad(coordinates1, coordinates2, CurrentPlayer.Colour);
+        Board.PlaceRoad(coordinates3, coordinates4, CurrentPlayer.Colour);
+
+        PlayDevelopmentCard(CatanDevelopmentCardType.RoadBuilding);
+
+        return true;
+    }
+
     public bool BuildFreeRoad(Coordinates coordinates1, Coordinates coordinates2)
     {
         if (!Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, CurrentPlayer.Colour))

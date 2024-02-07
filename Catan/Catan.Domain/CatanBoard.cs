@@ -216,6 +216,30 @@ public sealed class CatanBoard
         return true;
     }
 
+    public bool CanPlaceTwoRoadsBetweenCoordinates(
+        Coordinates coordinates1,
+        Coordinates coordinates2,
+        Coordinates coordinates3,
+        Coordinates coordinates4,
+        CatanPlayerColour colour)
+    {
+        if (!CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, colour))
+        {
+            return false;
+        }
+
+        PlaceRoad(coordinates1, coordinates2, colour);
+
+        if (!CanPlaceRoadBetweenCoordinates(coordinates3, coordinates4, colour))
+        {
+            RemoveRoad(coordinates1, coordinates2);
+            return false;
+        }
+
+        RemoveRoad(coordinates1, coordinates2);
+        return true;
+    }
+
     public void PlaceRoad(Coordinates coordinates1, Coordinates coordinates2, CatanPlayerColour colour)
     {
         if (!CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, colour))
@@ -364,6 +388,20 @@ public sealed class CatanBoard
         {
             return false;
         }
+
+        return true;
+    }
+
+    private bool RemoveRoad(Coordinates coordinates1, Coordinates coordinates2)
+    {
+        var road = GetRoadAtCoordinates(coordinates1, coordinates2);
+
+        if (road is null)
+        {
+            return false;
+        }
+
+        road.SetColour(CatanPlayerColour.None);
 
         return true;
     }
