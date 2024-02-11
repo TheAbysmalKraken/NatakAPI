@@ -459,12 +459,14 @@ public class CatanGame
             return false;
         }
 
+        CurrentPlayer.BuyFreeRoad();
         Board.PlaceRoad(coordinates1, coordinates2, CurrentPlayer.Colour);
 
         if (GamePhase == CatanGamePhase.FirstRoundSetup
         || GamePhase == CatanGamePhase.SecondRoundSetup)
         {
             GameSubPhase = CatanGameSubPhase.BuildSettlement;
+            NextPlayer();
         }
 
         return true;
@@ -494,6 +496,7 @@ public class CatanGame
             return false;
         }
 
+        CurrentPlayer.BuyFreeSettlement();
         Board.PlaceHouse(coordinates, CurrentPlayer.Colour, true);
 
         if (GamePhase == CatanGamePhase.SecondRoundSetup)

@@ -115,6 +115,11 @@ public class CatanPlayer(CatanPlayerColour colour)
         RemainingRoads--;
     }
 
+    public void BuyFreeRoad()
+    {
+        RemainingRoads--;
+    }
+
     public bool CanBuySettlement()
     {
         if (RemainingSettlements <= 0)
@@ -140,6 +145,11 @@ public class CatanPlayer(CatanPlayerColour colour)
         resourceCards[CatanResourceType.Sheep]--;
         resourceCards[CatanResourceType.Wheat]--;
 
+        RemainingSettlements--;
+    }
+
+    public void BuyFreeSettlement()
+    {
         RemainingSettlements--;
     }
 
