@@ -36,7 +36,7 @@ public interface ICatanGameManager
 
     Result MoveRobber(string gameId, int x, int y);
 
-    Result StealResource(string gameId, int victimColour, int resourceType);
+    Result StealResource(string gameId, int victimColour);
 
     Result DiscardResources(string gameId, int playerColour, Dictionary<int, int> resources);
 

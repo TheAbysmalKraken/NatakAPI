@@ -288,12 +288,63 @@ public sealed class CatanGameManager : ICatanGameManager
 
     public Result MoveRobber(string gameId, int x, int y)
     {
-        throw new NotImplementedException();
+        var gameResult = GetGame(gameId);
+
+        if (gameResult.IsFailure)
+        {
+            return Result.Failure(gameResult.Error);
+        }
+
+        var game = gameResult.Value;
+
+        if (game.GameSubPhase != CatanGameSubPhase.MoveRobberSevenRoll
+        && game.GameSubPhase != CatanGameSubPhase.MoveRobberKnightCardBeforeRoll
+        && game.GameSubPhase != CatanGameSubPhase.MoveRobberKnightCardAfterRoll)
+        {
+            return Result.Failure(CatanErrors.InvalidGamePhase);
+        }
+
+        var moveSuccess = game.MoveRobber(new(x, y));
+
+        if (!moveSuccess)
+        {
+            return Result.Failure(CatanErrors.InvalidBuildLocation);
+        }
+
+        return Result.Success();
     }
 
-    public Result StealResource(string gameId, int victimColour, int resourceType)
+    public Result StealResource(string gameId, int victimColour)
     {
-        throw new NotImplementedException();
+        var gameResult = GetGame(gameId);
+
+        if (gameResult.IsFailure)
+        {
+            return Result.Failure(gameResult.Error);
+        }
+
+        var game = gameResult.Value;
+
+        if (!IsValidPlayerColour(victimColour))
+        {
+            return Result.Failure(CatanErrors.InvalidPlayerColour);
+        }
+
+        if (game.GameSubPhase != CatanGameSubPhase.StealResourceSevenRoll
+        && game.GameSubPhase != CatanGameSubPhase.StealResourceKnightCardBeforeRoll
+        && game.GameSubPhase != CatanGameSubPhase.StealResourceKnightCardAfterRoll)
+        {
+            return Result.Failure(CatanErrors.InvalidGamePhase);
+        }
+
+        var stealSuccess = game.StealResourceCard((CatanPlayerColour)victimColour);
+
+        if (!stealSuccess)
+        {
+            return Result.Failure(CatanErrors.InvalidBuildLocation);
+        }
+
+        return Result.Success();
     }
 
     public Result DiscardResources(string gameId, int playerColour, Dictionary<int, int> resources)
@@ -333,7 +384,34 @@ public sealed class CatanGameManager : ICatanGameManager
 
     public Result EmbargoPlayer(string gameId, int playerColour, int playerColourToEmbargo)
     {
-        throw new NotImplementedException();
+        var gameResult = GetGame(gameId);
+
+        if (gameResult.IsFailure)
+        {
+            return Result.Failure(gameResult.Error);
+        }
+
+        var game = gameResult.Value;
+
+        if (!IsValidPlayerColour(playerColourToEmbargo)
+        || !IsValidPlayerColour(playerColour))
+        {
+            return Result.Failure(CatanErrors.InvalidPlayerColour);
+        }
+
+        if (game.GameSubPhase != CatanGameSubPhase.TradeOrBuild)
+        {
+            return Result.Failure(CatanErrors.InvalidGamePhase);
+        }
+
+        var embargoSuccess = game.EmbargoPlayer((CatanPlayerColour)playerColour, (CatanPlayerColour)playerColourToEmbargo);
+
+        if (!embargoSuccess)
+        {
+            return Result.Failure(CatanErrors.InvalidBuildLocation);
+        }
+
+        return Result.Success();
     }
 
     private Result<CatanGame> GetGame(string gameId)
@@ -348,7 +426,7 @@ public sealed class CatanGameManager : ICatanGameManager
         return Result.Success(game);
     }
 
-    private bool IsValidPlayerColour(int colour)
+    private static bool IsValidPlayerColour(int colour)
     {
         return colour >= 0 && colour <= 3;
     }

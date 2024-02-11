@@ -307,6 +307,16 @@ public class CatanGame
 
         var originalRobberCoordinates = Board.RobberPosition;
 
+        if (GameSubPhase == CatanGameSubPhase.RollOrPlayDevelopmentCard)
+        {
+            GameSubPhase = CatanGameSubPhase.MoveRobberKnightCardBeforeRoll;
+        }
+        else if (GameSubPhase == CatanGameSubPhase.TradeOrBuild
+        || GameSubPhase == CatanGameSubPhase.PlayTurn)
+        {
+            GameSubPhase = CatanGameSubPhase.MoveRobberKnightCardAfterRoll;
+        }
+
         var moveRobberSuccess = MoveRobber(robberCoordinates);
 
         if (!moveRobberSuccess)
@@ -541,6 +551,15 @@ public class CatanGame
 
         Board.MoveRobberToCoordinates(coordinates);
 
+        if (GameSubPhase == CatanGameSubPhase.MoveRobberKnightCardBeforeRoll)
+        {
+            GameSubPhase = CatanGameSubPhase.StealResourceKnightCardBeforeRoll;
+        }
+        else if (GameSubPhase == CatanGameSubPhase.MoveRobberSevenRoll)
+        {
+            GameSubPhase = CatanGameSubPhase.StealResourceKnightCardAfterRoll;
+        }
+
         return true;
     }
 
@@ -558,6 +577,15 @@ public class CatanGame
         if (stolenCard != null)
         {
             CurrentPlayer.AddResourceCard(stolenCard.Value);
+        }
+
+        if (GameSubPhase == CatanGameSubPhase.StealResourceKnightCardBeforeRoll)
+        {
+            GameSubPhase = CatanGameSubPhase.Roll;
+        }
+        else if (GameSubPhase == CatanGameSubPhase.StealResourceKnightCardAfterRoll)
+        {
+            GameSubPhase = CatanGameSubPhase.TradeOrBuild;
         }
 
         return true;
@@ -591,7 +619,7 @@ public class CatanGame
     {
         if (!players.Any(p => p.GetResourceCards().Count > 7))
         {
-            GameSubPhase = CatanGameSubPhase.MoveRobber;
+            GameSubPhase = CatanGameSubPhase.MoveRobberSevenRoll;
         }
     }
 

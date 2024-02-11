@@ -66,8 +66,12 @@ public static class Enumerations
         Roll = 3,
         TradeOrBuild = 4,
         PlayTurn = 5,
-        MoveRobber = 6,
-        StealResource = 7,
-        DiscardResources = 8
+        MoveRobberSevenRoll = 6,
+        MoveRobberKnightCardBeforeRoll = 7,
+        MoveRobberKnightCardAfterRoll = 8,
+        StealResourceSevenRoll = 9,
+        StealResourceKnightCardBeforeRoll = 10,
+        StealResourceKnightCardAfterRoll = 11,
+        DiscardResources = 12
     }
 }
