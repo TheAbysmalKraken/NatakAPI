@@ -45,7 +45,7 @@ public class CatanGame
 
     public int PlayerCount { get; private set; }
 
-    public int? WinnerIndex => SetWinnerIndex();
+    public int? WinnerIndex { get; private set; }
 
     public List<int> LastRoll => rolledDice;
 
@@ -323,6 +323,10 @@ public class CatanGame
 
         PlayDevelopmentCard(CatanDevelopmentCardType.Knight);
 
+        UpdateLargestArmyPlayer();
+
+        SetWinnerIndex();
+
         return true;
     }
 
@@ -406,6 +410,10 @@ public class CatanGame
 
         PlayDevelopmentCard(CatanDevelopmentCardType.RoadBuilding);
 
+        UpdateLargestRoadPlayer();
+
+        SetWinnerIndex();
+
         return true;
     }
 
@@ -463,6 +471,8 @@ public class CatanGame
 
         UpdateLargestRoadPlayer();
 
+        SetWinnerIndex();
+
         return true;
     }
 
@@ -501,6 +511,8 @@ public class CatanGame
 
         UpdateLargestRoadPlayer();
 
+        SetWinnerIndex();
+
         return true;
     }
 
@@ -513,6 +525,8 @@ public class CatanGame
 
         CurrentPlayer.BuyCity();
         Board.UpgradeHouse(coordinates, CurrentPlayer.Colour);
+
+        SetWinnerIndex();
 
         return true;
     }
@@ -578,19 +592,21 @@ public class CatanGame
 
         CurrentPlayer.BuyDevelopmentCard(card);
 
+        SetWinnerIndex();
+
         return true;
     }
 
-    private int? SetWinnerIndex()
+    private void SetWinnerIndex()
     {
-        var playerIndex = players.FindIndex(p => p.VictoryPoints >= 10);
-
-        if (playerIndex == -1)
+        if (CurrentPlayer.VictoryPoints >= 10)
         {
-            return null;
+            WinnerIndex = currentPlayerIndex;
         }
-
-        return playerIndex;
+        else
+        {
+            WinnerIndex = null;
+        }
     }
 
     private int? SetLargestArmyPlayerIndex()
