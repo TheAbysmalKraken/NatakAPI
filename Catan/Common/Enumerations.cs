@@ -15,11 +15,11 @@ public static class Enumerations
 
     public enum CatanPlayerColour
     {
-        None = 0,
-        Red = 1,
-        Blue = 2,
-        Green = 3,
-        Yellow = 4
+        None = -1,
+        Red = 0,
+        Blue = 1,
+        Green = 2,
+        Yellow = 3,
     }
 
     public enum CatanBuildingType

@@ -24,6 +24,8 @@ public class CatanGame
             throw new ArgumentException($"Invalid number of players: '{numberOfPlayers}'");
         }
 
+        Id = Guid.NewGuid().ToString();
+
         Board = new CatanBoard();
 
         RollDice();
@@ -35,17 +37,32 @@ public class CatanGame
         developmentCardPlayedThisTurn = false;
 
         GamePhase = 0;
+        PlayerCount = numberOfPlayers;
     }
+
+    public string Id { get; init; }
+
+    public int PlayerCount { get; private set; }
+
+    public int? WinnerIndex => SetWinnerIndex();
+
+    public List<int> LastRoll => rolledDice;
 
     public CatanBoard Board { get; private set; } = new();
 
     public CatanPlayer? LongestRoadPlayer { get; private set; } = null;
 
+    public int? LongestRoadPlayerIndex => SetLongestRoadPlayerIndex();
+
     public CatanPlayer? LargestArmyPlayer => players.FirstOrDefault(p => p.HasLargestArmy);
+
+    public int? LargestArmyPlayerIndex => SetLargestArmyPlayerIndex();
 
     public int DiceTotal => rolledDice.Sum();
 
     public CatanPlayer CurrentPlayer => players[currentPlayerIndex];
+
+    public int CurrentPlayerIndex => currentPlayerIndex;
 
     public int GamePhase { get; private set; }
 
@@ -61,13 +78,6 @@ public class CatanGame
 
     public List<CatanDevelopmentCardType> GetRemainingDevelopmentCards()
         => remainingDevelopmentCards;
-
-    public CatanPlayerColour CheckWinner()
-    {
-        var player = players.FirstOrDefault(p => p.VictoryPoints >= 10);
-
-        return player?.Colour ?? CatanPlayerColour.None;
-    }
 
     public void NextPlayer()
     {
@@ -523,13 +533,49 @@ public class CatanGame
         return true;
     }
 
+    private int? SetWinnerIndex()
+    {
+        var playerIndex = players.FindIndex(p => p.VictoryPoints >= 10);
+
+        if (playerIndex == -1)
+        {
+            return null;
+        }
+
+        return playerIndex;
+    }
+
+    private int? SetLargestArmyPlayerIndex()
+    {
+        var playerIndex = players.FindIndex(p => p.HasLargestArmy);
+
+        if (playerIndex == -1)
+        {
+            return null;
+        }
+
+        return playerIndex;
+    }
+
+    private int? SetLongestRoadPlayerIndex()
+    {
+        var playerIndex = players.FindIndex(p => p.HasLongestRoad);
+
+        if (playerIndex == -1)
+        {
+            return null;
+        }
+
+        return playerIndex;
+    }
+
     private void InitialisePlayers(int numberOfPlayers)
     {
         players.Clear();
 
         for (var i = 0; i < numberOfPlayers; i++)
         {
-            CatanPlayerColour playerColour = (CatanPlayerColour)(i + 1);
+            CatanPlayerColour playerColour = (CatanPlayerColour)i;
             var newPlayer = new CatanPlayer(playerColour);
 
             players.Add(newPlayer);

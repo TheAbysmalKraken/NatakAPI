@@ -20,15 +20,18 @@ public class CatanPlayer(CatanPlayerColour colour)
     public int VictoryPoints
         => victoryPointsFromBuildings + CalculateVictoryPointsExcludingBuildings();
 
+    public int VictoryPointCards
+        => victoryPointDevelopmentCardCount;
+
     public bool HasLargestArmy { get; private set; } = false;
 
     public bool HasLongestRoad { get; private set; } = false;
 
-    public int RemainingSettlements { get; private set; } = 0;
+    public int RemainingSettlements { get; private set; } = 5;
 
-    public int RemainingCities { get; private set; } = 0;
+    public int RemainingCities { get; private set; } = 4;
 
-    public int RemainingRoads { get; private set; } = 0;
+    public int RemainingRoads { get; private set; } = 15;
 
     public Dictionary<CatanResourceType, int> GetResourceCards()
     {
