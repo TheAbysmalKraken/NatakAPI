@@ -179,4 +179,264 @@ public class CatanController(ILogger<CatanController> logger) : ControllerBase
             return StatusCode(500);
         }
     }
+
+    [HttpPost("{gameId}/buy-development-card")]
+    public IActionResult BuyDevelopmentCard(string gameId)
+    {
+        try
+        {
+            var buyDevelopmentCardResult = gameManager.BuyDevelopmentCard(gameId);
+
+            if (buyDevelopmentCardResult.IsFailure)
+            {
+                return StatusCode((int)buyDevelopmentCardResult.Error.StatusCode, buyDevelopmentCardResult.Error.Message);
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return StatusCode(500);
+        }
+    }
+
+    [HttpPost("{gameId}/play-knight-card")]
+    public IActionResult PlayKnightCard(string gameId, [FromBody] PlayKnightCardRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request.X);
+        ArgumentNullException.ThrowIfNull(request.Y);
+        ArgumentNullException.ThrowIfNull(request.PlayerColourToStealFrom);
+
+        try
+        {
+            var playKnightCardResult = gameManager.PlayKnightCard(gameId, request.X.Value, request.Y.Value, request.PlayerColourToStealFrom.Value);
+
+            if (playKnightCardResult.IsFailure)
+            {
+                return StatusCode((int)playKnightCardResult.Error.StatusCode, playKnightCardResult.Error.Message);
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return StatusCode(500);
+        }
+    }
+
+    [HttpPost("{gameId}/play-road-building-card")]
+    public IActionResult PlayRoadBuildingCard(string gameId, [FromBody] PlayRoadBuildingCardRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request.FirstX);
+        ArgumentNullException.ThrowIfNull(request.FirstY);
+        ArgumentNullException.ThrowIfNull(request.SecondX);
+        ArgumentNullException.ThrowIfNull(request.SecondY);
+        ArgumentNullException.ThrowIfNull(request.ThirdX);
+        ArgumentNullException.ThrowIfNull(request.ThirdY);
+        ArgumentNullException.ThrowIfNull(request.FourthX);
+        ArgumentNullException.ThrowIfNull(request.FourthY);
+
+        try
+        {
+            var playRoadBuildingCardResult = gameManager.PlayRoadBuildingCard(
+                gameId,
+                request.FirstX.Value,
+                request.FirstY.Value,
+                request.SecondX.Value,
+                request.SecondY.Value,
+                request.ThirdX.Value,
+                request.ThirdY.Value,
+                request.FourthX.Value,
+                request.FourthY.Value);
+
+            if (playRoadBuildingCardResult.IsFailure)
+            {
+                return StatusCode((int)playRoadBuildingCardResult.Error.StatusCode, playRoadBuildingCardResult.Error.Message);
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return StatusCode(500);
+        }
+    }
+
+    [HttpPost("{gameId}/play-year-of-plenty-card")]
+    public IActionResult PlayYearOfPlentyCard(string gameId, [FromBody] PlayYearOfPlentyCardRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request.FirstResourceType);
+        ArgumentNullException.ThrowIfNull(request.SecondResourceType);
+
+        try
+        {
+            var playYearOfPlentyCardResult = gameManager.PlayYearOfPlentyCard(gameId, request.FirstResourceType.Value, request.SecondResourceType.Value);
+
+            if (playYearOfPlentyCardResult.IsFailure)
+            {
+                return StatusCode((int)playYearOfPlentyCardResult.Error.StatusCode, playYearOfPlentyCardResult.Error.Message);
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return StatusCode(500);
+        }
+    }
+
+    [HttpPost("{gameId}/play-monopoly-card")]
+    public IActionResult PlayMonopolyCard(string gameId, [FromBody] PlayMonopolyCardRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request.ResourceType);
+
+        try
+        {
+            var playMonopolyCardResult = gameManager.PlayMonopolyCard(gameId, request.ResourceType.Value);
+
+            if (playMonopolyCardResult.IsFailure)
+            {
+                return StatusCode((int)playMonopolyCardResult.Error.StatusCode, playMonopolyCardResult.Error.Message);
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return StatusCode(500);
+        }
+    }
+
+    [HttpPost("{gameId}/move-robber")]
+    public IActionResult MoveRobber(string gameId, [FromBody] MoveRobberRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request.X);
+        ArgumentNullException.ThrowIfNull(request.Y);
+
+        try
+        {
+            var moveRobberResult = gameManager.MoveRobber(gameId, request.X.Value, request.Y.Value);
+
+            if (moveRobberResult.IsFailure)
+            {
+                return StatusCode((int)moveRobberResult.Error.StatusCode, moveRobberResult.Error.Message);
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return StatusCode(500);
+        }
+    }
+
+    [HttpPost("{gameId}/steal-resource")]
+    public IActionResult StealResource(string gameId, [FromBody] StealResourceRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request.PlayerColourToStealFrom);
+
+        try
+        {
+            var stealResourceResult = gameManager.StealResource(gameId, request.PlayerColourToStealFrom.Value);
+
+            if (stealResourceResult.IsFailure)
+            {
+                return StatusCode((int)stealResourceResult.Error.StatusCode, stealResourceResult.Error.Message);
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return StatusCode(500);
+        }
+    }
+
+    [HttpPost("{gameId}/{playerColour}/discard-resources")]
+    public IActionResult DiscardResources(string gameId, int playerColour, [FromBody] DiscardResourcesRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(request.Resources);
+
+        try
+        {
+            var discardResourcesResult = gameManager.DiscardResources(gameId, playerColour, request.Resources);
+
+            if (discardResourcesResult.IsFailure)
+            {
+                return StatusCode((int)discardResourcesResult.Error.StatusCode, discardResourcesResult.Error.Message);
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return StatusCode(500);
+        }
+    }
+
+    [HttpPost("{gameId}/trade-with-bank")]
+    public IActionResult TradeWithBank(string gameId, [FromBody] TradeWithBankRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request.ResourceToGive);
+        ArgumentNullException.ThrowIfNull(request.ResourceToReceive);
+
+        try
+        {
+            var tradeWithBankResult = gameManager.TradeWithBank(gameId, request.ResourceToGive.Value, request.ResourceToReceive.Value);
+
+            if (tradeWithBankResult.IsFailure)
+            {
+                return StatusCode((int)tradeWithBankResult.Error.StatusCode, tradeWithBankResult.Error.Message);
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return StatusCode(500);
+        }
+    }
+
+    [HttpPost("{gameId}/{playerColour}/embargo-player")]
+    public IActionResult EmbargoPlayer(string gameId, int playerColour, [FromBody] EmbargoPlayerRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request.PlayerColourToEmbargo);
+
+        try
+        {
+            var embargoPlayerResult = gameManager.EmbargoPlayer(gameId, playerColour, request.PlayerColourToEmbargo.Value);
+
+            if (embargoPlayerResult.IsFailure)
+            {
+                return StatusCode((int)embargoPlayerResult.Error.StatusCode, embargoPlayerResult.Error.Message);
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return StatusCode(500);
+        }
+    }
 }

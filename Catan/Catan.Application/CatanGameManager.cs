@@ -251,7 +251,8 @@ public sealed class CatanGameManager : ICatanGameManager
         }
 
         if (game.GameSubPhase != CatanGameSubPhase.PlayTurn
-        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild)
+        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild
+        && game.GameSubPhase != CatanGameSubPhase.RollOrPlayDevelopmentCard)
         {
             return Result.Failure(CatanErrors.InvalidGamePhase);
         }
@@ -265,25 +266,111 @@ public sealed class CatanGameManager : ICatanGameManager
 
         if (!playSuccess)
         {
-            return Result.Failure(CatanErrors.InvalidBuildLocation);
+            return Result.Failure(CatanErrors.CannotPlayDevelopmentCard);
         }
 
         return Result.Success();
     }
 
-    public Result PlayRoadBuildingCard(string gameId)
+    public Result PlayRoadBuildingCard(
+        string gameId, int firstX, int firstY, int secondX, int secondY,
+        int thirdX, int thirdY, int fourthX, int fourthY)
     {
-        throw new NotImplementedException();
+        var gameResult = GetGame(gameId);
+
+        if (gameResult.IsFailure)
+        {
+            return Result.Failure(gameResult.Error);
+        }
+
+        var game = gameResult.Value;
+
+        if (game.GameSubPhase != CatanGameSubPhase.PlayTurn
+        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild
+        && game.GameSubPhase != CatanGameSubPhase.RollOrPlayDevelopmentCard)
+        {
+            return Result.Failure(CatanErrors.InvalidGamePhase);
+        }
+
+        if (game.HasPlayedDevelopmentCardThisTurn)
+        {
+            return Result.Failure(CatanErrors.AlreadyPlayedDevelopmentCard);
+        }
+
+        var playSuccess = game.PlayRoadBuildingCard(new(firstX, firstY), new(secondX, secondY), new(thirdX, thirdY), new(fourthX, fourthY));
+
+        if (!playSuccess)
+        {
+            return Result.Failure(CatanErrors.CannotPlayDevelopmentCard);
+        }
+
+        return Result.Success();
     }
 
     public Result PlayYearOfPlentyCard(string gameId, int resourceType1, int resourceType2)
     {
-        throw new NotImplementedException();
+        var gameResult = GetGame(gameId);
+
+        if (gameResult.IsFailure)
+        {
+            return Result.Failure(gameResult.Error);
+        }
+
+        var game = gameResult.Value;
+
+        if (game.GameSubPhase != CatanGameSubPhase.PlayTurn
+        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild
+        && game.GameSubPhase != CatanGameSubPhase.RollOrPlayDevelopmentCard)
+        {
+            return Result.Failure(CatanErrors.InvalidGamePhase);
+        }
+
+        if (game.HasPlayedDevelopmentCardThisTurn)
+        {
+            return Result.Failure(CatanErrors.AlreadyPlayedDevelopmentCard);
+        }
+
+        var playSuccess = game.PlayYearOfPlentyCard((CatanResourceType)resourceType1, (CatanResourceType)resourceType2);
+
+        if (!playSuccess)
+        {
+            return Result.Failure(CatanErrors.CannotPlayDevelopmentCard);
+        }
+
+        return Result.Success();
     }
 
     public Result PlayMonopolyCard(string gameId, int resourceType)
     {
-        throw new NotImplementedException();
+        var gameResult = GetGame(gameId);
+
+        if (gameResult.IsFailure)
+        {
+            return Result.Failure(gameResult.Error);
+        }
+
+        var game = gameResult.Value;
+
+        if (game.GameSubPhase != CatanGameSubPhase.PlayTurn
+        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild
+        && game.GameSubPhase != CatanGameSubPhase.RollOrPlayDevelopmentCard)
+        {
+            return Result.Failure(CatanErrors.InvalidGamePhase);
+        }
+
+        if (game.HasPlayedDevelopmentCardThisTurn)
+        {
+            return Result.Failure(CatanErrors.AlreadyPlayedDevelopmentCard);
+        }
+
+        var playSuccess = game.PlayMonopolyCard((CatanResourceType)resourceType);
+
+        if (!playSuccess)
+        {
+            return Result.Failure(CatanErrors.CannotPlayDevelopmentCard);
+        }
+
+        return Result.Success();
     }
 
     public Result MoveRobber(string gameId, int x, int y)
@@ -308,7 +395,7 @@ public sealed class CatanGameManager : ICatanGameManager
 
         if (!moveSuccess)
         {
-            return Result.Failure(CatanErrors.InvalidBuildLocation);
+            return Result.Failure(CatanErrors.CannotMoveRobberToLocation);
         }
 
         return Result.Success();
@@ -341,7 +428,7 @@ public sealed class CatanGameManager : ICatanGameManager
 
         if (!stealSuccess)
         {
-            return Result.Failure(CatanErrors.InvalidBuildLocation);
+            return Result.Failure(CatanErrors.CannotStealResource);
         }
 
         return Result.Success();
@@ -369,7 +456,7 @@ public sealed class CatanGameManager : ICatanGameManager
 
         if (!discardSuccess)
         {
-            return Result.Failure(CatanErrors.InvalidBuildLocation);
+            return Result.Failure(CatanErrors.CannotDiscardResources);
         }
 
         game.TryFinishDiscardingResources();
@@ -379,7 +466,42 @@ public sealed class CatanGameManager : ICatanGameManager
 
     public Result TradeWithBank(string gameId, int resourceToGive, int resourceToGet)
     {
-        throw new NotImplementedException();
+        var gameResult = GetGame(gameId);
+
+        if (gameResult.IsFailure)
+        {
+            return Result.Failure(gameResult.Error);
+        }
+
+        var game = gameResult.Value;
+
+        if (game.GameSubPhase != CatanGameSubPhase.TradeOrBuild)
+        {
+            return Result.Failure(CatanErrors.InvalidGamePhase);
+        }
+
+        var tradeTwoToOneSuccess = game.TradeTwoToOne((CatanResourceType)resourceToGive, (CatanResourceType)resourceToGet);
+
+        if (tradeTwoToOneSuccess)
+        {
+            return Result.Success();
+        }
+
+        var tradeThreeToOneSuccess = game.TradeThreeToOne((CatanResourceType)resourceToGive, (CatanResourceType)resourceToGet);
+
+        if (tradeThreeToOneSuccess)
+        {
+            return Result.Success();
+        }
+
+        var tradeFourToOneSuccess = game.TradeFourToOne((CatanResourceType)resourceToGive, (CatanResourceType)resourceToGet);
+
+        if (tradeFourToOneSuccess)
+        {
+            return Result.Success();
+        }
+
+        return Result.Failure(CatanErrors.CannotTradeWithBank);
     }
 
     public Result EmbargoPlayer(string gameId, int playerColour, int playerColourToEmbargo)
@@ -408,7 +530,7 @@ public sealed class CatanGameManager : ICatanGameManager
 
         if (!embargoSuccess)
         {
-            return Result.Failure(CatanErrors.InvalidBuildLocation);
+            return Result.Failure(CatanErrors.CannotEmbargoPlayer);
         }
 
         return Result.Success();

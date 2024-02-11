@@ -72,6 +72,8 @@ public static class Enumerations
         StealResourceSevenRoll = 9,
         StealResourceKnightCardBeforeRoll = 10,
         StealResourceKnightCardAfterRoll = 11,
-        DiscardResources = 12
+        DiscardResources = 12,
+        BuildFirstRoadBuildingRoad = 13,
+        BuildSecondRoadBuildingRoad = 14
     }
 }
