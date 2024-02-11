@@ -296,9 +296,34 @@ public sealed class CatanGameManager : ICatanGameManager
         throw new NotImplementedException();
     }
 
-    public Result DiscardResources(string gameId, Dictionary<int, int> resources)
+    public Result DiscardResources(string gameId, int playerColour, Dictionary<int, int> resources)
     {
-        throw new NotImplementedException();
+        var gameResult = GetGame(gameId);
+
+        if (gameResult.IsFailure)
+        {
+            return Result.Failure(gameResult.Error);
+        }
+
+        var game = gameResult.Value;
+
+        if (game.GameSubPhase != CatanGameSubPhase.DiscardResources)
+        {
+            return Result.Failure(CatanErrors.InvalidGamePhase);
+        }
+
+        var catanResources = resources.ToDictionary(kvp => (CatanResourceType)kvp.Key, kvp => kvp.Value);
+
+        var discardSuccess = game.DiscardResources((CatanPlayerColour)playerColour, catanResources);
+
+        if (!discardSuccess)
+        {
+            return Result.Failure(CatanErrors.InvalidBuildLocation);
+        }
+
+        game.TryFinishDiscardingResources();
+
+        return Result.Success();
     }
 
     public Result TradeWithBank(string gameId, int resourceToGive, int resourceToGet)

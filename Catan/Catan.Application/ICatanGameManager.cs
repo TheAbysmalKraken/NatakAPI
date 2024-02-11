@@ -38,7 +38,7 @@ public interface ICatanGameManager
 
     Result StealResource(string gameId, int victimColour, int resourceType);
 
-    Result DiscardResources(string gameId, Dictionary<int, int> resources);
+    Result DiscardResources(string gameId, int playerColour, Dictionary<int, int> resources);
 
     Result TradeWithBank(string gameId, int resourceToGive, int resourceToGet);
 

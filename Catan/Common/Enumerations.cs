@@ -67,6 +67,7 @@ public static class Enumerations
         TradeOrBuild = 4,
         PlayTurn = 5,
         MoveRobber = 6,
-        StealResource = 7
+        StealResource = 7,
+        DiscardResources = 8
     }
 }

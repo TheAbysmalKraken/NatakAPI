@@ -131,6 +131,7 @@ public class CatanGame
 
         if (diceTotal == 7)
         {
+            GameSubPhase = CatanGameSubPhase.DiscardResources;
             return false;
         }
 
@@ -562,21 +563,36 @@ public class CatanGame
         return true;
     }
 
-    public bool DiscardCards(Dictionary<CatanResourceType, int> cardsToDiscard)
+    public bool DiscardResources(CatanPlayerColour playerColourDiscarding, Dictionary<CatanResourceType, int> resourcesToDiscard)
     {
-        if (!CurrentPlayer.HasAdequateResourceCardsOfTypes(cardsToDiscard))
+        var player = GetPlayerByColour(playerColourDiscarding);
+
+        if (player == null)
         {
             return false;
         }
 
-        CurrentPlayer.RemoveResourceCards(cardsToDiscard);
-
-        foreach (var type in cardsToDiscard.Keys)
+        if (!player.HasAdequateResourceCardsOfTypes(resourcesToDiscard))
         {
-            remainingResourceCards[type] += cardsToDiscard[type];
+            return false;
+        }
+
+        player.RemoveResourceCards(resourcesToDiscard);
+
+        foreach (var type in resourcesToDiscard.Keys)
+        {
+            remainingResourceCards[type] += resourcesToDiscard[type];
         }
 
         return true;
+    }
+
+    public void TryFinishDiscardingResources()
+    {
+        if (!players.Any(p => p.GetResourceCards().Count > 7))
+        {
+            GameSubPhase = CatanGameSubPhase.MoveRobber;
+        }
     }
 
     public bool BuyDevelopmentCard()
