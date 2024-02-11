@@ -50,4 +50,22 @@ public static class Enumerations
         Monopoly = 4,
         VictoryPoint = 5
     }
+
+    public enum CatanGamePhase
+    {
+        FirstRoundSetup = 0,
+        SecondRoundSetup = 1,
+        Main = 1
+    }
+
+    public enum CatanGameSubPhase
+    {
+        BuildSettlement = 0,
+        BuildRoad = 1,
+        RollOrPlayDevelopmentCard = 2,
+        Roll = 3,
+        PlayTurn = 4,
+        MoveRobber = 5,
+        StealResource = 6
+    }
 }

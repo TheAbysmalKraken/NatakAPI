@@ -2,7 +2,7 @@
 using Catan.Domain;
 using static Catan.Common.Enumerations;
 
-namespace Catan.API.Controllers.Models;
+namespace Catan.Application.Models;
 
 public sealed class BoardStatusResponse
 {

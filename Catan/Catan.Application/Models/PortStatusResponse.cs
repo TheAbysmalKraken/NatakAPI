@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Catan.Domain;
 
-namespace Catan.API.Controllers.Models;
+namespace Catan.Application.Models;
 
 public sealed class PortStatusResponse
 {

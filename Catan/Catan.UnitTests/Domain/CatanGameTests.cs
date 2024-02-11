@@ -1,4 +1,5 @@
 using Catan.Domain;
+using static Catan.Common.Enumerations;
 
 namespace Catan.UnitTests.Domain;
 
@@ -80,7 +81,7 @@ public class CatanGameTests
     }
 
     [Fact]
-    public void NextPlayer_CyclesThroughAllPlayers_ChangesToGamePhase1()
+    public void NextPlayer_CyclesThroughAllPlayers_ChangesToSecondSetupRound()
     {
         // Arrange
         var game = new CatanGame(defaultPlayerCount);
@@ -92,12 +93,12 @@ public class CatanGameTests
         }
 
         // Assert
-        Assert.Equal(1, game.GamePhase);
+        Assert.Equal(CatanGamePhase.SecondRoundSetup, game.GamePhase);
         Assert.StrictEqual(game.GetPlayers().Last(), game.CurrentPlayer);
     }
 
     [Fact]
-    public void NextPlayer_CyclesThroughAllPlayers_ChangesToGamePhase2()
+    public void NextPlayer_CyclesThroughAllPlayers_ChangesToMainGamePhase()
     {
         // Arrange
         var game = new CatanGame(defaultPlayerCount);
@@ -109,7 +110,7 @@ public class CatanGameTests
         }
 
         // Assert
-        Assert.Equal(2, game.GamePhase);
+        Assert.Equal(CatanGamePhase.Main, game.GamePhase);
         Assert.StrictEqual(game.GetPlayers().First(), game.CurrentPlayer);
     }
 }

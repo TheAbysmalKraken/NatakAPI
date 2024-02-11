@@ -1,8 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Catan.Domain;
-using static Catan.Common.Enumerations;
 
-namespace Catan.API.Controllers.Models;
+namespace Catan.Application.Models;
 
 public sealed class PlayerSpecificGameStatusResponse
 {
@@ -17,6 +16,9 @@ public sealed class PlayerSpecificGameStatusResponse
 
     [JsonPropertyName("gamePhase")]
     public int GamePhase { get; set; }
+
+    [JsonPropertyName("gameSubPhase")]
+    public int GameSubPhase { get; set; }
 
     [JsonPropertyName("player")]
     public PlayerStatusResponse Player { get; set; } = new();
@@ -59,7 +61,8 @@ public sealed class PlayerSpecificGameStatusResponse
             Id = game.Id,
             PlayerCount = game.PlayerCount,
             CurrentPlayerColour = (int)game.CurrentPlayer.Colour,
-            GamePhase = game.GamePhase,
+            GamePhase = (int)game.GamePhase,
+            GameSubPhase = (int)game.GameSubPhase,
             Player = PlayerStatusResponse.FromDomain(chosenPlayer),
             Players = allPlayers.Select(p => PlayerStatusResponse.FromDomain(p, true)).ToList(),
             Board = BoardStatusResponse.FromDomain(game.Board),

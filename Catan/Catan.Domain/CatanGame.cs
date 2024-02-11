@@ -36,7 +36,8 @@ public class CatanGame
         knightsRequiredForLargestArmy = 3;
         developmentCardPlayedThisTurn = false;
 
-        GamePhase = 0;
+        GamePhase = CatanGamePhase.FirstRoundSetup;
+        GameSubPhase = CatanGameSubPhase.BuildSettlement;
         PlayerCount = numberOfPlayers;
     }
 
@@ -64,7 +65,9 @@ public class CatanGame
 
     public int CurrentPlayerIndex => currentPlayerIndex;
 
-    public int GamePhase { get; private set; }
+    public CatanGamePhase GamePhase { get; private set; }
+
+    public CatanGameSubPhase GameSubPhase { get; private set; }
 
     public List<CatanPlayer> GetPlayers() => players;
 
@@ -87,11 +90,12 @@ public class CatanGame
 
         CurrentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
 
-        if (GamePhase == 1)
+        if (GamePhase == CatanGamePhase.SecondRoundSetup)
         {
             if (currentPlayerIndex == 0)
             {
-                GamePhase = 2;
+                GamePhase = CatanGamePhase.Main;
+                GameSubPhase = CatanGameSubPhase.RollOrPlayDevelopmentCard;
             }
             else
             {
@@ -100,9 +104,9 @@ public class CatanGame
         }
         else
         {
-            if (GamePhase == 0 && currentPlayerIndex == players.Count - 1)
+            if (GamePhase == CatanGamePhase.FirstRoundSetup && currentPlayerIndex == players.Count - 1)
             {
-                GamePhase = 1;
+                GamePhase = CatanGamePhase.SecondRoundSetup;
             }
             else
             {
@@ -427,6 +431,12 @@ public class CatanGame
 
         Board.PlaceRoad(coordinates1, coordinates2, CurrentPlayer.Colour);
 
+        if (GamePhase == CatanGamePhase.FirstRoundSetup
+        || GamePhase == CatanGamePhase.SecondRoundSetup)
+        {
+            GameSubPhase = CatanGameSubPhase.BuildSettlement;
+        }
+
         return true;
     }
 
@@ -453,6 +463,12 @@ public class CatanGame
         }
 
         Board.PlaceHouse(coordinates, CurrentPlayer.Colour, true);
+
+        if (GamePhase == CatanGamePhase.FirstRoundSetup
+        || GamePhase == CatanGamePhase.SecondRoundSetup)
+        {
+            GameSubPhase = CatanGameSubPhase.BuildRoad;
+        }
 
         return true;
     }
@@ -529,6 +545,22 @@ public class CatanGame
         {
             remainingResourceCards[type] += cardsToDiscard[type];
         }
+
+        return true;
+    }
+
+    public bool BuyDevelopmentCard()
+    {
+        if (!CurrentPlayer.CanBuyDevelopmentCard() || remainingDevelopmentCards.Count == 0)
+        {
+            return false;
+        }
+
+        var card = remainingDevelopmentCards[0];
+        remainingDevelopmentCards.RemoveAt(0);
+        remainingDevelopmentCardTotals[card]--;
+
+        CurrentPlayer.BuyDevelopmentCard(card);
 
         return true;
     }
@@ -685,8 +717,5 @@ public class CatanGame
         developmentCardPlayedThisTurn = true;
 
         CurrentPlayer.RemoveDevelopmentCard(type);
-
-        remainingDevelopmentCardTotals[type]++;
-        remainingDevelopmentCards.Add(type);
     }
 }

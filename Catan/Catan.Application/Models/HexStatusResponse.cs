@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Catan.Domain;
 
-namespace Catan.API;
+namespace Catan.Application.Models;
 
 public class HexStatusResponse
 {
