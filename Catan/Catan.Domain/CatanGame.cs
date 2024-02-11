@@ -65,6 +65,8 @@ public class CatanGame
 
     public int CurrentPlayerIndex => currentPlayerIndex;
 
+    public bool HasPlayedDevelopmentCardThisTurn => developmentCardPlayedThisTurn;
+
     public CatanGamePhase GamePhase { get; private set; }
 
     public CatanGameSubPhase GameSubPhase { get; private set; }
@@ -121,8 +123,10 @@ public class CatanGame
         rolledDice.AddRange(DiceRoller.RollDice(2, 6));
     }
 
-    public bool DistributeResourcesToPlayers()
+    public bool RollDiceAndDistributeResourcesToPlayers()
     {
+        RollDice();
+
         var diceTotal = DiceTotal;
 
         if (diceTotal == 7)
@@ -134,6 +138,11 @@ public class CatanGame
 
         foreach (var coordinates in tileCoordinatesWithActivationNumber)
         {
+            if (coordinates.Equals(Board.RobberPosition))
+            {
+                continue;
+            }
+
             var houses = Board.GetHousesOnTile(coordinates);
 
             foreach (var house in houses)
@@ -171,6 +180,8 @@ public class CatanGame
                 }
             }
         }
+
+        GameSubPhase = CatanGameSubPhase.TradeOrBuild;
 
         return true;
     }
@@ -463,6 +474,11 @@ public class CatanGame
         }
 
         Board.PlaceHouse(coordinates, CurrentPlayer.Colour, true);
+
+        if (GamePhase == CatanGamePhase.SecondRoundSetup)
+        {
+            GiveResourcesSurroundingHouse(coordinates);
+        }
 
         if (GamePhase == CatanGamePhase.FirstRoundSetup
         || GamePhase == CatanGamePhase.SecondRoundSetup)

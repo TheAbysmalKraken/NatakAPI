@@ -64,8 +64,9 @@ public static class Enumerations
         BuildRoad = 1,
         RollOrPlayDevelopmentCard = 2,
         Roll = 3,
-        PlayTurn = 4,
-        MoveRobber = 5,
-        StealResource = 6
+        TradeOrBuild = 4,
+        PlayTurn = 5,
+        MoveRobber = 6,
+        StealResource = 7
     }
 }

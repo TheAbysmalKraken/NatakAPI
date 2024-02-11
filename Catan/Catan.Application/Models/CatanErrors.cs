@@ -33,4 +33,9 @@ public static class CatanErrors
         HttpStatusCode.BadRequest,
         "Catan.CannotBuyDevelopmentCard",
         "Player cannot buy a development card at this time.");
+
+    public static readonly Error AlreadyPlayedDevelopmentCard = new(
+        HttpStatusCode.BadRequest,
+        "Catan.AlreadyPlayedDevelopmentCard",
+        "Player has already played a development card this turn.");
 }

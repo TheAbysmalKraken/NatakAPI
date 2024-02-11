@@ -26,7 +26,7 @@ public interface ICatanGameManager
 
     Result BuyDevelopmentCard(string gameId);
 
-    Result PlayKnightCard(string gameId);
+    Result PlayKnightCard(string gameId, int x, int y, int playerColourToStealFrom);
 
     Result PlayRoadBuildingCard(string gameId);
 
