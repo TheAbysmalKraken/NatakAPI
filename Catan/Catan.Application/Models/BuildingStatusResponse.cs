@@ -5,8 +5,8 @@ namespace Catan.Application.Models;
 
 public sealed class BuildingStatusResponse
 {
-    [JsonPropertyName("playerId")]
-    public int PlayerId { get; set; }
+    [JsonPropertyName("playerColour")]
+    public int PlayerColour { get; set; }
 
     [JsonPropertyName("x")]
     public int X { get; set; }
@@ -18,7 +18,7 @@ public sealed class BuildingStatusResponse
     {
         return new BuildingStatusResponse
         {
-            PlayerId = (int)house.Colour,
+            PlayerColour = (int)house.Colour,
             X = x,
             Y = y
         };

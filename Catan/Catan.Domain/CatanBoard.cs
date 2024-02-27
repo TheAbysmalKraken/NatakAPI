@@ -11,8 +11,13 @@ public sealed class CatanBoard
 
     private readonly Random random = new();
 
-    public CatanBoard()
+    public CatanBoard(int? seed = null)
     {
+        if (seed.HasValue)
+        {
+            random = new(seed.Value);
+        }
+
         tiles = new CatanTile[BoardLength, BoardLength];
         ports = [];
         houses = new CatanBuilding[11, 6];
@@ -265,7 +270,7 @@ public sealed class CatanBoard
         {
             for (int y = 0; y < BoardLength; y++)
             {
-                if (tiles[x, y].ActivationNumber == activationNumber)
+                if (tiles[x, y] != null && tiles[x, y].ActivationNumber == activationNumber)
                 {
                     tilesWithActivationNumber.Add(new(x, y));
                 }

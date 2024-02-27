@@ -36,13 +36,14 @@ public class CatanController(ILogger<CatanController> logger) : ControllerBase
 
     [HttpPost]
     public IActionResult CreateNewGame(
-        [FromBody] CreateNewGameRequest request)
+        [FromBody] CreateNewGameRequest request,
+        [FromQuery] int? seed = null)
     {
         ArgumentNullException.ThrowIfNull(request.PlayerCount);
 
         try
         {
-            var newGameResult = gameManager.CreateNewGame(request.PlayerCount.Value);
+            var newGameResult = gameManager.CreateNewGame(request.PlayerCount.Value, seed);
 
             if (newGameResult.IsFailure)
             {

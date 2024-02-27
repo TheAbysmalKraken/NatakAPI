@@ -17,16 +17,21 @@ public class CatanGame
     private bool developmentCardPlayedThisTurn;
     private readonly Random random = new();
 
-    public CatanGame(int numberOfPlayers)
+    public CatanGame(int numberOfPlayers, int? seed = null)
     {
         if (numberOfPlayers < MIN_PLAYERS || numberOfPlayers > MAX_PLAYERS)
         {
             throw new ArgumentException($"Invalid number of players: '{numberOfPlayers}'");
         }
 
+        if (seed.HasValue)
+        {
+            random = new(seed.Value);
+        }
+
         Id = Guid.NewGuid().ToString();
 
-        Board = new CatanBoard();
+        Board = new CatanBoard(seed);
 
         RollDice();
         InitialisePlayers(numberOfPlayers);

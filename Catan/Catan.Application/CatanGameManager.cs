@@ -19,7 +19,7 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (!IsValidPlayerColour(playerColour))
+        if (!IsValidPlayerColour(playerColour, game.PlayerCount))
         {
             return Result.Failure<PlayerSpecificGameStatusResponse>(CatanErrors.InvalidPlayerColour);
         }
@@ -44,14 +44,14 @@ public sealed class CatanGameManager : ICatanGameManager
         throw new NotImplementedException();
     }
 
-    public Result<string> CreateNewGame(int playerCount)
+    public Result<string> CreateNewGame(int playerCount, int? seed)
     {
         if (playerCount < 3 || playerCount > 4)
         {
             return Result.Failure<string>(CatanErrors.InvalidPlayerCount);
         }
 
-        var newGame = new CatanGame(playerCount);
+        var newGame = new CatanGame(playerCount, seed);
         currentGames.Add(newGame);
 
         return Result.Success(newGame.Id);
@@ -245,7 +245,7 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (!IsValidPlayerColour(playerColourToStealFrom))
+        if (!IsValidPlayerColour(playerColourToStealFrom, game.PlayerCount))
         {
             return Result.Failure<PlayerSpecificGameStatusResponse>(CatanErrors.InvalidPlayerColour);
         }
@@ -412,7 +412,7 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (!IsValidPlayerColour(victimColour))
+        if (!IsValidPlayerColour(victimColour, game.PlayerCount))
         {
             return Result.Failure(CatanErrors.InvalidPlayerColour);
         }
@@ -515,8 +515,8 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (!IsValidPlayerColour(playerColourToEmbargo)
-        || !IsValidPlayerColour(playerColour))
+        if (!IsValidPlayerColour(playerColourToEmbargo, game.PlayerCount)
+        || !IsValidPlayerColour(playerColour, game.PlayerCount))
         {
             return Result.Failure(CatanErrors.InvalidPlayerColour);
         }
@@ -548,8 +548,8 @@ public sealed class CatanGameManager : ICatanGameManager
         return Result.Success(game);
     }
 
-    private static bool IsValidPlayerColour(int colour)
+    private static bool IsValidPlayerColour(int colour, int playerCount)
     {
-        return colour >= 0 && colour <= 3;
+        return colour >= 0 && colour < playerCount;
     }
 }

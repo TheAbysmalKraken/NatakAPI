@@ -11,7 +11,7 @@ public class CatanPlayer(CatanPlayerColour colour)
     private int victoryPointDevelopmentCardCount = 0;
     private int victoryPointsFromBuildings = 0;
 
-    private static readonly Random random = new();
+    private readonly Random random = new();
 
     public CatanPlayerColour Colour { get; private set; } = colour;
 

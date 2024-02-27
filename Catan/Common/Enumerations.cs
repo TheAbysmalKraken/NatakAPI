@@ -55,7 +55,7 @@ public static class Enumerations
     {
         FirstRoundSetup = 0,
         SecondRoundSetup = 1,
-        Main = 1
+        Main = 2
     }
 
     public enum CatanGameSubPhase
