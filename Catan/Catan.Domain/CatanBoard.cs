@@ -754,7 +754,15 @@ public sealed class CatanBoard
 
         surroundingTileCoordinates.Add(new(x, y));
         surroundingTileCoordinates.Add(new(x, y - 1));
-        surroundingTileCoordinates.Add(new(x + 1, y - 1));
+
+        if ((houseCoordinates.X + houseCoordinates.Y) % 2 != 0)
+        {
+            surroundingTileCoordinates.Add(new(x + 1, y - 1));
+        }
+        else
+        {
+            surroundingTileCoordinates.Add(new(x - 1, y));
+        }
 
         return surroundingTileCoordinates;
     }
