@@ -180,7 +180,7 @@ public class CatanController(ILogger<CatanController> logger) : ControllerBase
         }
     }
 
-    [HttpPost("{gameId}/buy-development-card")]
+    [HttpPost("{gameId}/buy/development-card")]
     public IActionResult BuyDevelopmentCard(string gameId)
     {
         try
@@ -202,7 +202,7 @@ public class CatanController(ILogger<CatanController> logger) : ControllerBase
         }
     }
 
-    [HttpPost("{gameId}/play-knight-card")]
+    [HttpPost("{gameId}/play-development-card/knight")]
     public IActionResult PlayKnightCard(string gameId, [FromBody] PlayKnightCardRequest request)
     {
         ArgumentNullException.ThrowIfNull(request.X);
@@ -228,7 +228,7 @@ public class CatanController(ILogger<CatanController> logger) : ControllerBase
         }
     }
 
-    [HttpPost("{gameId}/play-road-building-card")]
+    [HttpPost("{gameId}/play-development-card/road-building")]
     public IActionResult PlayRoadBuildingCard(string gameId, [FromBody] PlayRoadBuildingCardRequest request)
     {
         ArgumentNullException.ThrowIfNull(request.FirstX);
@@ -268,7 +268,7 @@ public class CatanController(ILogger<CatanController> logger) : ControllerBase
         }
     }
 
-    [HttpPost("{gameId}/play-year-of-plenty-card")]
+    [HttpPost("{gameId}/play-development-card/year-of-plenty")]
     public IActionResult PlayYearOfPlentyCard(string gameId, [FromBody] PlayYearOfPlentyCardRequest request)
     {
         ArgumentNullException.ThrowIfNull(request.FirstResourceType);
@@ -293,7 +293,7 @@ public class CatanController(ILogger<CatanController> logger) : ControllerBase
         }
     }
 
-    [HttpPost("{gameId}/play-monopoly-card")]
+    [HttpPost("{gameId}/play-development-card/monopoly")]
     public IActionResult PlayMonopolyCard(string gameId, [FromBody] PlayMonopolyCardRequest request)
     {
         ArgumentNullException.ThrowIfNull(request.ResourceType);
