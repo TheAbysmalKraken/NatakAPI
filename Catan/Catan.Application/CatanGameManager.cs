@@ -92,8 +92,7 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GamePhase == CatanGamePhase.Main
-        && game.GameSubPhase != CatanGameSubPhase.PlayTurn
+        if (game.GameSubPhase != CatanGameSubPhase.PlayTurn
         && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild)
         {
             return Result.Failure(CatanErrors.InvalidGamePhase);
