@@ -109,9 +109,9 @@ public class CatanGame
                 currentPlayerIndex = (currentPlayerIndex - 1) % players.Count;
             }
         }
-        else
+        else if (GamePhase == CatanGamePhase.FirstRoundSetup)
         {
-            if (GamePhase == CatanGamePhase.FirstRoundSetup && currentPlayerIndex == players.Count - 1)
+            if (currentPlayerIndex == players.Count - 1)
             {
                 GamePhase = CatanGamePhase.SecondRoundSetup;
             }
@@ -119,6 +119,12 @@ public class CatanGame
             {
                 currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
             }
+        }
+        else
+        {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
+            GamePhase = CatanGamePhase.Main;
+            GameSubPhase = CatanGameSubPhase.RollOrPlayDevelopmentCard;
         }
     }
 
@@ -137,6 +143,9 @@ public class CatanGame
         if (diceTotal == 7)
         {
             GameSubPhase = CatanGameSubPhase.DiscardResources;
+
+            TryFinishDiscardingResources();
+
             return false;
         }
 
