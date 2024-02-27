@@ -146,11 +146,15 @@ public class CatanPlayer(CatanPlayerColour colour)
         resourceCards[CatanResourceType.Wheat]--;
 
         RemainingSettlements--;
+
+        victoryPointsFromBuildings++;
     }
 
     public void BuyFreeSettlement()
     {
         RemainingSettlements--;
+
+        victoryPointsFromBuildings++;
     }
 
     public bool CanBuyCity()
@@ -175,6 +179,8 @@ public class CatanPlayer(CatanPlayerColour colour)
         resourceCards[CatanResourceType.Ore] -= 3;
 
         RemainingCities--;
+
+        victoryPointsFromBuildings++;
     }
 
     public bool CanBuyDevelopmentCard()
@@ -368,16 +374,6 @@ public class CatanPlayer(CatanPlayerColour colour)
         }
 
         playableDevelopmentCards[type]--;
-    }
-
-    public void SetVictoryPointsFromBuildings(int settlementCount, int cityCount)
-    {
-        if (settlementCount < 0 || cityCount < 0)
-        {
-            throw new ArgumentException("Method arguments must be positive integers.");
-        }
-
-        victoryPointsFromBuildings = settlementCount + 2 * cityCount;
     }
 
     private static Dictionary<CatanResourceType, int> InitialiseResourceCards()
