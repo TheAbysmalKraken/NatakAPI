@@ -39,7 +39,10 @@ public class CatanController(ILogger<CatanController> logger) : ControllerBase
         [FromBody] CreateNewGameRequest request,
         [FromQuery] int? seed = null)
     {
-        ArgumentNullException.ThrowIfNull(request.PlayerCount);
+        if (request.PlayerCount is null)
+        {
+            return BadRequest("Player count is required");
+        }
 
         try
         {
