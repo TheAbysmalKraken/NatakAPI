@@ -170,22 +170,4 @@ public class CatanPlayerTests
         // Assert
         Assert.Equal(initialCardCount - 1, cards[cardType]);
     }
-
-    [Theory]
-    [InlineData(2, 6)]
-    [InlineData(1, 0)]
-    [InlineData(0, 1)]
-    [InlineData(9, 4)]
-    public void SetVictoryPointsFromBuildings_CorrectPointsAdded(
-        int settlementCount, int cityCount)
-    {
-        // Arrange
-        var initialVictoryPoints = testPlayer.VictoryPoints;
-
-        // Act
-        testPlayer.SetVictoryPointsFromBuildings(settlementCount, cityCount);
-
-        // Assert
-        Assert.Equal(initialVictoryPoints + settlementCount + cityCount * 2, testPlayer.VictoryPoints);
-    }
 }

@@ -1,0 +1,43 @@
+﻿@page "/catan"
+
+@inject IJSRuntime JSRuntime
+@inject HttpClient HttpClient
+
+<PageTitle>Catan</PageTitle>
+
+<BECanvas @ref="catanCanvas" Width="400" Height="400"></BECanvas>
+
+@code {
+    private BECanvasComponent catanCanvas;
+    private Canvas2DContext context;
+
+    const int tileSize = 35;
+    const double a = Math.PI / 3;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("console.log", "Catan page initialized");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            context = await catanCanvas.CreateCanvas2DAsync();
+        }
+    }
+
+    private async Task DrawHexagon(int x, int y, int r)
+    {
+        await context.BeginBatchAsync();
+        await context.BeginPathAsync();
+        for (var i = 0; i < 6; i++)
+        {
+            await context.LineToAsync(x + r * Math.Sin(a * i), y + r * Math.Cos(a * i));
+        }
+        await context.ClosePathAsync();
+        await context.FillAsync();
+        await context.StrokeAsync();
+        await context.EndBatchAsync();
+    }
+}
