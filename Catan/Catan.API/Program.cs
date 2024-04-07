@@ -1,8 +1,14 @@
+using Catan.Application;
+using Microsoft.Extensions.Caching.Memory;
+
 const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddSingleton<IMemoryCache, MemoryCache>();
+builder.Services.AddSingleton<IGameManager, GameManager>();
 
 builder.Services.AddCors(options =>
 {

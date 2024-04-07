@@ -6,10 +6,10 @@ namespace Catan.API.Controllers;
 
 [ApiController]
 [Route("api/catan")]
-public class CatanController(ILogger<CatanController> logger) : ControllerBase
+public class CatanController(
+    IGameManager gameManager,
+    ILogger<CatanController> logger) : ControllerBase
 {
-    private static readonly GameManager gameManager = new();
-
     private readonly ILogger<CatanController> _logger = logger;
 
     [HttpGet("{gameId}/{playerColour}")]

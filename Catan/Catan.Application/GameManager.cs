@@ -1,16 +1,15 @@
 ﻿using Catan.Application.Models;
 using Catan.Domain;
 using Catan.Domain.Enums;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Catan.Application;
 
-public sealed class GameManager : IGameManager
+public sealed class GameManager(IMemoryCache cache) : IGameManager
 {
-    private readonly List<Game> currentGames = [];
-
     public Result<PlayerSpecificGameStatusResponse> GetGameStatus(string gameId, int playerColour)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -52,14 +51,14 @@ public sealed class GameManager : IGameManager
         }
 
         var newGame = new Game(playerCount, seed);
-        currentGames.Add(newGame);
+        SetGameInCache(newGame);
 
         return Result.Success(newGame.Id);
     }
 
     public Result<List<int>> RollDice(string gameId)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -75,6 +74,7 @@ public sealed class GameManager : IGameManager
         }
 
         game.RollDiceAndDistributeResourcesToPlayers();
+        SetGameInCache(game);
 
         var rollResult = game.LastRoll;
 
@@ -83,7 +83,7 @@ public sealed class GameManager : IGameManager
 
     public Result EndTurn(string gameId)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -99,13 +99,14 @@ public sealed class GameManager : IGameManager
         }
 
         game.NextPlayer();
+        SetGameInCache(game);
 
         return Result.Success();
     }
 
     public Result BuildRoad(string gameId, int firstX, int firstY, int secondX, int secondY)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -138,12 +139,14 @@ public sealed class GameManager : IGameManager
             return Result.Failure(Errors.InvalidBuildLocation);
         }
 
+        SetGameInCache(game);
+
         return Result.Success();
     }
 
     public Result BuildSettlement(string gameId, int x, int y)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -176,12 +179,14 @@ public sealed class GameManager : IGameManager
             return Result.Failure(Errors.InvalidBuildLocation);
         }
 
+        SetGameInCache(game);
+
         return Result.Success();
     }
 
     public Result BuildCity(string gameId, int x, int y)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -203,12 +208,14 @@ public sealed class GameManager : IGameManager
             return Result.Failure(Errors.InvalidBuildLocation);
         }
 
+        SetGameInCache(game);
+
         return Result.Success();
     }
 
     public Result BuyDevelopmentCard(string gameId)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -230,12 +237,14 @@ public sealed class GameManager : IGameManager
             return Result.Failure(Errors.CannotBuyDevelopmentCard);
         }
 
+        SetGameInCache(game);
+
         return Result.Success();
     }
 
     public Result PlayKnightCard(string gameId, int x, int y, int playerColourToStealFrom)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -268,6 +277,8 @@ public sealed class GameManager : IGameManager
             return Result.Failure(Errors.CannotPlayDevelopmentCard);
         }
 
+        SetGameInCache(game);
+
         return Result.Success();
     }
 
@@ -275,7 +286,7 @@ public sealed class GameManager : IGameManager
         string gameId, int firstX, int firstY, int secondX, int secondY,
         int thirdX, int thirdY, int fourthX, int fourthY)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -303,12 +314,14 @@ public sealed class GameManager : IGameManager
             return Result.Failure(Errors.CannotPlayDevelopmentCard);
         }
 
+        SetGameInCache(game);
+
         return Result.Success();
     }
 
     public Result PlayYearOfPlentyCard(string gameId, int resourceType1, int resourceType2)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -336,12 +349,14 @@ public sealed class GameManager : IGameManager
             return Result.Failure(Errors.CannotPlayDevelopmentCard);
         }
 
+        SetGameInCache(game);
+
         return Result.Success();
     }
 
     public Result PlayMonopolyCard(string gameId, int resourceType)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -369,12 +384,14 @@ public sealed class GameManager : IGameManager
             return Result.Failure(Errors.CannotPlayDevelopmentCard);
         }
 
+        SetGameInCache(game);
+
         return Result.Success();
     }
 
     public Result MoveRobber(string gameId, int x, int y)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -397,12 +414,14 @@ public sealed class GameManager : IGameManager
             return Result.Failure(Errors.CannotMoveRobberToLocation);
         }
 
+        SetGameInCache(game);
+
         return Result.Success();
     }
 
     public Result StealResource(string gameId, int victimColour)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -430,12 +449,14 @@ public sealed class GameManager : IGameManager
             return Result.Failure(Errors.CannotStealResource);
         }
 
+        SetGameInCache(game);
+
         return Result.Success();
     }
 
     public Result DiscardResources(string gameId, int playerColour, Dictionary<int, int> resources)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -459,13 +480,14 @@ public sealed class GameManager : IGameManager
         }
 
         game.TryFinishDiscardingResources();
+        SetGameInCache(game);
 
         return Result.Success();
     }
 
     public Result TradeWithBank(string gameId, int resourceToGive, int resourceToGet)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -483,6 +505,7 @@ public sealed class GameManager : IGameManager
 
         if (tradeTwoToOneSuccess)
         {
+            SetGameInCache(game);
             return Result.Success();
         }
 
@@ -490,6 +513,7 @@ public sealed class GameManager : IGameManager
 
         if (tradeThreeToOneSuccess)
         {
+            SetGameInCache(game);
             return Result.Success();
         }
 
@@ -497,6 +521,7 @@ public sealed class GameManager : IGameManager
 
         if (tradeFourToOneSuccess)
         {
+            SetGameInCache(game);
             return Result.Success();
         }
 
@@ -505,7 +530,7 @@ public sealed class GameManager : IGameManager
 
     public Result EmbargoPlayer(string gameId, int playerColour, int playerColourToEmbargo)
     {
-        var gameResult = GetGame(gameId);
+        var gameResult = GetGameFromCache(gameId);
 
         if (gameResult.IsFailure)
         {
@@ -532,12 +557,19 @@ public sealed class GameManager : IGameManager
             return Result.Failure(Errors.CannotEmbargoPlayer);
         }
 
+        SetGameInCache(game);
+
         return Result.Success();
     }
 
-    private Result<Game> GetGame(string gameId)
+    private static bool IsValidPlayerColour(int colour, int playerCount)
     {
-        var game = currentGames.FirstOrDefault(g => g.Id == gameId);
+        return colour >= 0 && colour < playerCount;
+    }
+
+    private Result<Game> GetGameFromCache(string gameId)
+    {
+        var game = cache.Get<Game>(gameId);
 
         if (game is null)
         {
@@ -547,8 +579,11 @@ public sealed class GameManager : IGameManager
         return Result.Success(game);
     }
 
-    private static bool IsValidPlayerColour(int colour, int playerCount)
+    private void SetGameInCache(Game game)
     {
-        return colour >= 0 && colour < playerCount;
+        cache.Set(game.Id, game, new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15)
+        });
     }
 }
