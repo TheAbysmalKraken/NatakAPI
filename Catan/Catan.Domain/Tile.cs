@@ -2,9 +2,9 @@
 
 namespace Catan.Domain;
 
-public sealed class CatanTile(CatanResourceType type, int activationNumber)
+public sealed class Tile(ResourceType type, int activationNumber)
 {
-    public CatanResourceType Type { get; private set; } = type;
+    public ResourceType Type { get; private set; } = type;
 
     public int ActivationNumber { get; private set; } = activationNumber;
 }

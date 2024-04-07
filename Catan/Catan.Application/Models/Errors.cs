@@ -2,7 +2,7 @@
 
 namespace Catan.Application.Models;
 
-public static class CatanErrors
+public static class Errors
 {
     public static readonly Error InvalidPlayerCount = new(
         HttpStatusCode.BadRequest,

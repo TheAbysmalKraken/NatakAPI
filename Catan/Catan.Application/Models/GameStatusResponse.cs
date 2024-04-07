@@ -47,7 +47,7 @@ public sealed class PlayerSpecificGameStatusResponse
     [JsonPropertyName("remainingDevelopmentCards")]
     public List<int> RemainingDevelopmentCards { get; set; } = [];
 
-    public static PlayerSpecificGameStatusResponse FromDomain(CatanGame game, int playerColour)
+    public static PlayerSpecificGameStatusResponse FromDomain(Game game, int playerColour)
     {
         ArgumentNullException.ThrowIfNull(game);
 

@@ -2,18 +2,18 @@
 
 namespace Catan.Domain;
 
-public class CatanPlayer(CatanPlayerColour colour)
+public class Player(PlayerColour colour)
 {
-    private readonly Dictionary<CatanResourceType, int> resourceCards = InitialiseResourceCards();
-    private readonly Dictionary<CatanDevelopmentCardType, int> playableDevelopmentCards = InitialiseDevelopmentCards();
-    private readonly Dictionary<CatanDevelopmentCardType, int> developmentCardsOnHold = InitialiseDevelopmentCards();
-    private readonly List<CatanPlayerColour> embargoedPlayers = [];
+    private readonly Dictionary<ResourceType, int> resourceCards = InitialiseResourceCards();
+    private readonly Dictionary<DevelopmentCardType, int> playableDevelopmentCards = InitialiseDevelopmentCards();
+    private readonly Dictionary<DevelopmentCardType, int> developmentCardsOnHold = InitialiseDevelopmentCards();
+    private readonly List<PlayerColour> embargoedPlayers = [];
     private int victoryPointDevelopmentCardCount = 0;
     private int victoryPointsFromBuildings = 0;
 
     private readonly Random random = new();
 
-    public CatanPlayerColour Colour { get; private set; } = colour;
+    public PlayerColour Colour { get; private set; } = colour;
 
     public int KnightsPlayed { get; private set; } = 0;
 
@@ -33,22 +33,22 @@ public class CatanPlayer(CatanPlayerColour colour)
 
     public int RemainingRoads { get; private set; } = 15;
 
-    public Dictionary<CatanResourceType, int> GetResourceCards()
+    public Dictionary<ResourceType, int> GetResourceCards()
     {
         return resourceCards;
     }
 
-    public Dictionary<CatanDevelopmentCardType, int> GetPlayableDevelopmentCards()
+    public Dictionary<DevelopmentCardType, int> GetPlayableDevelopmentCards()
     {
         return playableDevelopmentCards;
     }
 
-    public Dictionary<CatanDevelopmentCardType, int> GetDevelopmentCardsOnHold()
+    public Dictionary<DevelopmentCardType, int> GetDevelopmentCardsOnHold()
     {
         return developmentCardsOnHold;
     }
 
-    public List<CatanPlayerColour> GetEmbargoedPlayers()
+    public List<PlayerColour> GetEmbargoedPlayers()
     {
         return embargoedPlayers;
     }
@@ -61,9 +61,9 @@ public class CatanPlayer(CatanPlayerColour colour)
 
     public void RemoveLongestRoadCard() => HasLongestRoad = false;
 
-    public void EmbargoPlayer(CatanPlayerColour colour)
+    public void EmbargoPlayer(PlayerColour colour)
     {
-        if (colour == CatanPlayerColour.None || colour == Colour)
+        if (colour == PlayerColour.None || colour == Colour)
         {
             throw new ArgumentException("Player cannot embargo themselves or no player.");
         }
@@ -76,9 +76,9 @@ public class CatanPlayer(CatanPlayerColour colour)
         embargoedPlayers.Add(colour);
     }
 
-    public void RemoveEmbargo(CatanPlayerColour colour)
+    public void RemoveEmbargo(PlayerColour colour)
     {
-        if (colour == CatanPlayerColour.None || colour == Colour)
+        if (colour == PlayerColour.None || colour == Colour)
         {
             throw new ArgumentException("Player cannot remove embargo from themselves or no player.");
         }
@@ -86,7 +86,7 @@ public class CatanPlayer(CatanPlayerColour colour)
         embargoedPlayers.Remove(colour);
     }
 
-    public bool CanTradeWithPlayer(CatanPlayerColour colour)
+    public bool CanTradeWithPlayer(PlayerColour colour)
     {
         return !embargoedPlayers.Contains(colour) && colour != Colour;
     }
@@ -98,8 +98,8 @@ public class CatanPlayer(CatanPlayerColour colour)
             return false;
         }
 
-        if (resourceCards[CatanResourceType.Wood] < 1
-        || resourceCards[CatanResourceType.Brick] < 1)
+        if (resourceCards[ResourceType.Wood] < 1
+        || resourceCards[ResourceType.Brick] < 1)
         {
             return false;
         }
@@ -109,8 +109,8 @@ public class CatanPlayer(CatanPlayerColour colour)
 
     public void BuyRoad()
     {
-        resourceCards[CatanResourceType.Wood]--;
-        resourceCards[CatanResourceType.Brick]--;
+        resourceCards[ResourceType.Wood]--;
+        resourceCards[ResourceType.Brick]--;
 
         RemainingRoads--;
     }
@@ -127,10 +127,10 @@ public class CatanPlayer(CatanPlayerColour colour)
             return false;
         }
 
-        if (resourceCards[CatanResourceType.Wood] < 1
-        || resourceCards[CatanResourceType.Brick] < 1
-        || resourceCards[CatanResourceType.Sheep] < 1
-        || resourceCards[CatanResourceType.Wheat] < 1)
+        if (resourceCards[ResourceType.Wood] < 1
+        || resourceCards[ResourceType.Brick] < 1
+        || resourceCards[ResourceType.Sheep] < 1
+        || resourceCards[ResourceType.Wheat] < 1)
         {
             return false;
         }
@@ -140,10 +140,10 @@ public class CatanPlayer(CatanPlayerColour colour)
 
     public void BuySettlement()
     {
-        resourceCards[CatanResourceType.Wood]--;
-        resourceCards[CatanResourceType.Brick]--;
-        resourceCards[CatanResourceType.Sheep]--;
-        resourceCards[CatanResourceType.Wheat]--;
+        resourceCards[ResourceType.Wood]--;
+        resourceCards[ResourceType.Brick]--;
+        resourceCards[ResourceType.Sheep]--;
+        resourceCards[ResourceType.Wheat]--;
 
         RemainingSettlements--;
 
@@ -164,8 +164,8 @@ public class CatanPlayer(CatanPlayerColour colour)
             return false;
         }
 
-        if (resourceCards[CatanResourceType.Wheat] < 2
-        || resourceCards[CatanResourceType.Ore] < 3)
+        if (resourceCards[ResourceType.Wheat] < 2
+        || resourceCards[ResourceType.Ore] < 3)
         {
             return false;
         }
@@ -175,8 +175,8 @@ public class CatanPlayer(CatanPlayerColour colour)
 
     public void BuyCity()
     {
-        resourceCards[CatanResourceType.Wheat] -= 2;
-        resourceCards[CatanResourceType.Ore] -= 3;
+        resourceCards[ResourceType.Wheat] -= 2;
+        resourceCards[ResourceType.Ore] -= 3;
 
         RemainingCities--;
 
@@ -185,9 +185,9 @@ public class CatanPlayer(CatanPlayerColour colour)
 
     public bool CanBuyDevelopmentCard()
     {
-        if (resourceCards[CatanResourceType.Sheep] < 1
-        || resourceCards[CatanResourceType.Wheat] < 1
-        || resourceCards[CatanResourceType.Ore] < 1)
+        if (resourceCards[ResourceType.Sheep] < 1
+        || resourceCards[ResourceType.Wheat] < 1
+        || resourceCards[ResourceType.Ore] < 1)
         {
             return false;
         }
@@ -195,23 +195,23 @@ public class CatanPlayer(CatanPlayerColour colour)
         return true;
     }
 
-    public void BuyDevelopmentCard(CatanDevelopmentCardType type)
+    public void BuyDevelopmentCard(DevelopmentCardType type)
     {
-        if (type == CatanDevelopmentCardType.VictoryPoint)
+        if (type == DevelopmentCardType.VictoryPoint)
         {
             victoryPointDevelopmentCardCount++;
         }
         else
         {
-            resourceCards[CatanResourceType.Sheep]--;
-            resourceCards[CatanResourceType.Wheat]--;
-            resourceCards[CatanResourceType.Ore]--;
+            resourceCards[ResourceType.Sheep]--;
+            resourceCards[ResourceType.Wheat]--;
+            resourceCards[ResourceType.Ore]--;
 
             developmentCardsOnHold[type]++;
         }
     }
 
-    public bool CanTradeTwoToOneOfCardType(CatanResourceType type)
+    public bool CanTradeTwoToOneOfCardType(ResourceType type)
     {
         if (resourceCards[type] < 2)
         {
@@ -222,14 +222,14 @@ public class CatanPlayer(CatanPlayerColour colour)
     }
 
     public void TradeTwoToOne(
-        CatanResourceType typeToGive,
-        CatanResourceType typeToReceive)
+        ResourceType typeToGive,
+        ResourceType typeToReceive)
     {
         resourceCards[typeToGive] -= 2;
         resourceCards[typeToReceive]++;
     }
 
-    public bool CanTradeThreeToOneOfCardType(CatanResourceType type)
+    public bool CanTradeThreeToOneOfCardType(ResourceType type)
     {
         if (resourceCards[type] < 3)
         {
@@ -240,14 +240,14 @@ public class CatanPlayer(CatanPlayerColour colour)
     }
 
     public void TradeThreeToOne(
-        CatanResourceType typeToGive,
-        CatanResourceType typeToReceive)
+        ResourceType typeToGive,
+        ResourceType typeToReceive)
     {
         resourceCards[typeToGive] -= 3;
         resourceCards[typeToReceive]++;
     }
 
-    public bool CanTradeFourToOneOfCardType(CatanResourceType type)
+    public bool CanTradeFourToOneOfCardType(ResourceType type)
     {
         if (resourceCards[type] < 4)
         {
@@ -258,14 +258,14 @@ public class CatanPlayer(CatanPlayerColour colour)
     }
 
     public void TradeFourToOne(
-        CatanResourceType typeToGive,
-        CatanResourceType typeToReceive)
+        ResourceType typeToGive,
+        ResourceType typeToReceive)
     {
         resourceCards[typeToGive] -= 4;
         resourceCards[typeToReceive]++;
     }
 
-    public bool HasAdequateResourceCardsOfTypes(Dictionary<CatanResourceType, int> cardsToDiscard)
+    public bool HasAdequateResourceCardsOfTypes(Dictionary<ResourceType, int> cardsToDiscard)
     {
         foreach (var type in cardsToDiscard.Keys)
         {
@@ -278,7 +278,7 @@ public class CatanPlayer(CatanPlayerColour colour)
         return true;
     }
 
-    public void AddResourceCards(Dictionary<CatanResourceType, int> cardsToAdd)
+    public void AddResourceCards(Dictionary<ResourceType, int> cardsToAdd)
     {
         foreach (var type in cardsToAdd.Keys)
         {
@@ -286,7 +286,7 @@ public class CatanPlayer(CatanPlayerColour colour)
         }
     }
 
-    public void RemoveResourceCards(Dictionary<CatanResourceType, int> cardsToDiscard)
+    public void RemoveResourceCards(Dictionary<ResourceType, int> cardsToDiscard)
     {
         if (!HasAdequateResourceCardsOfTypes(cardsToDiscard))
         {
@@ -299,12 +299,12 @@ public class CatanPlayer(CatanPlayerColour colour)
         }
     }
 
-    public bool CanRemoveResourceCard(CatanResourceType type, int count = 1)
+    public bool CanRemoveResourceCard(ResourceType type, int count = 1)
     {
         return resourceCards[type] >= count;
     }
 
-    public void RemoveResourceCard(CatanResourceType type, int count = 1)
+    public void RemoveResourceCard(ResourceType type, int count = 1)
     {
         if (!CanRemoveResourceCard(type, count))
         {
@@ -314,7 +314,7 @@ public class CatanPlayer(CatanPlayerColour colour)
         resourceCards[type] -= count;
     }
 
-    public CatanResourceType? RemoveRandomResourceCard()
+    public ResourceType? RemoveRandomResourceCard()
     {
         var availableResourceTypes = resourceCards.Keys.Where(k => resourceCards[k] > 0).ToList();
 
@@ -331,7 +331,7 @@ public class CatanPlayer(CatanPlayerColour colour)
         return resourceType;
     }
 
-    public void AddResourceCard(CatanResourceType type, int count = 1)
+    public void AddResourceCard(ResourceType type, int count = 1)
     {
         resourceCards[type] += count;
     }
@@ -345,9 +345,9 @@ public class CatanPlayer(CatanPlayerColour colour)
         }
     }
 
-    public bool CanRemoveDevelopmentCard(CatanDevelopmentCardType type)
+    public bool CanRemoveDevelopmentCard(DevelopmentCardType type)
     {
-        if (type == CatanDevelopmentCardType.VictoryPoint
+        if (type == DevelopmentCardType.VictoryPoint
             || playableDevelopmentCards[type] <= 0)
         {
             return false;
@@ -356,9 +356,9 @@ public class CatanPlayer(CatanPlayerColour colour)
         return true;
     }
 
-    public void RemoveDevelopmentCard(CatanDevelopmentCardType type)
+    public void RemoveDevelopmentCard(DevelopmentCardType type)
     {
-        if (type == CatanDevelopmentCardType.VictoryPoint)
+        if (type == DevelopmentCardType.VictoryPoint)
         {
             return;
         }
@@ -368,7 +368,7 @@ public class CatanPlayer(CatanPlayerColour colour)
             return;
         }
 
-        if (type == CatanDevelopmentCardType.Knight)
+        if (type == DevelopmentCardType.Knight)
         {
             KnightsPlayed++;
         }
@@ -376,27 +376,27 @@ public class CatanPlayer(CatanPlayerColour colour)
         playableDevelopmentCards[type]--;
     }
 
-    private static Dictionary<CatanResourceType, int> InitialiseResourceCards()
+    private static Dictionary<ResourceType, int> InitialiseResourceCards()
     {
-        return new Dictionary<CatanResourceType, int>()
+        return new Dictionary<ResourceType, int>()
         {
-            { CatanResourceType.Wood, 0 },
-            { CatanResourceType.Brick, 0 },
-            { CatanResourceType.Sheep, 0 },
-            { CatanResourceType.Wheat, 0 },
-            { CatanResourceType.Ore, 0 }
+            { ResourceType.Wood, 0 },
+            { ResourceType.Brick, 0 },
+            { ResourceType.Sheep, 0 },
+            { ResourceType.Wheat, 0 },
+            { ResourceType.Ore, 0 }
         };
     }
 
-    private static Dictionary<CatanDevelopmentCardType, int> InitialiseDevelopmentCards()
+    private static Dictionary<DevelopmentCardType, int> InitialiseDevelopmentCards()
     {
-        return new Dictionary<CatanDevelopmentCardType, int>()
+        return new Dictionary<DevelopmentCardType, int>()
         {
-            { CatanDevelopmentCardType.Knight, 0 },
-            { CatanDevelopmentCardType.RoadBuilding, 0 },
-            { CatanDevelopmentCardType.YearOfPlenty, 0 },
-            { CatanDevelopmentCardType.Monopoly, 0 },
-            { CatanDevelopmentCardType.VictoryPoint, 0 }
+            { DevelopmentCardType.Knight, 0 },
+            { DevelopmentCardType.RoadBuilding, 0 },
+            { DevelopmentCardType.YearOfPlenty, 0 },
+            { DevelopmentCardType.Monopoly, 0 },
+            { DevelopmentCardType.VictoryPoint, 0 }
         };
     }
 

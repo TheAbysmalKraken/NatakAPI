@@ -14,7 +14,7 @@ public sealed class PortStatusResponse
     [JsonPropertyName("type")]
     public int Resource { get; set; }
 
-    public static PortStatusResponse FromDomain(CatanPort port)
+    public static PortStatusResponse FromDomain(Port port)
     {
         return new PortStatusResponse
         {

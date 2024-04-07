@@ -17,7 +17,7 @@ public class HexStatusResponse
     [JsonPropertyName("rollNumber")]
     public int RollNumber { get; set; }
 
-    public static HexStatusResponse FromDomain(CatanTile hex, int x, int y)
+    public static HexStatusResponse FromDomain(Tile hex, int x, int y)
     {
         return new HexStatusResponse
         {

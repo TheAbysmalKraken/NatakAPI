@@ -14,7 +14,7 @@ public sealed class BuildingStatusResponse
     [JsonPropertyName("y")]
     public int Y { get; set; }
 
-    public static BuildingStatusResponse FromDomain(CatanBuilding house, int x, int y)
+    public static BuildingStatusResponse FromDomain(Building house, int x, int y)
     {
         return new BuildingStatusResponse
         {

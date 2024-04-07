@@ -2,7 +2,7 @@
 
 namespace Catan.Application;
 
-public interface ICatanGameManager
+public interface IGameManager
 {
     Result<PlayerSpecificGameStatusResponse> GetGameStatus(string gameId, int playerColour);
 

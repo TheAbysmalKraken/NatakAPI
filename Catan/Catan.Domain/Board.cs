@@ -2,27 +2,27 @@
 
 namespace Catan.Domain;
 
-public sealed class CatanBoard
+public sealed class Board
 {
-    private readonly CatanTile[,] tiles;
-    private readonly List<CatanPort> ports = [];
-    private readonly CatanBuilding[,] houses;
-    private readonly List<CatanRoad> roads = [];
+    private readonly Tile[,] tiles;
+    private readonly List<Port> ports = [];
+    private readonly Building[,] houses;
+    private readonly List<Road> roads = [];
 
     private readonly Random random = new();
 
-    public CatanBoard(int? seed = null)
+    public Board(int? seed = null)
     {
         if (seed.HasValue)
         {
             random = new(seed.Value);
         }
 
-        tiles = new CatanTile[BoardLength, BoardLength];
+        tiles = new Tile[BoardLength, BoardLength];
         ports = [];
-        houses = new CatanBuilding[11, 6];
+        houses = new Building[11, 6];
         roads = [];
-        RobberPosition = new Coordinates(0, 0);
+        RobberPosition = new Point(0, 0);
 
         InitialiseTilesAndSetRobber();
         InitialiseHouses();
@@ -30,19 +30,19 @@ public sealed class CatanBoard
         InitialisePorts();
     }
 
-    public Coordinates RobberPosition { get; private set; }
+    public Point RobberPosition { get; private set; }
 
     public int BoardLength { get; private set; } = 5;
 
-    public CatanTile[,] GetTiles() => tiles;
+    public Tile[,] GetTiles() => tiles;
 
-    public CatanBuilding[,] GetHouses() => houses;
+    public Building[,] GetHouses() => houses;
 
-    public List<CatanRoad> GetRoads() => roads;
+    public List<Road> GetRoads() => roads;
 
-    public List<CatanPort> GetPorts() => ports;
+    public List<Port> GetPorts() => ports;
 
-    public CatanTile? GetTile(Coordinates coordinates)
+    public Tile? GetTile(Point coordinates)
     {
         if (TileCoordinatesAreValid(coordinates))
         {
@@ -52,13 +52,13 @@ public sealed class CatanBoard
         return null;
     }
 
-    public CatanBuilding? GetHouse(Coordinates coordinates)
+    public Building? GetHouse(Point coordinates)
     {
         if (HouseCoordinatesAreValid(coordinates))
         {
             var house = houses[coordinates.X, coordinates.Y];
 
-            if (house?.Type != CatanBuildingType.Settlement && house?.Type != CatanBuildingType.City)
+            if (house?.Type != BuildingType.Settlement && house?.Type != BuildingType.City)
             {
                 return null;
             }
@@ -69,14 +69,14 @@ public sealed class CatanBoard
         return null;
     }
 
-    public CatanLongestRoadInfo GetLongestRoadInfo()
+    public LongestRoadInfo GetLongestRoadInfo()
     {
-        var longestRoadPlayer = CatanPlayerColour.None;
+        var longestRoadPlayer = PlayerColour.None;
         var longestRoadLength = 0;
 
-        foreach (var colour in Enum.GetValues<CatanPlayerColour>())
+        foreach (var colour in Enum.GetValues<PlayerColour>())
         {
-            if (colour == CatanPlayerColour.None) continue;
+            if (colour == PlayerColour.None) continue;
 
             var lengthOfLongestRoadForColour = GetLengthOfLongestRoadForColour(colour);
 
@@ -89,17 +89,17 @@ public sealed class CatanBoard
 
         if (longestRoadLength < 5)
         {
-            return new CatanLongestRoadInfo(CatanPlayerColour.None, 0);
+            return new LongestRoadInfo(PlayerColour.None, 0);
         }
 
-        return new CatanLongestRoadInfo(longestRoadPlayer, longestRoadLength);
+        return new LongestRoadInfo(longestRoadPlayer, longestRoadLength);
     }
 
-    public int GetLengthOfLongestRoadForColour(CatanPlayerColour colour)
+    public int GetLengthOfLongestRoadForColour(PlayerColour colour)
     {
-        if (colour == CatanPlayerColour.None)
+        if (colour == PlayerColour.None)
         {
-            throw new ArgumentException($"{nameof(colour)} must not be {CatanPlayerColour.None}.");
+            throw new ArgumentException($"{nameof(colour)} must not be {PlayerColour.None}.");
         }
 
         var roadsOfColour = roads.Where(r => r.Colour == colour).ToList();
@@ -134,12 +134,12 @@ public sealed class CatanBoard
         return furthestDistance;
     }
 
-    public bool ColourHasPortOfType(CatanPlayerColour colour, CatanPortType portType)
+    public bool ColourHasPortOfType(PlayerColour colour, PortType portType)
     {
         return ports.Any(p => p.Type == portType && houses[p.Coordinates.X, p.Coordinates.Y].Colour == colour);
     }
 
-    public bool CanMoveRobberToCoordinates(Coordinates coordinates)
+    public bool CanMoveRobberToCoordinates(Point coordinates)
     {
         if (!TileCoordinatesAreValid(coordinates) || coordinates.Equals(RobberPosition))
         {
@@ -149,7 +149,7 @@ public sealed class CatanBoard
         return true;
     }
 
-    public void MoveRobberToCoordinates(Coordinates coordinates)
+    public void MoveRobberToCoordinates(Point coordinates)
     {
         if (!CanMoveRobberToCoordinates(coordinates))
         {
@@ -159,12 +159,12 @@ public sealed class CatanBoard
         RobberPosition = coordinates;
     }
 
-    public bool CanUpgradeHouseAtCoordinates(Coordinates coordinates, CatanPlayerColour colour)
+    public bool CanUpgradeHouseAtCoordinates(Point coordinates, PlayerColour colour)
     {
-        if (colour == CatanPlayerColour.None
+        if (colour == PlayerColour.None
             || !HouseCoordinatesAreValid(coordinates)
             || !PointContainsHouseOfColour(coordinates, colour)
-            || houses[coordinates.X, coordinates.Y].Type != CatanBuildingType.Settlement)
+            || houses[coordinates.X, coordinates.Y].Type != BuildingType.Settlement)
         {
             return false;
         }
@@ -172,7 +172,7 @@ public sealed class CatanBoard
         return true;
     }
 
-    public void UpgradeHouse(Coordinates coordinates, CatanPlayerColour colour)
+    public void UpgradeHouse(Point coordinates, PlayerColour colour)
     {
         if (!CanUpgradeHouseAtCoordinates(coordinates, colour))
         {
@@ -182,9 +182,9 @@ public sealed class CatanBoard
         houses[coordinates.X, coordinates.Y].SetTypeToCity();
     }
 
-    public bool CanPlaceHouseAtCoordinates(Coordinates coordinates, CatanPlayerColour colour, bool isFirstTurn = false)
+    public bool CanPlaceHouseAtCoordinates(Point coordinates, PlayerColour colour, bool isFirstTurn = false)
     {
-        if (colour == CatanPlayerColour.None
+        if (colour == PlayerColour.None
             || !HouseCoordinatesAreValid(coordinates)
             || PointContainsHouse(coordinates)
             || HouseCoordinatesAreTooCloseToAnotherHouse(coordinates)
@@ -196,7 +196,7 @@ public sealed class CatanBoard
         return true;
     }
 
-    public void PlaceHouse(Coordinates coordinates, CatanPlayerColour colour, bool isFirstTurn = false)
+    public void PlaceHouse(Point coordinates, PlayerColour colour, bool isFirstTurn = false)
     {
         if (!CanPlaceHouseAtCoordinates(coordinates, colour, isFirstTurn))
         {
@@ -207,9 +207,9 @@ public sealed class CatanBoard
         houses[coordinates.X, coordinates.Y].SetTypeToHouse();
     }
 
-    public bool CanPlaceRoadBetweenCoordinates(Coordinates coordinates1, Coordinates coordinates2, CatanPlayerColour colour)
+    public bool CanPlaceRoadBetweenCoordinates(Point coordinates1, Point coordinates2, PlayerColour colour)
     {
-        if (colour == CatanPlayerColour.None
+        if (colour == PlayerColour.None
             || !RoadCoordinatesAreValid(coordinates1, coordinates2)
             || RoadIsClaimed(coordinates1, coordinates2)
             || RoadAtCoordinatesIsBlockedByOpposingHouse(coordinates1, coordinates2, colour)
@@ -222,11 +222,11 @@ public sealed class CatanBoard
     }
 
     public bool CanPlaceTwoRoadsBetweenCoordinates(
-        Coordinates coordinates1,
-        Coordinates coordinates2,
-        Coordinates coordinates3,
-        Coordinates coordinates4,
-        CatanPlayerColour colour)
+        Point coordinates1,
+        Point coordinates2,
+        Point coordinates3,
+        Point coordinates4,
+        PlayerColour colour)
     {
         if (!CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, colour))
         {
@@ -245,7 +245,7 @@ public sealed class CatanBoard
         return true;
     }
 
-    public void PlaceRoad(Coordinates coordinates1, Coordinates coordinates2, CatanPlayerColour colour)
+    public void PlaceRoad(Point coordinates1, Point coordinates2, PlayerColour colour)
     {
         if (!CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, colour))
         {
@@ -257,14 +257,14 @@ public sealed class CatanBoard
         roadInList.SetColour(colour);
     }
 
-    public List<Coordinates> GetCoordinatesOfTilesWithActivationNumber(int activationNumber)
+    public List<Point> GetCoordinatesOfTilesWithActivationNumber(int activationNumber)
     {
         if (activationNumber < 2 || activationNumber > 12)
         {
             throw new ArgumentException("Activation number must be between 2 and 12.");
         }
 
-        var tilesWithActivationNumber = new List<Coordinates>();
+        var tilesWithActivationNumber = new List<Point>();
 
         for (int x = 0; x < BoardLength; x++)
         {
@@ -280,7 +280,7 @@ public sealed class CatanBoard
         return tilesWithActivationNumber;
     }
 
-    public List<CatanPlayerColour> GetHouseColoursOnTile(Coordinates coordinates)
+    public List<PlayerColour> GetHouseColoursOnTile(Point coordinates)
     {
         if (!TileCoordinatesAreValid(coordinates))
         {
@@ -289,7 +289,7 @@ public sealed class CatanBoard
 
         var surroundingHouses = GetHousesOnTile(coordinates);
 
-        var houseColours = new List<CatanPlayerColour>();
+        var houseColours = new List<PlayerColour>();
 
         foreach (var house in surroundingHouses)
         {
@@ -299,7 +299,7 @@ public sealed class CatanBoard
         return houseColours;
     }
 
-    public List<CatanBuilding> GetHousesOnTile(Coordinates coordinates)
+    public List<Building> GetHousesOnTile(Point coordinates)
     {
         if (!TileCoordinatesAreValid(coordinates))
         {
@@ -308,7 +308,7 @@ public sealed class CatanBoard
 
         var surroundingHouseCoordinates = TileToSurroundingHouseCoordinates(coordinates);
 
-        var housesOnTile = new List<CatanBuilding>();
+        var housesOnTile = new List<Building>();
 
         foreach (var houseCoordinate in surroundingHouseCoordinates)
         {
@@ -319,7 +319,7 @@ public sealed class CatanBoard
 
             var house = houses[houseCoordinate.X, houseCoordinate.Y];
 
-            if (house != null && house.Type != CatanBuildingType.None)
+            if (house != null && house.Type != BuildingType.None)
             {
                 housesOnTile.Add(house);
             }
@@ -328,7 +328,7 @@ public sealed class CatanBoard
         return housesOnTile;
     }
 
-    public List<CatanTile> GetTilesSurroundingHouse(Coordinates coordinates)
+    public List<Tile> GetTilesSurroundingHouse(Point coordinates)
     {
         if (!HouseCoordinatesAreValid(coordinates))
         {
@@ -337,7 +337,7 @@ public sealed class CatanBoard
 
         var surroundingTileCoordinates = HouseToSurroundingTileCoordinates(coordinates);
 
-        var tilesSurroundingHouse = new List<CatanTile>();
+        var tilesSurroundingHouse = new List<Tile>();
 
         foreach (var tileCoordinate in surroundingTileCoordinates)
         {
@@ -357,7 +357,7 @@ public sealed class CatanBoard
         return tilesSurroundingHouse;
     }
 
-    private bool HouseCoordinatesAreTooCloseToAnotherHouse(Coordinates coordinates)
+    private bool HouseCoordinatesAreTooCloseToAnotherHouse(Point coordinates)
     {
         var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(coordinates);
 
@@ -372,7 +372,7 @@ public sealed class CatanBoard
         return false;
     }
 
-    private bool HouseCoordinatesAreValid(Coordinates coordinates)
+    private bool HouseCoordinatesAreValid(Point coordinates)
     {
         if (coordinates.X < 0 || coordinates.Y < 0 || coordinates.X >= houses.GetLength(0) || coordinates.Y >= houses.GetLength(1))
         {
@@ -387,7 +387,7 @@ public sealed class CatanBoard
         return true;
     }
 
-    private bool RoadCoordinatesAreValid(Coordinates coordinates1, Coordinates coordinates2)
+    private bool RoadCoordinatesAreValid(Point coordinates1, Point coordinates2)
     {
         if (GetRoadAtCoordinates(coordinates1, coordinates2) is null)
         {
@@ -397,7 +397,7 @@ public sealed class CatanBoard
         return true;
     }
 
-    private bool RemoveRoad(Coordinates coordinates1, Coordinates coordinates2)
+    private bool RemoveRoad(Point coordinates1, Point coordinates2)
     {
         var road = GetRoadAtCoordinates(coordinates1, coordinates2);
 
@@ -406,12 +406,12 @@ public sealed class CatanBoard
             return false;
         }
 
-        road.SetColour(CatanPlayerColour.None);
+        road.SetColour(PlayerColour.None);
 
         return true;
     }
 
-    private bool TileCoordinatesAreValid(Coordinates coordinates)
+    private bool TileCoordinatesAreValid(Point coordinates)
     {
         if (coordinates.X < 0 || coordinates.Y < 0 || coordinates.X >= tiles.GetLength(0) || coordinates.Y >= tiles.GetLength(1))
         {
@@ -426,11 +426,11 @@ public sealed class CatanBoard
         return true;
     }
 
-    private bool RoadIsClaimed(Coordinates coordinates1, Coordinates coordinates2)
+    private bool RoadIsClaimed(Point coordinates1, Point coordinates2)
     {
         var road = GetRoadAtCoordinates(coordinates1, coordinates2);
 
-        if (road is null || road.Colour == CatanPlayerColour.None)
+        if (road is null || road.Colour == PlayerColour.None)
         {
             return false;
         }
@@ -438,7 +438,7 @@ public sealed class CatanBoard
         return true;
     }
 
-    private bool RoadAtCoordinatesIsBlockedByOpposingHouse(Coordinates coordinates1, Coordinates coordinates2, CatanPlayerColour colour)
+    private bool RoadAtCoordinatesIsBlockedByOpposingHouse(Point coordinates1, Point coordinates2, PlayerColour colour)
     {
         if ((PointContainsHouseNotOfColour(coordinates1, colour) && GetOccupiedRoadsOfColourConnectedToPoint(coordinates2, colour).Count == 0)
             || (PointContainsHouseNotOfColour(coordinates2, colour) && GetOccupiedRoadsOfColourConnectedToPoint(coordinates1, colour).Count == 0))
@@ -449,7 +449,7 @@ public sealed class CatanBoard
         return false;
     }
 
-    private bool RoadIsConnectedToHouseOrRoadOfSameColour(Coordinates coordinates1, Coordinates coordinates2, CatanPlayerColour colour)
+    private bool RoadIsConnectedToHouseOrRoadOfSameColour(Point coordinates1, Point coordinates2, PlayerColour colour)
     {
         if (PointContainsHouseOfColour(coordinates1, colour) || PointContainsHouseOfColour(coordinates2, colour))
         {
@@ -465,24 +465,24 @@ public sealed class CatanBoard
         return false;
     }
 
-    private bool PointContainsHouseNotOfColour(Coordinates coordinates, CatanPlayerColour colour)
+    private bool PointContainsHouseNotOfColour(Point coordinates, PlayerColour colour)
     {
         var house = houses[coordinates.X, coordinates.Y];
-        return house?.Colour != colour && house?.Type != CatanBuildingType.None;
+        return house?.Colour != colour && house?.Type != BuildingType.None;
     }
 
-    private bool PointContainsHouseOfColour(Coordinates coordinates, CatanPlayerColour colour)
+    private bool PointContainsHouseOfColour(Point coordinates, PlayerColour colour)
     {
         var house = houses[coordinates.X, coordinates.Y];
-        return house?.Colour == colour && house?.Type != CatanBuildingType.None;
+        return house?.Colour == colour && house?.Type != BuildingType.None;
     }
 
-    private bool PointContainsHouse(Coordinates coordinates)
+    private bool PointContainsHouse(Point coordinates)
     {
-        return houses[coordinates.X, coordinates.Y]?.Type != CatanBuildingType.None;
+        return houses[coordinates.X, coordinates.Y]?.Type != BuildingType.None;
     }
 
-    private CatanRoad? GetRoadAtCoordinates(Coordinates coordinates1, Coordinates coordinates2)
+    private Road? GetRoadAtCoordinates(Point coordinates1, Point coordinates2)
     {
         var roadInList = roads.FirstOrDefault(r => r.FirstCornerCoordinates.Equals(coordinates1) && r.SecondCornerCoordinates.Equals(coordinates2));
 
@@ -491,10 +491,10 @@ public sealed class CatanBoard
         return roadInList;
     }
 
-    private List<CatanRoad> GetOccupiedRoadsOfColourConnectedToPoint(Coordinates coordinates, CatanPlayerColour colour)
+    private List<Road> GetOccupiedRoadsOfColourConnectedToPoint(Point coordinates, PlayerColour colour)
     {
         var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(coordinates);
-        var occupiedRoadsConnectedToPoint = new List<CatanRoad>();
+        var occupiedRoadsConnectedToPoint = new List<Road>();
 
         foreach (var road in roadsConnectedToPoint)
         {
@@ -507,14 +507,14 @@ public sealed class CatanBoard
         return occupiedRoadsConnectedToPoint;
     }
 
-    private List<CatanRoad> GetOccupiedRoadsConnectedToPoint(Coordinates coordinates)
+    private List<Road> GetOccupiedRoadsConnectedToPoint(Point coordinates)
     {
         var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(coordinates);
-        var occupiedRoadsConnectedToPoint = new List<CatanRoad>();
+        var occupiedRoadsConnectedToPoint = new List<Road>();
 
         foreach (var road in roadsConnectedToPoint)
         {
-            if (road.Colour != CatanPlayerColour.None)
+            if (road.Colour != PlayerColour.None)
             {
                 occupiedRoadsConnectedToPoint.Add(road);
             }
@@ -523,9 +523,9 @@ public sealed class CatanBoard
         return occupiedRoadsConnectedToPoint;
     }
 
-    private List<CatanRoad> GetRoadsPositionsConnectedToPoint(Coordinates coordinates)
+    private List<Road> GetRoadsPositionsConnectedToPoint(Point coordinates)
     {
-        var roadsConnectedToPoint = new List<CatanRoad>();
+        var roadsConnectedToPoint = new List<Road>();
 
         foreach (var road in roads)
         {
@@ -540,14 +540,14 @@ public sealed class CatanBoard
 
     private int GetFurthestDistanceFromCoordinateAlongRoads(
         int distanceTravelled,
-        List<CatanRoad> checkedRoads,
-        Coordinates coordinates,
-        List<CatanRoad> roads,
-        CatanPlayerColour colour)
+        List<Road> checkedRoads,
+        Point coordinates,
+        List<Road> roads,
+        PlayerColour colour)
     {
-        if (colour == CatanPlayerColour.None)
+        if (colour == PlayerColour.None)
         {
-            throw new ArgumentException($"{nameof(colour)} must not be {CatanPlayerColour.None}.");
+            throw new ArgumentException($"{nameof(colour)} must not be {PlayerColour.None}.");
         }
 
         var connectedRoads = GetOccupiedRoadsConnectedToPoint(coordinates);
@@ -594,9 +594,9 @@ public sealed class CatanBoard
                 {
                     tiles[x, y] = CreateNewCatanTile(remainingResourceTileTypes, remainingActivationNumbers);
 
-                    if (tiles[x, y].Type == CatanResourceType.Desert)
+                    if (tiles[x, y].Type == ResourceType.Desert)
                     {
-                        RobberPosition = new Coordinates(x, y);
+                        RobberPosition = new Point(x, y);
                     }
                 }
             }
@@ -611,7 +611,7 @@ public sealed class CatanBoard
             {
                 if (x + y >= 2 && x + y <= 13 && y - x <= 3 && y - x >= -8)
                 {
-                    houses[x, y] = new CatanBuilding(CatanPlayerColour.None, CatanBuildingType.None);
+                    houses[x, y] = new Building(PlayerColour.None, BuildingType.None);
                 }
             }
         }
@@ -619,10 +619,10 @@ public sealed class CatanBoard
 
     private void InitialiseRoads()
     {
-        List<Coordinates> roadVectors =
+        List<Point> roadVectors =
         [
-            new Coordinates(0, -1),
-            new Coordinates(-1, 0)
+            new Point(0, -1),
+            new Point(-1, 0)
         ];
 
         for (int x = 0; x < 11; x++)
@@ -633,15 +633,15 @@ public sealed class CatanBoard
 
                 if (house is null) continue;
 
-                var roadCorner1 = new Coordinates(x, y);
+                var roadCorner1 = new Point(x, y);
 
                 foreach (var vector in roadVectors)
                 {
-                    var roadCorner2 = Coordinates.Add(vector, roadCorner1);
+                    var roadCorner2 = Point.Add(vector, roadCorner1);
 
                     if (roadCorner2.X < 0 || roadCorner2.Y < 0) continue;
 
-                    var road = new CatanRoad(CatanPlayerColour.None, roadCorner1, roadCorner2);
+                    var road = new Road(PlayerColour.None, roadCorner1, roadCorner2);
 
                     if (houses[roadCorner2.X, roadCorner2.Y] is null) continue;
 
@@ -661,27 +661,27 @@ public sealed class CatanBoard
 
         for (var i = 0; i < allPortLocations.Count; i += 2)
         {
-            CatanPortType catanPortType;
+            PortType catanPortType;
             int lowestPortTypeNum = (int)remainingPortTypes.First().Key;
             int highestPortTypeNum = (int)remainingPortTypes.Last().Key;
 
             do
             {
-                catanPortType = (CatanPortType)random.Next(lowestPortTypeNum, highestPortTypeNum + 1);
+                catanPortType = (PortType)random.Next(lowestPortTypeNum, highestPortTypeNum + 1);
             }
             while (remainingPortTypes[catanPortType] <= 0);
 
             remainingPortTypes[catanPortType]--;
 
-            var newPort1 = new CatanPort(catanPortType, allPortLocations[i]);
-            var newPort2 = new CatanPort(catanPortType, allPortLocations[i + 1]);
+            var newPort1 = new Port(catanPortType, allPortLocations[i]);
+            var newPort2 = new Port(catanPortType, allPortLocations[i + 1]);
 
             ports.Add(newPort1);
             ports.Add(newPort2);
         }
     }
 
-    private CatanTile CreateNewCatanTile(Dictionary<CatanResourceType, int> remainingResourceTileTypes, Dictionary<int, int> remainingActivationNumbers)
+    private Tile CreateNewCatanTile(Dictionary<ResourceType, int> remainingResourceTileTypes, Dictionary<int, int> remainingActivationNumbers)
     {
         if (remainingResourceTileTypes is null || remainingResourceTileTypes.Count == 0)
         {
@@ -693,21 +693,21 @@ public sealed class CatanBoard
             throw new ArgumentException($"{nameof(remainingActivationNumbers)} must not be null or empty.");
         }
 
-        CatanResourceType catanTileType;
+        ResourceType catanTileType;
         int lowestTileTypeNum = (int)remainingResourceTileTypes.First().Key;
         int highestTileTypeNum = (int)remainingResourceTileTypes.Last().Key;
 
         do
         {
-            catanTileType = (CatanResourceType)random.Next(lowestTileTypeNum, highestTileTypeNum + 1);
+            catanTileType = (ResourceType)random.Next(lowestTileTypeNum, highestTileTypeNum + 1);
         }
         while (remainingResourceTileTypes[catanTileType] <= 0);
 
         remainingResourceTileTypes[catanTileType]--;
 
-        if (catanTileType == CatanResourceType.Desert)
+        if (catanTileType == ResourceType.Desert)
         {
-            return new CatanTile(catanTileType, 0);
+            return new Tile(catanTileType, 0);
         }
 
         int activationNumber;
@@ -722,12 +722,12 @@ public sealed class CatanBoard
 
         remainingActivationNumbers[activationNumber]--;
 
-        return new CatanTile(catanTileType, activationNumber);
+        return new Tile(catanTileType, activationNumber);
     }
 
-    private static List<Coordinates> TileToSurroundingHouseCoordinates(Coordinates tileCoordinates)
+    private static List<Point> TileToSurroundingHouseCoordinates(Point tileCoordinates)
     {
-        var surroundingHouseCoordinates = new List<Coordinates>();
+        var surroundingHouseCoordinates = new List<Point>();
 
         int y = tileCoordinates.Y;
 
@@ -744,9 +744,9 @@ public sealed class CatanBoard
         return surroundingHouseCoordinates;
     }
 
-    private static List<Coordinates> HouseToSurroundingTileCoordinates(Coordinates houseCoordinates)
+    private static List<Point> HouseToSurroundingTileCoordinates(Point houseCoordinates)
     {
-        var surroundingTileCoordinates = new List<Coordinates>();
+        var surroundingTileCoordinates = new List<Point>();
 
         int y = houseCoordinates.Y;
 

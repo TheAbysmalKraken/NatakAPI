@@ -4,9 +4,9 @@ using static Catan.Common.Enumerations;
 
 namespace Catan.Application;
 
-public sealed class CatanGameManager : ICatanGameManager
+public sealed class GameManager : IGameManager
 {
-    private readonly List<CatanGame> currentGames = [];
+    private readonly List<Game> currentGames = [];
 
     public Result<PlayerSpecificGameStatusResponse> GetGameStatus(string gameId, int playerColour)
     {
@@ -21,7 +21,7 @@ public sealed class CatanGameManager : ICatanGameManager
 
         if (!IsValidPlayerColour(playerColour, game.PlayerCount))
         {
-            return Result.Failure<PlayerSpecificGameStatusResponse>(CatanErrors.InvalidPlayerColour);
+            return Result.Failure<PlayerSpecificGameStatusResponse>(Errors.InvalidPlayerColour);
         }
 
         var response = PlayerSpecificGameStatusResponse.FromDomain(game, playerColour);
@@ -48,10 +48,10 @@ public sealed class CatanGameManager : ICatanGameManager
     {
         if (playerCount < 3 || playerCount > 4)
         {
-            return Result.Failure<string>(CatanErrors.InvalidPlayerCount);
+            return Result.Failure<string>(Errors.InvalidPlayerCount);
         }
 
-        var newGame = new CatanGame(playerCount, seed);
+        var newGame = new Game(playerCount, seed);
         currentGames.Add(newGame);
 
         return Result.Success(newGame.Id);
@@ -68,10 +68,10 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GamePhase != CatanGamePhase.Main || (game.GameSubPhase != CatanGameSubPhase.RollOrPlayDevelopmentCard
-            && game.GameSubPhase != CatanGameSubPhase.Roll))
+        if (game.GamePhase != GamePhase.Main || (game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard
+            && game.GameSubPhase != GameSubPhase.Roll))
         {
-            return Result.Failure<List<int>>(CatanErrors.InvalidGamePhase);
+            return Result.Failure<List<int>>(Errors.InvalidGamePhase);
         }
 
         game.RollDiceAndDistributeResourcesToPlayers();
@@ -92,10 +92,10 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GameSubPhase != CatanGameSubPhase.PlayTurn
-        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild)
+        if (game.GameSubPhase != GameSubPhase.PlayTurn
+        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
         game.NextPlayer();
@@ -114,28 +114,28 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GameSubPhase != CatanGameSubPhase.BuildRoad
-        && game.GameSubPhase != CatanGameSubPhase.PlayTurn
-        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild)
+        if (game.GameSubPhase != GameSubPhase.BuildRoad
+        && game.GameSubPhase != GameSubPhase.PlayTurn
+        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
         bool buildSuccess = false;
 
-        if (game.GamePhase == CatanGamePhase.FirstRoundSetup
-        || game.GamePhase == CatanGamePhase.SecondRoundSetup)
+        if (game.GamePhase == GamePhase.FirstRoundSetup
+        || game.GamePhase == GamePhase.SecondRoundSetup)
         {
             buildSuccess = game.BuildFreeRoad(new(firstX, firstY), new(secondX, secondY));
         }
-        else if (game.GamePhase == CatanGamePhase.Main)
+        else if (game.GamePhase == GamePhase.Main)
         {
             buildSuccess = game.BuildRoad(new(firstX, firstY), new(secondX, secondY));
         }
 
         if (!buildSuccess)
         {
-            return Result.Failure(CatanErrors.InvalidBuildLocation);
+            return Result.Failure(Errors.InvalidBuildLocation);
         }
 
         return Result.Success();
@@ -152,28 +152,28 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GameSubPhase != CatanGameSubPhase.BuildSettlement
-        && game.GameSubPhase != CatanGameSubPhase.PlayTurn
-        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild)
+        if (game.GameSubPhase != GameSubPhase.BuildSettlement
+        && game.GameSubPhase != GameSubPhase.PlayTurn
+        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
         bool buildSuccess = false;
 
-        if (game.GamePhase == CatanGamePhase.FirstRoundSetup
-        || game.GamePhase == CatanGamePhase.SecondRoundSetup)
+        if (game.GamePhase == GamePhase.FirstRoundSetup
+        || game.GamePhase == GamePhase.SecondRoundSetup)
         {
             buildSuccess = game.BuildFreeSettlement(new(x, y));
         }
-        else if (game.GamePhase == CatanGamePhase.Main)
+        else if (game.GamePhase == GamePhase.Main)
         {
             buildSuccess = game.BuildSettlement(new(x, y));
         }
 
         if (!buildSuccess)
         {
-            return Result.Failure(CatanErrors.InvalidBuildLocation);
+            return Result.Failure(Errors.InvalidBuildLocation);
         }
 
         return Result.Success();
@@ -190,17 +190,17 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GameSubPhase != CatanGameSubPhase.PlayTurn
-        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild)
+        if (game.GameSubPhase != GameSubPhase.PlayTurn
+        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
         var buildSuccess = game.BuildCity(new(x, y));
 
         if (!buildSuccess)
         {
-            return Result.Failure(CatanErrors.InvalidBuildLocation);
+            return Result.Failure(Errors.InvalidBuildLocation);
         }
 
         return Result.Success();
@@ -217,17 +217,17 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GameSubPhase != CatanGameSubPhase.PlayTurn
-        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild)
+        if (game.GameSubPhase != GameSubPhase.PlayTurn
+        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
         var buySuccess = game.BuyDevelopmentCard();
 
         if (!buySuccess)
         {
-            return Result.Failure(CatanErrors.CannotBuyDevelopmentCard);
+            return Result.Failure(Errors.CannotBuyDevelopmentCard);
         }
 
         return Result.Success();
@@ -246,26 +246,26 @@ public sealed class CatanGameManager : ICatanGameManager
 
         if (!IsValidPlayerColour(playerColourToStealFrom, game.PlayerCount))
         {
-            return Result.Failure<PlayerSpecificGameStatusResponse>(CatanErrors.InvalidPlayerColour);
+            return Result.Failure<PlayerSpecificGameStatusResponse>(Errors.InvalidPlayerColour);
         }
 
-        if (game.GameSubPhase != CatanGameSubPhase.PlayTurn
-        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild
-        && game.GameSubPhase != CatanGameSubPhase.RollOrPlayDevelopmentCard)
+        if (game.GameSubPhase != GameSubPhase.PlayTurn
+        && game.GameSubPhase != GameSubPhase.TradeOrBuild
+        && game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
         if (game.HasPlayedDevelopmentCardThisTurn)
         {
-            return Result.Failure(CatanErrors.AlreadyPlayedDevelopmentCard);
+            return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);
         }
 
-        var playSuccess = game.PlayKnightCard(new(x, y), (CatanPlayerColour)playerColourToStealFrom);
+        var playSuccess = game.PlayKnightCard(new(x, y), (PlayerColour)playerColourToStealFrom);
 
         if (!playSuccess)
         {
-            return Result.Failure(CatanErrors.CannotPlayDevelopmentCard);
+            return Result.Failure(Errors.CannotPlayDevelopmentCard);
         }
 
         return Result.Success();
@@ -284,23 +284,23 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GameSubPhase != CatanGameSubPhase.PlayTurn
-        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild
-        && game.GameSubPhase != CatanGameSubPhase.RollOrPlayDevelopmentCard)
+        if (game.GameSubPhase != GameSubPhase.PlayTurn
+        && game.GameSubPhase != GameSubPhase.TradeOrBuild
+        && game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
         if (game.HasPlayedDevelopmentCardThisTurn)
         {
-            return Result.Failure(CatanErrors.AlreadyPlayedDevelopmentCard);
+            return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);
         }
 
         var playSuccess = game.PlayRoadBuildingCard(new(firstX, firstY), new(secondX, secondY), new(thirdX, thirdY), new(fourthX, fourthY));
 
         if (!playSuccess)
         {
-            return Result.Failure(CatanErrors.CannotPlayDevelopmentCard);
+            return Result.Failure(Errors.CannotPlayDevelopmentCard);
         }
 
         return Result.Success();
@@ -317,23 +317,23 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GameSubPhase != CatanGameSubPhase.PlayTurn
-        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild
-        && game.GameSubPhase != CatanGameSubPhase.RollOrPlayDevelopmentCard)
+        if (game.GameSubPhase != GameSubPhase.PlayTurn
+        && game.GameSubPhase != GameSubPhase.TradeOrBuild
+        && game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
         if (game.HasPlayedDevelopmentCardThisTurn)
         {
-            return Result.Failure(CatanErrors.AlreadyPlayedDevelopmentCard);
+            return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);
         }
 
-        var playSuccess = game.PlayYearOfPlentyCard((CatanResourceType)resourceType1, (CatanResourceType)resourceType2);
+        var playSuccess = game.PlayYearOfPlentyCard((ResourceType)resourceType1, (ResourceType)resourceType2);
 
         if (!playSuccess)
         {
-            return Result.Failure(CatanErrors.CannotPlayDevelopmentCard);
+            return Result.Failure(Errors.CannotPlayDevelopmentCard);
         }
 
         return Result.Success();
@@ -350,23 +350,23 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GameSubPhase != CatanGameSubPhase.PlayTurn
-        && game.GameSubPhase != CatanGameSubPhase.TradeOrBuild
-        && game.GameSubPhase != CatanGameSubPhase.RollOrPlayDevelopmentCard)
+        if (game.GameSubPhase != GameSubPhase.PlayTurn
+        && game.GameSubPhase != GameSubPhase.TradeOrBuild
+        && game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
         if (game.HasPlayedDevelopmentCardThisTurn)
         {
-            return Result.Failure(CatanErrors.AlreadyPlayedDevelopmentCard);
+            return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);
         }
 
-        var playSuccess = game.PlayMonopolyCard((CatanResourceType)resourceType);
+        var playSuccess = game.PlayMonopolyCard((ResourceType)resourceType);
 
         if (!playSuccess)
         {
-            return Result.Failure(CatanErrors.CannotPlayDevelopmentCard);
+            return Result.Failure(Errors.CannotPlayDevelopmentCard);
         }
 
         return Result.Success();
@@ -383,18 +383,18 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GameSubPhase != CatanGameSubPhase.MoveRobberSevenRoll
-        && game.GameSubPhase != CatanGameSubPhase.MoveRobberKnightCardBeforeRoll
-        && game.GameSubPhase != CatanGameSubPhase.MoveRobberKnightCardAfterRoll)
+        if (game.GameSubPhase != GameSubPhase.MoveRobberSevenRoll
+        && game.GameSubPhase != GameSubPhase.MoveRobberKnightCardBeforeRoll
+        && game.GameSubPhase != GameSubPhase.MoveRobberKnightCardAfterRoll)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
         var moveSuccess = game.MoveRobber(new(x, y));
 
         if (!moveSuccess)
         {
-            return Result.Failure(CatanErrors.CannotMoveRobberToLocation);
+            return Result.Failure(Errors.CannotMoveRobberToLocation);
         }
 
         return Result.Success();
@@ -413,21 +413,21 @@ public sealed class CatanGameManager : ICatanGameManager
 
         if (!IsValidPlayerColour(victimColour, game.PlayerCount))
         {
-            return Result.Failure(CatanErrors.InvalidPlayerColour);
+            return Result.Failure(Errors.InvalidPlayerColour);
         }
 
-        if (game.GameSubPhase != CatanGameSubPhase.StealResourceSevenRoll
-        && game.GameSubPhase != CatanGameSubPhase.StealResourceKnightCardBeforeRoll
-        && game.GameSubPhase != CatanGameSubPhase.StealResourceKnightCardAfterRoll)
+        if (game.GameSubPhase != GameSubPhase.StealResourceSevenRoll
+        && game.GameSubPhase != GameSubPhase.StealResourceKnightCardBeforeRoll
+        && game.GameSubPhase != GameSubPhase.StealResourceKnightCardAfterRoll)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
-        var stealSuccess = game.StealResourceCard((CatanPlayerColour)victimColour);
+        var stealSuccess = game.StealResourceCard((PlayerColour)victimColour);
 
         if (!stealSuccess)
         {
-            return Result.Failure(CatanErrors.CannotStealResource);
+            return Result.Failure(Errors.CannotStealResource);
         }
 
         return Result.Success();
@@ -444,18 +444,18 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GameSubPhase != CatanGameSubPhase.DiscardResources)
+        if (game.GameSubPhase != GameSubPhase.DiscardResources)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
-        var catanResources = resources.ToDictionary(kvp => (CatanResourceType)kvp.Key, kvp => kvp.Value);
+        var catanResources = resources.ToDictionary(kvp => (ResourceType)kvp.Key, kvp => kvp.Value);
 
-        var discardSuccess = game.DiscardResources((CatanPlayerColour)playerColour, catanResources);
+        var discardSuccess = game.DiscardResources((PlayerColour)playerColour, catanResources);
 
         if (!discardSuccess)
         {
-            return Result.Failure(CatanErrors.CannotDiscardResources);
+            return Result.Failure(Errors.CannotDiscardResources);
         }
 
         game.TryFinishDiscardingResources();
@@ -474,33 +474,33 @@ public sealed class CatanGameManager : ICatanGameManager
 
         var game = gameResult.Value;
 
-        if (game.GameSubPhase != CatanGameSubPhase.TradeOrBuild)
+        if (game.GameSubPhase != GameSubPhase.TradeOrBuild)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
-        var tradeTwoToOneSuccess = game.TradeTwoToOne((CatanResourceType)resourceToGive, (CatanResourceType)resourceToGet);
+        var tradeTwoToOneSuccess = game.TradeTwoToOne((ResourceType)resourceToGive, (ResourceType)resourceToGet);
 
         if (tradeTwoToOneSuccess)
         {
             return Result.Success();
         }
 
-        var tradeThreeToOneSuccess = game.TradeThreeToOne((CatanResourceType)resourceToGive, (CatanResourceType)resourceToGet);
+        var tradeThreeToOneSuccess = game.TradeThreeToOne((ResourceType)resourceToGive, (ResourceType)resourceToGet);
 
         if (tradeThreeToOneSuccess)
         {
             return Result.Success();
         }
 
-        var tradeFourToOneSuccess = game.TradeFourToOne((CatanResourceType)resourceToGive, (CatanResourceType)resourceToGet);
+        var tradeFourToOneSuccess = game.TradeFourToOne((ResourceType)resourceToGive, (ResourceType)resourceToGet);
 
         if (tradeFourToOneSuccess)
         {
             return Result.Success();
         }
 
-        return Result.Failure(CatanErrors.CannotTradeWithBank);
+        return Result.Failure(Errors.CannotTradeWithBank);
     }
 
     public Result EmbargoPlayer(string gameId, int playerColour, int playerColourToEmbargo)
@@ -517,31 +517,31 @@ public sealed class CatanGameManager : ICatanGameManager
         if (!IsValidPlayerColour(playerColourToEmbargo, game.PlayerCount)
         || !IsValidPlayerColour(playerColour, game.PlayerCount))
         {
-            return Result.Failure(CatanErrors.InvalidPlayerColour);
+            return Result.Failure(Errors.InvalidPlayerColour);
         }
 
-        if (game.GameSubPhase != CatanGameSubPhase.TradeOrBuild)
+        if (game.GameSubPhase != GameSubPhase.TradeOrBuild)
         {
-            return Result.Failure(CatanErrors.InvalidGamePhase);
+            return Result.Failure(Errors.InvalidGamePhase);
         }
 
-        var embargoSuccess = game.EmbargoPlayer((CatanPlayerColour)playerColour, (CatanPlayerColour)playerColourToEmbargo);
+        var embargoSuccess = game.EmbargoPlayer((PlayerColour)playerColour, (PlayerColour)playerColourToEmbargo);
 
         if (!embargoSuccess)
         {
-            return Result.Failure(CatanErrors.CannotEmbargoPlayer);
+            return Result.Failure(Errors.CannotEmbargoPlayer);
         }
 
         return Result.Success();
     }
 
-    private Result<CatanGame> GetGame(string gameId)
+    private Result<Game> GetGame(string gameId)
     {
         var game = currentGames.FirstOrDefault(g => g.Id == gameId);
 
         if (game is null)
         {
-            return Result.Failure<CatanGame>(CatanErrors.GameNotFound);
+            return Result.Failure<Game>(Errors.GameNotFound);
         }
 
         return Result.Success(game);

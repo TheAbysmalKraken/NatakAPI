@@ -8,7 +8,7 @@ namespace Catan.API.Controllers;
 [Route("api/catan")]
 public class CatanController(ILogger<CatanController> logger) : ControllerBase
 {
-    private static readonly CatanGameManager gameManager = new();
+    private static readonly GameManager gameManager = new();
 
     private readonly ILogger<CatanController> _logger = logger;
 

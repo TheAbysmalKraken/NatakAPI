@@ -20,7 +20,7 @@ public sealed class RoadStatusResponse
     [JsonPropertyName("endY")]
     public int EndY { get; set; }
 
-    public static RoadStatusResponse FromDomain(CatanRoad road)
+    public static RoadStatusResponse FromDomain(Road road)
     {
         return new RoadStatusResponse
         {

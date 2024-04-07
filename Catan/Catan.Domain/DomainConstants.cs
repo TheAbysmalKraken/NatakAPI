@@ -4,15 +4,15 @@ namespace Catan.Domain;
 
 public static class DomainConstants
 {
-    public static Dictionary<CatanResourceType, int> GetTileResourceTypeTotals()
+    public static Dictionary<ResourceType, int> GetTileResourceTypeTotals()
         => new()
         {
-            { CatanResourceType.Wood, 4 },
-            { CatanResourceType.Brick, 3 },
-            { CatanResourceType.Sheep, 4 },
-            { CatanResourceType.Wheat, 4 },
-            { CatanResourceType.Ore, 3 },
-            { CatanResourceType.Desert, 1 }
+            { ResourceType.Wood, 4 },
+            { ResourceType.Brick, 3 },
+            { ResourceType.Sheep, 4 },
+            { ResourceType.Wheat, 4 },
+            { ResourceType.Ore, 3 },
+            { ResourceType.Desert, 1 }
         };
 
     public static Dictionary<int, int> GetTileActivationNumberTotals()
@@ -31,7 +31,7 @@ public static class DomainConstants
             { 12, 1 }
         };
 
-    public static List<Coordinates> GetStartingPortCoordinates()
+    public static List<Point> GetStartingPortCoordinates()
     {
         return [
             new(2, 0),
@@ -55,35 +55,35 @@ public static class DomainConstants
         ];
     }
 
-    public static Dictionary<CatanPortType, int> GetPortTypeTotals()
+    public static Dictionary<PortType, int> GetPortTypeTotals()
         => new()
         {
-            { CatanPortType.None, 0},
-            { CatanPortType.Wood, 1 },
-            { CatanPortType.Brick, 1 },
-            { CatanPortType.Sheep, 1 },
-            { CatanPortType.Wheat, 1 },
-            { CatanPortType.Ore, 1 },
-            { CatanPortType.ThreeToOne, 4 }
+            { PortType.None, 0},
+            { PortType.Wood, 1 },
+            { PortType.Brick, 1 },
+            { PortType.Sheep, 1 },
+            { PortType.Wheat, 1 },
+            { PortType.Ore, 1 },
+            { PortType.ThreeToOne, 4 }
         };
 
-    public static Dictionary<CatanDevelopmentCardType, int> GetDevelopmentCardTypeTotals()
+    public static Dictionary<DevelopmentCardType, int> GetDevelopmentCardTypeTotals()
         => new()
         {
-            { CatanDevelopmentCardType.Knight, 14 },
-            { CatanDevelopmentCardType.RoadBuilding, 2 },
-            { CatanDevelopmentCardType.YearOfPlenty, 2 },
-            { CatanDevelopmentCardType.Monopoly, 2 },
-            { CatanDevelopmentCardType.VictoryPoint, 5 }
+            { DevelopmentCardType.Knight, 14 },
+            { DevelopmentCardType.RoadBuilding, 2 },
+            { DevelopmentCardType.YearOfPlenty, 2 },
+            { DevelopmentCardType.Monopoly, 2 },
+            { DevelopmentCardType.VictoryPoint, 5 }
         };
 
-    public static Dictionary<CatanResourceType, int> GetBankResourceTotals()
+    public static Dictionary<ResourceType, int> GetBankResourceTotals()
         => new()
         {
-            { CatanResourceType.Wood, 19 },
-            { CatanResourceType.Brick, 19 },
-            { CatanResourceType.Sheep, 19 },
-            { CatanResourceType.Wheat, 19 },
-            { CatanResourceType.Ore, 19 }
+            { ResourceType.Wood, 19 },
+            { ResourceType.Brick, 19 },
+            { ResourceType.Sheep, 19 },
+            { ResourceType.Wheat, 19 },
+            { ResourceType.Ore, 19 }
         };
 }

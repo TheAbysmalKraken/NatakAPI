@@ -50,7 +50,7 @@ public sealed class PlayerStatusResponse
     [JsonPropertyName("embargoedPlayerColours")]
     public List<int> EmbargoedPlayerColours { get; set; } = [];
 
-    public static PlayerStatusResponse FromDomain(CatanPlayer player, bool hideProperties = false)
+    public static PlayerStatusResponse FromDomain(Player player, bool hideProperties = false)
     {
         var resourceCards = player.GetResourceCards();
         var playableDevelopmentCards = player.GetPlayableDevelopmentCards();

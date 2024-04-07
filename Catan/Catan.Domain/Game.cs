@@ -2,22 +2,22 @@
 
 namespace Catan.Domain;
 
-public class CatanGame
+public class Game
 {
     private const int MIN_PLAYERS = 3;
     private const int MAX_PLAYERS = 4;
 
-    private readonly List<CatanPlayer> players = [];
+    private readonly List<Player> players = [];
     private readonly List<int> rolledDice = [];
-    private readonly Dictionary<CatanResourceType, int> remainingResourceCards = [];
-    private readonly Dictionary<CatanDevelopmentCardType, int> remainingDevelopmentCardTotals = [];
-    private readonly List<CatanDevelopmentCardType> remainingDevelopmentCards = [];
+    private readonly Dictionary<ResourceType, int> remainingResourceCards = [];
+    private readonly Dictionary<DevelopmentCardType, int> remainingDevelopmentCardTotals = [];
+    private readonly List<DevelopmentCardType> remainingDevelopmentCards = [];
     private int currentPlayerIndex = 0;
     private int knightsRequiredForLargestArmy;
     private bool developmentCardPlayedThisTurn;
     private readonly Random random = new();
 
-    public CatanGame(int numberOfPlayers, int? seed = null)
+    public Game(int numberOfPlayers, int? seed = null)
     {
         if (numberOfPlayers < MIN_PLAYERS || numberOfPlayers > MAX_PLAYERS)
         {
@@ -31,7 +31,7 @@ public class CatanGame
 
         Id = Guid.NewGuid().ToString();
 
-        Board = new CatanBoard(seed);
+        Board = new Board(seed);
 
         RollDice();
         InitialisePlayers(numberOfPlayers);
@@ -41,8 +41,8 @@ public class CatanGame
         knightsRequiredForLargestArmy = 3;
         developmentCardPlayedThisTurn = false;
 
-        GamePhase = CatanGamePhase.FirstRoundSetup;
-        GameSubPhase = CatanGameSubPhase.BuildSettlement;
+        GamePhase = GamePhase.FirstRoundSetup;
+        GameSubPhase = GameSubPhase.BuildSettlement;
         PlayerCount = numberOfPlayers;
     }
 
@@ -54,39 +54,39 @@ public class CatanGame
 
     public List<int> LastRoll => rolledDice;
 
-    public CatanBoard Board { get; private set; } = new();
+    public Board Board { get; private set; } = new();
 
-    public CatanPlayer? LongestRoadPlayer { get; private set; } = null;
+    public Player? LongestRoadPlayer { get; private set; } = null;
 
     public int? LongestRoadPlayerIndex => SetLongestRoadPlayerIndex();
 
-    public CatanPlayer? LargestArmyPlayer => players.FirstOrDefault(p => p.HasLargestArmy);
+    public Player? LargestArmyPlayer => players.FirstOrDefault(p => p.HasLargestArmy);
 
     public int? LargestArmyPlayerIndex => SetLargestArmyPlayerIndex();
 
     public int DiceTotal => rolledDice.Sum();
 
-    public CatanPlayer CurrentPlayer => players[currentPlayerIndex];
+    public Player CurrentPlayer => players[currentPlayerIndex];
 
     public int CurrentPlayerIndex => currentPlayerIndex;
 
     public bool HasPlayedDevelopmentCardThisTurn => developmentCardPlayedThisTurn;
 
-    public CatanGamePhase GamePhase { get; private set; }
+    public GamePhase GamePhase { get; private set; }
 
-    public CatanGameSubPhase GameSubPhase { get; private set; }
+    public GameSubPhase GameSubPhase { get; private set; }
 
-    public List<CatanPlayer> GetPlayers() => players;
+    public List<Player> GetPlayers() => players;
 
     public List<int> GetRolledDice() => rolledDice;
 
-    public Dictionary<CatanResourceType, int> GetRemainingResourceCards()
+    public Dictionary<ResourceType, int> GetRemainingResourceCards()
         => remainingResourceCards;
 
-    public Dictionary<CatanDevelopmentCardType, int> GetRemainingDevelopmentCardTotals()
+    public Dictionary<DevelopmentCardType, int> GetRemainingDevelopmentCardTotals()
         => remainingDevelopmentCardTotals;
 
-    public List<CatanDevelopmentCardType> GetRemainingDevelopmentCards()
+    public List<DevelopmentCardType> GetRemainingDevelopmentCards()
         => remainingDevelopmentCards;
 
     public void NextPlayer()
@@ -97,23 +97,23 @@ public class CatanGame
 
         CurrentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
 
-        if (GamePhase == CatanGamePhase.SecondRoundSetup)
+        if (GamePhase == GamePhase.SecondRoundSetup)
         {
             if (currentPlayerIndex == 0)
             {
-                GamePhase = CatanGamePhase.Main;
-                GameSubPhase = CatanGameSubPhase.RollOrPlayDevelopmentCard;
+                GamePhase = GamePhase.Main;
+                GameSubPhase = GameSubPhase.RollOrPlayDevelopmentCard;
             }
             else
             {
                 currentPlayerIndex = (currentPlayerIndex - 1) % players.Count;
             }
         }
-        else if (GamePhase == CatanGamePhase.FirstRoundSetup)
+        else if (GamePhase == GamePhase.FirstRoundSetup)
         {
             if (currentPlayerIndex == players.Count - 1)
             {
-                GamePhase = CatanGamePhase.SecondRoundSetup;
+                GamePhase = GamePhase.SecondRoundSetup;
             }
             else
             {
@@ -123,8 +123,8 @@ public class CatanGame
         else
         {
             currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
-            GamePhase = CatanGamePhase.Main;
-            GameSubPhase = CatanGameSubPhase.RollOrPlayDevelopmentCard;
+            GamePhase = GamePhase.Main;
+            GameSubPhase = GameSubPhase.RollOrPlayDevelopmentCard;
         }
     }
 
@@ -142,7 +142,7 @@ public class CatanGame
 
         if (diceTotal == 7)
         {
-            GameSubPhase = CatanGameSubPhase.DiscardResources;
+            GameSubPhase = GameSubPhase.DiscardResources;
 
             TryFinishDiscardingResources();
 
@@ -169,13 +169,13 @@ public class CatanGame
                     continue;
                 }
 
-                var isCity = house.Type == CatanBuildingType.City;
+                var isCity = house.Type == BuildingType.City;
 
                 var tile = Board.GetTile(coordinates);
 
                 if (tile is null
-                || tile.Type == CatanResourceType.Desert
-                || tile.Type == CatanResourceType.None)
+                || tile.Type == ResourceType.Desert
+                || tile.Type == ResourceType.None)
                 {
                     continue;
                 }
@@ -196,12 +196,12 @@ public class CatanGame
             }
         }
 
-        GameSubPhase = CatanGameSubPhase.TradeOrBuild;
+        GameSubPhase = GameSubPhase.TradeOrBuild;
 
         return true;
     }
 
-    public bool GiveResourcesSurroundingHouse(Coordinates coordinates)
+    public bool GiveResourcesSurroundingHouse(Point coordinates)
     {
         var tiles = Board.GetTilesSurroundingHouse(coordinates);
 
@@ -209,7 +209,7 @@ public class CatanGame
         {
             var resourceType = tile.Type;
 
-            if (resourceType == CatanResourceType.None || resourceType == CatanResourceType.Desert)
+            if (resourceType == ResourceType.None || resourceType == ResourceType.Desert)
             {
                 continue;
             }
@@ -224,9 +224,9 @@ public class CatanGame
         return true;
     }
 
-    public bool TradeTwoToOne(CatanResourceType resourceTypeToGive, CatanResourceType resourceTypeToReceive)
+    public bool TradeTwoToOne(ResourceType resourceTypeToGive, ResourceType resourceTypeToReceive)
     {
-        var portTypeValid = Enum.TryParse<CatanPortType>(resourceTypeToReceive.ToString(), out var portType);
+        var portTypeValid = Enum.TryParse<PortType>(resourceTypeToReceive.ToString(), out var portType);
 
         if (!portTypeValid)
         {
@@ -244,10 +244,10 @@ public class CatanGame
         return true;
     }
 
-    public bool TradeThreeToOne(CatanResourceType resourceTypeToGive, CatanResourceType resourceTypeToReceive)
+    public bool TradeThreeToOne(ResourceType resourceTypeToGive, ResourceType resourceTypeToReceive)
     {
         if (!CurrentPlayer.CanTradeThreeToOneOfCardType(resourceTypeToGive)
-        || !Board.ColourHasPortOfType(CurrentPlayer.Colour, CatanPortType.ThreeToOne))
+        || !Board.ColourHasPortOfType(CurrentPlayer.Colour, PortType.ThreeToOne))
         {
             return false;
         }
@@ -257,7 +257,7 @@ public class CatanGame
         return true;
     }
 
-    public bool TradeFourToOne(CatanResourceType resourceTypeToGive, CatanResourceType resourceTypeToReceive)
+    public bool TradeFourToOne(ResourceType resourceTypeToGive, ResourceType resourceTypeToReceive)
     {
         if (!CurrentPlayer.CanTradeFourToOneOfCardType(resourceTypeToGive))
         {
@@ -269,11 +269,11 @@ public class CatanGame
         return true;
     }
 
-    public bool EmbargoPlayer(CatanPlayerColour colourEmbargoedBy, CatanPlayerColour colourToEmbargo)
+    public bool EmbargoPlayer(PlayerColour colourEmbargoedBy, PlayerColour colourToEmbargo)
     {
         if (colourEmbargoedBy == colourToEmbargo
-        || colourEmbargoedBy == CatanPlayerColour.None
-        || colourToEmbargo == CatanPlayerColour.None)
+        || colourEmbargoedBy == PlayerColour.None
+        || colourToEmbargo == PlayerColour.None)
         {
             return false;
         }
@@ -290,11 +290,11 @@ public class CatanGame
         return true;
     }
 
-    public bool RemovePlayerEmbargo(CatanPlayerColour colourEmbargoedBy, CatanPlayerColour colourToEmbargo)
+    public bool RemovePlayerEmbargo(PlayerColour colourEmbargoedBy, PlayerColour colourToEmbargo)
     {
         if (colourEmbargoedBy == colourToEmbargo
-        || colourEmbargoedBy == CatanPlayerColour.None
-        || colourToEmbargo == CatanPlayerColour.None)
+        || colourEmbargoedBy == PlayerColour.None
+        || colourToEmbargo == PlayerColour.None)
         {
             return false;
         }
@@ -311,9 +311,9 @@ public class CatanGame
         return true;
     }
 
-    public bool PlayKnightCard(Coordinates robberCoordinates, CatanPlayerColour colourToStealFrom)
+    public bool PlayKnightCard(Point robberCoordinates, PlayerColour colourToStealFrom)
     {
-        if (!CanPlayDevelopmentCard(CatanDevelopmentCardType.Knight)
+        if (!CanPlayDevelopmentCard(DevelopmentCardType.Knight)
         || !Board.GetHouseColoursOnTile(robberCoordinates).Contains(colourToStealFrom))
         {
             return false;
@@ -321,14 +321,14 @@ public class CatanGame
 
         var originalRobberCoordinates = Board.RobberPosition;
 
-        if (GameSubPhase == CatanGameSubPhase.RollOrPlayDevelopmentCard)
+        if (GameSubPhase == GameSubPhase.RollOrPlayDevelopmentCard)
         {
-            GameSubPhase = CatanGameSubPhase.MoveRobberKnightCardBeforeRoll;
+            GameSubPhase = GameSubPhase.MoveRobberKnightCardBeforeRoll;
         }
-        else if (GameSubPhase == CatanGameSubPhase.TradeOrBuild
-        || GameSubPhase == CatanGameSubPhase.PlayTurn)
+        else if (GameSubPhase == GameSubPhase.TradeOrBuild
+        || GameSubPhase == GameSubPhase.PlayTurn)
         {
-            GameSubPhase = CatanGameSubPhase.MoveRobberKnightCardAfterRoll;
+            GameSubPhase = GameSubPhase.MoveRobberKnightCardAfterRoll;
         }
 
         var moveRobberSuccess = MoveRobber(robberCoordinates);
@@ -346,7 +346,7 @@ public class CatanGame
             return false;
         }
 
-        PlayDevelopmentCard(CatanDevelopmentCardType.Knight);
+        PlayDevelopmentCard(DevelopmentCardType.Knight);
 
         UpdateLargestArmyPlayer();
 
@@ -355,14 +355,14 @@ public class CatanGame
         return true;
     }
 
-    public bool PlayYearOfPlentyCard(CatanResourceType resourceType1, CatanResourceType resourceType2)
+    public bool PlayYearOfPlentyCard(ResourceType resourceType1, ResourceType resourceType2)
     {
-        if (resourceType1 == CatanResourceType.None || resourceType2 == CatanResourceType.None)
+        if (resourceType1 == ResourceType.None || resourceType2 == ResourceType.None)
         {
             return false;
         }
 
-        if (!CanPlayDevelopmentCard(CatanDevelopmentCardType.YearOfPlenty))
+        if (!CanPlayDevelopmentCard(DevelopmentCardType.YearOfPlenty))
         {
             return false;
         }
@@ -383,19 +383,19 @@ public class CatanGame
         CurrentPlayer.AddResourceCard(resourceType1);
         CurrentPlayer.AddResourceCard(resourceType2);
 
-        PlayDevelopmentCard(CatanDevelopmentCardType.YearOfPlenty);
+        PlayDevelopmentCard(DevelopmentCardType.YearOfPlenty);
 
         return true;
     }
 
-    public bool PlayMonopolyCard(CatanResourceType resourceType)
+    public bool PlayMonopolyCard(ResourceType resourceType)
     {
-        if (resourceType == CatanResourceType.None)
+        if (resourceType == ResourceType.None)
         {
             return false;
         }
 
-        if (!CanPlayDevelopmentCard(CatanDevelopmentCardType.Monopoly))
+        if (!CanPlayDevelopmentCard(DevelopmentCardType.Monopoly))
         {
             return false;
         }
@@ -413,18 +413,18 @@ public class CatanGame
             }
         }
 
-        PlayDevelopmentCard(CatanDevelopmentCardType.Monopoly);
+        PlayDevelopmentCard(DevelopmentCardType.Monopoly);
 
         return true;
     }
 
     public bool PlayRoadBuildingCard(
-        Coordinates coordinates1,
-        Coordinates coordinates2,
-        Coordinates coordinates3,
-        Coordinates coordinates4)
+        Point coordinates1,
+        Point coordinates2,
+        Point coordinates3,
+        Point coordinates4)
     {
-        if (!CanPlayDevelopmentCard(CatanDevelopmentCardType.RoadBuilding)
+        if (!CanPlayDevelopmentCard(DevelopmentCardType.RoadBuilding)
         || !Board.CanPlaceTwoRoadsBetweenCoordinates(coordinates1, coordinates2, coordinates3, coordinates4, CurrentPlayer.Colour))
         {
             return false;
@@ -433,7 +433,7 @@ public class CatanGame
         Board.PlaceRoad(coordinates1, coordinates2, CurrentPlayer.Colour);
         Board.PlaceRoad(coordinates3, coordinates4, CurrentPlayer.Colour);
 
-        PlayDevelopmentCard(CatanDevelopmentCardType.RoadBuilding);
+        PlayDevelopmentCard(DevelopmentCardType.RoadBuilding);
 
         UpdateLargestRoadPlayer();
 
@@ -443,9 +443,9 @@ public class CatanGame
     }
 
     public bool MakeTradeWithPlayer(
-        CatanPlayerColour otherPlayerColour,
-        Dictionary<CatanResourceType, int> resourcesGivenByCurrentPlayer,
-        Dictionary<CatanResourceType, int> resourcesReceivedByCurrentPlayer)
+        PlayerColour otherPlayerColour,
+        Dictionary<ResourceType, int> resourcesGivenByCurrentPlayer,
+        Dictionary<ResourceType, int> resourcesReceivedByCurrentPlayer)
     {
         var playerToTradeWith = GetPlayerByColour(otherPlayerColour);
 
@@ -466,7 +466,7 @@ public class CatanGame
         return true;
     }
 
-    public bool BuildFreeRoad(Coordinates coordinates1, Coordinates coordinates2)
+    public bool BuildFreeRoad(Point coordinates1, Point coordinates2)
     {
         if (!Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, CurrentPlayer.Colour))
         {
@@ -476,17 +476,17 @@ public class CatanGame
         CurrentPlayer.BuyFreeRoad();
         Board.PlaceRoad(coordinates1, coordinates2, CurrentPlayer.Colour);
 
-        if (GamePhase == CatanGamePhase.FirstRoundSetup
-        || GamePhase == CatanGamePhase.SecondRoundSetup)
+        if (GamePhase == GamePhase.FirstRoundSetup
+        || GamePhase == GamePhase.SecondRoundSetup)
         {
-            GameSubPhase = CatanGameSubPhase.BuildSettlement;
+            GameSubPhase = GameSubPhase.BuildSettlement;
             NextPlayer();
         }
 
         return true;
     }
 
-    public bool BuildRoad(Coordinates coordinates1, Coordinates coordinates2)
+    public bool BuildRoad(Point coordinates1, Point coordinates2)
     {
         if (!CurrentPlayer.CanBuyRoad() || !Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, CurrentPlayer.Colour))
         {
@@ -503,7 +503,7 @@ public class CatanGame
         return true;
     }
 
-    public bool BuildFreeSettlement(Coordinates coordinates)
+    public bool BuildFreeSettlement(Point coordinates)
     {
         if (!Board.CanPlaceHouseAtCoordinates(coordinates, CurrentPlayer.Colour, true))
         {
@@ -513,21 +513,21 @@ public class CatanGame
         CurrentPlayer.BuyFreeSettlement();
         Board.PlaceHouse(coordinates, CurrentPlayer.Colour, true);
 
-        if (GamePhase == CatanGamePhase.SecondRoundSetup)
+        if (GamePhase == GamePhase.SecondRoundSetup)
         {
             GiveResourcesSurroundingHouse(coordinates);
         }
 
-        if (GamePhase == CatanGamePhase.FirstRoundSetup
-        || GamePhase == CatanGamePhase.SecondRoundSetup)
+        if (GamePhase == GamePhase.FirstRoundSetup
+        || GamePhase == GamePhase.SecondRoundSetup)
         {
-            GameSubPhase = CatanGameSubPhase.BuildRoad;
+            GameSubPhase = GameSubPhase.BuildRoad;
         }
 
         return true;
     }
 
-    public bool BuildSettlement(Coordinates coordinates)
+    public bool BuildSettlement(Point coordinates)
     {
         if (!CurrentPlayer.CanBuySettlement() || !Board.CanPlaceHouseAtCoordinates(coordinates, CurrentPlayer.Colour))
         {
@@ -544,7 +544,7 @@ public class CatanGame
         return true;
     }
 
-    public bool BuildCity(Coordinates coordinates)
+    public bool BuildCity(Point coordinates)
     {
         if (!CurrentPlayer.CanBuyCity() || !Board.CanUpgradeHouseAtCoordinates(coordinates, CurrentPlayer.Colour))
         {
@@ -559,7 +559,7 @@ public class CatanGame
         return true;
     }
 
-    public bool MoveRobber(Coordinates coordinates)
+    public bool MoveRobber(Point coordinates)
     {
         if (!Board.CanMoveRobberToCoordinates(coordinates))
         {
@@ -568,19 +568,19 @@ public class CatanGame
 
         Board.MoveRobberToCoordinates(coordinates);
 
-        if (GameSubPhase == CatanGameSubPhase.MoveRobberKnightCardBeforeRoll)
+        if (GameSubPhase == GameSubPhase.MoveRobberKnightCardBeforeRoll)
         {
-            GameSubPhase = CatanGameSubPhase.StealResourceKnightCardBeforeRoll;
+            GameSubPhase = GameSubPhase.StealResourceKnightCardBeforeRoll;
         }
-        else if (GameSubPhase == CatanGameSubPhase.MoveRobberSevenRoll)
+        else if (GameSubPhase == GameSubPhase.MoveRobberSevenRoll)
         {
-            GameSubPhase = CatanGameSubPhase.StealResourceKnightCardAfterRoll;
+            GameSubPhase = GameSubPhase.StealResourceKnightCardAfterRoll;
         }
 
         return true;
     }
 
-    public bool StealResourceCard(CatanPlayerColour victimColour)
+    public bool StealResourceCard(PlayerColour victimColour)
     {
         var victim = GetPlayerByColour(victimColour);
 
@@ -596,19 +596,19 @@ public class CatanGame
             CurrentPlayer.AddResourceCard(stolenCard.Value);
         }
 
-        if (GameSubPhase == CatanGameSubPhase.StealResourceKnightCardBeforeRoll)
+        if (GameSubPhase == GameSubPhase.StealResourceKnightCardBeforeRoll)
         {
-            GameSubPhase = CatanGameSubPhase.Roll;
+            GameSubPhase = GameSubPhase.Roll;
         }
-        else if (GameSubPhase == CatanGameSubPhase.StealResourceKnightCardAfterRoll)
+        else if (GameSubPhase == GameSubPhase.StealResourceKnightCardAfterRoll)
         {
-            GameSubPhase = CatanGameSubPhase.TradeOrBuild;
+            GameSubPhase = GameSubPhase.TradeOrBuild;
         }
 
         return true;
     }
 
-    public bool DiscardResources(CatanPlayerColour playerColourDiscarding, Dictionary<CatanResourceType, int> resourcesToDiscard)
+    public bool DiscardResources(PlayerColour playerColourDiscarding, Dictionary<ResourceType, int> resourcesToDiscard)
     {
         var player = GetPlayerByColour(playerColourDiscarding);
 
@@ -636,7 +636,7 @@ public class CatanGame
     {
         if (!players.Any(p => p.GetResourceCards().Count > 7))
         {
-            GameSubPhase = CatanGameSubPhase.MoveRobberSevenRoll;
+            GameSubPhase = GameSubPhase.MoveRobberSevenRoll;
         }
     }
 
@@ -700,8 +700,8 @@ public class CatanGame
 
         for (var i = 0; i < numberOfPlayers; i++)
         {
-            CatanPlayerColour playerColour = (CatanPlayerColour)i;
-            var newPlayer = new CatanPlayer(playerColour);
+            PlayerColour playerColour = (PlayerColour)i;
+            var newPlayer = new Player(playerColour);
 
             players.Add(newPlayer);
         }
@@ -751,7 +751,7 @@ public class CatanGame
         }
     }
 
-    private CatanPlayer? GetPlayerByColour(CatanPlayerColour colour)
+    private Player? GetPlayerByColour(PlayerColour colour)
     {
         return players.FirstOrDefault(p => p.Colour == colour);
     }
@@ -795,12 +795,12 @@ public class CatanGame
         }
     }
 
-    private bool CanPlayDevelopmentCard(CatanDevelopmentCardType type)
+    private bool CanPlayDevelopmentCard(DevelopmentCardType type)
     {
         return !developmentCardPlayedThisTurn && CurrentPlayer.CanRemoveDevelopmentCard(type);
     }
 
-    private void PlayDevelopmentCard(CatanDevelopmentCardType type)
+    private void PlayDevelopmentCard(DevelopmentCardType type)
     {
         if (!CanPlayDevelopmentCard(type))
         {

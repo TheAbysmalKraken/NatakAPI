@@ -5,29 +5,29 @@ namespace Catan.UnitTests.Domain;
 
 public class CatanPlayerTests
 {
-    private readonly CatanPlayer testPlayer;
+    private readonly Player testPlayer;
 
     public CatanPlayerTests()
     {
-        testPlayer = new(CatanPlayerColour.Red);
+        testPlayer = new(PlayerColour.Red);
     }
 
     [Fact]
     public void BuyDevelopmentCard_VictoryPointCardAdded_VictoryPointAddedToCount()
     {
         // Act
-        testPlayer.BuyDevelopmentCard(CatanDevelopmentCardType.VictoryPoint);
+        testPlayer.BuyDevelopmentCard(DevelopmentCardType.VictoryPoint);
 
         // Assert
         Assert.Equal(1, testPlayer.VictoryPoints);
     }
 
     [Theory]
-    [InlineData(CatanDevelopmentCardType.Knight)]
-    [InlineData(CatanDevelopmentCardType.RoadBuilding)]
-    [InlineData(CatanDevelopmentCardType.YearOfPlenty)]
-    [InlineData(CatanDevelopmentCardType.Monopoly)]
-    public void BuyDevelopmentCard_DevelopmentCardAddedToOnHold(CatanDevelopmentCardType cardType)
+    [InlineData(DevelopmentCardType.Knight)]
+    [InlineData(DevelopmentCardType.RoadBuilding)]
+    [InlineData(DevelopmentCardType.YearOfPlenty)]
+    [InlineData(DevelopmentCardType.Monopoly)]
+    public void BuyDevelopmentCard_DevelopmentCardAddedToOnHold(DevelopmentCardType cardType)
     {
         // Act
         testPlayer.BuyDevelopmentCard(cardType);
@@ -38,12 +38,12 @@ public class CatanPlayerTests
     }
 
     [Theory]
-    [InlineData(CatanDevelopmentCardType.Knight)]
-    [InlineData(CatanDevelopmentCardType.RoadBuilding)]
-    [InlineData(CatanDevelopmentCardType.YearOfPlenty)]
-    [InlineData(CatanDevelopmentCardType.Monopoly)]
+    [InlineData(DevelopmentCardType.Knight)]
+    [InlineData(DevelopmentCardType.RoadBuilding)]
+    [InlineData(DevelopmentCardType.YearOfPlenty)]
+    [InlineData(DevelopmentCardType.Monopoly)]
     public void MoveOnHoldDevelopmentCardsToPlayable_CurrentPlayerDevelopmentCardsOnHoldSetToZero(
-        CatanDevelopmentCardType cardType)
+        DevelopmentCardType cardType)
     {
         // Arrange
         var cardsToAdd = 3;
@@ -61,12 +61,12 @@ public class CatanPlayerTests
     }
 
     [Theory]
-    [InlineData(CatanDevelopmentCardType.Knight)]
-    [InlineData(CatanDevelopmentCardType.RoadBuilding)]
-    [InlineData(CatanDevelopmentCardType.YearOfPlenty)]
-    [InlineData(CatanDevelopmentCardType.Monopoly)]
+    [InlineData(DevelopmentCardType.Knight)]
+    [InlineData(DevelopmentCardType.RoadBuilding)]
+    [InlineData(DevelopmentCardType.YearOfPlenty)]
+    [InlineData(DevelopmentCardType.Monopoly)]
     public void MoveOnHoldDevelopmentCardsToPlayable_CurrentPlayerDevelopmentCardsOnHoldBecomePlayable(
-        CatanDevelopmentCardType cardType)
+        DevelopmentCardType cardType)
     {
         // Arrange
         var cardsToAdd = 3;
@@ -88,21 +88,21 @@ public class CatanPlayerTests
     public void CanPlayDevelopmentCardOfType_VictoryPointReturnsFalse()
     {
         // Act
-        var canPlay = testPlayer.CanRemoveDevelopmentCard(CatanDevelopmentCardType.VictoryPoint);
+        var canPlay = testPlayer.CanRemoveDevelopmentCard(DevelopmentCardType.VictoryPoint);
 
         // Assert
         Assert.False(canPlay);
     }
 
     [Theory]
-    [InlineData(CatanDevelopmentCardType.RoadBuilding)]
-    [InlineData(CatanDevelopmentCardType.YearOfPlenty)]
-    [InlineData(CatanDevelopmentCardType.Monopoly)]
+    [InlineData(DevelopmentCardType.RoadBuilding)]
+    [InlineData(DevelopmentCardType.YearOfPlenty)]
+    [InlineData(DevelopmentCardType.Monopoly)]
     public void CanPlayDevelopmentCardOfType_HasNoneOfThatType_ReturnsFalse(
-        CatanDevelopmentCardType cardType)
+        DevelopmentCardType cardType)
     {
         // Arrange
-        testPlayer.BuyDevelopmentCard(CatanDevelopmentCardType.Knight);
+        testPlayer.BuyDevelopmentCard(DevelopmentCardType.Knight);
         testPlayer.MoveOnHoldDevelopmentCardsToPlayable();
         testPlayer.BuyDevelopmentCard(cardType);
 
@@ -114,12 +114,12 @@ public class CatanPlayerTests
     }
 
     [Theory]
-    [InlineData(CatanDevelopmentCardType.Knight)]
-    [InlineData(CatanDevelopmentCardType.RoadBuilding)]
-    [InlineData(CatanDevelopmentCardType.YearOfPlenty)]
-    [InlineData(CatanDevelopmentCardType.Monopoly)]
+    [InlineData(DevelopmentCardType.Knight)]
+    [InlineData(DevelopmentCardType.RoadBuilding)]
+    [InlineData(DevelopmentCardType.YearOfPlenty)]
+    [InlineData(DevelopmentCardType.Monopoly)]
     public void CanPlayDevelopmentCardOfType_HasSomeOfThatType_ReturnsTrue(
-        CatanDevelopmentCardType cardType)
+        DevelopmentCardType cardType)
     {
         // Arrange
         testPlayer.BuyDevelopmentCard(cardType);
@@ -133,12 +133,12 @@ public class CatanPlayerTests
     }
 
     [Theory]
-    [InlineData(CatanDevelopmentCardType.Knight)]
-    [InlineData(CatanDevelopmentCardType.RoadBuilding)]
-    [InlineData(CatanDevelopmentCardType.YearOfPlenty)]
-    [InlineData(CatanDevelopmentCardType.Monopoly)]
+    [InlineData(DevelopmentCardType.Knight)]
+    [InlineData(DevelopmentCardType.RoadBuilding)]
+    [InlineData(DevelopmentCardType.YearOfPlenty)]
+    [InlineData(DevelopmentCardType.Monopoly)]
     public void PlayDevelopmentCard_HasNoneOfThatType_CardCountIsZero(
-        CatanDevelopmentCardType cardType)
+        DevelopmentCardType cardType)
     {
         // Act
         testPlayer.RemoveDevelopmentCard(cardType);
@@ -149,12 +149,12 @@ public class CatanPlayerTests
     }
 
     [Theory]
-    [InlineData(CatanDevelopmentCardType.Knight)]
-    [InlineData(CatanDevelopmentCardType.RoadBuilding)]
-    [InlineData(CatanDevelopmentCardType.YearOfPlenty)]
-    [InlineData(CatanDevelopmentCardType.Monopoly)]
+    [InlineData(DevelopmentCardType.Knight)]
+    [InlineData(DevelopmentCardType.RoadBuilding)]
+    [InlineData(DevelopmentCardType.YearOfPlenty)]
+    [InlineData(DevelopmentCardType.Monopoly)]
     public void PlayDevelopmentCard_HasSomeOfThatType_CardCountOneLess(
-        CatanDevelopmentCardType cardType)
+        DevelopmentCardType cardType)
     {
         // Arrange
         testPlayer.BuyDevelopmentCard(cardType);

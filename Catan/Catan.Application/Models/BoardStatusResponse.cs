@@ -21,7 +21,7 @@ public sealed class BoardStatusResponse
     [JsonPropertyName("ports")]
     public List<PortStatusResponse> Ports { get; set; } = [];
 
-    public static BoardStatusResponse FromDomain(CatanBoard board)
+    public static BoardStatusResponse FromDomain(Board board)
     {
         var boardStatusResponse = new BoardStatusResponse
         {
@@ -33,7 +33,7 @@ public sealed class BoardStatusResponse
         {
             for (int y = 0; y < 5; y++)
             {
-                var hex = board.GetTile(new Coordinates(x, y));
+                var hex = board.GetTile(new Point(x, y));
 
                 if (hex is not null)
                     boardStatusResponse.Hexes.Add(HexStatusResponse.FromDomain(hex, x, y));
@@ -44,15 +44,15 @@ public sealed class BoardStatusResponse
         {
             for (int y = 0; y < 6; y++)
             {
-                var house = board.GetHouse(new Coordinates(x, y));
+                var house = board.GetHouse(new Point(x, y));
 
                 if (house is not null)
                 {
-                    if (house.Type == CatanBuildingType.Settlement)
+                    if (house.Type == BuildingType.Settlement)
                     {
                         boardStatusResponse.Settlements.Add(BuildingStatusResponse.FromDomain(house, x, y));
                     }
-                    else if (house.Type == CatanBuildingType.City)
+                    else if (house.Type == BuildingType.City)
                     {
                         boardStatusResponse.Cities.Add(BuildingStatusResponse.FromDomain(house, x, y));
                     }
