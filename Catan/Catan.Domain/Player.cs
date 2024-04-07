@@ -1,4 +1,4 @@
-﻿using static Catan.Common.Enumerations;
+﻿using Catan.Domain.Enums;
 
 namespace Catan.Domain;
 
