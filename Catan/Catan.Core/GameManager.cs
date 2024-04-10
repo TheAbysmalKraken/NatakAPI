@@ -7,27 +7,6 @@ namespace Catan.Application;
 
 public sealed class GameManager(IMemoryCache cache) : IGameManager
 {
-    public Result<PlayerSpecificGameStatusResponse> GetGameStatus(string gameId, int playerColour)
-    {
-        var gameResult = GetGameFromCache(gameId);
-
-        if (gameResult.IsFailure)
-        {
-            return Result.Failure<PlayerSpecificGameStatusResponse>(gameResult.Error);
-        }
-
-        var game = gameResult.Value;
-
-        if (!IsValidPlayerColour(playerColour, game.PlayerCount))
-        {
-            return Result.Failure<PlayerSpecificGameStatusResponse>(Errors.InvalidPlayerColour);
-        }
-
-        var response = PlayerSpecificGameStatusResponse.FromDomain(game, playerColour);
-
-        return Result.Success(response);
-    }
-
     public Result<List<CoordinatesResponse>> GetAvailableSettlementLocations(string gameId, int playerColour)
     {
         throw new NotImplementedException();

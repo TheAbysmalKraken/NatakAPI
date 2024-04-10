@@ -4,8 +4,6 @@ namespace Catan.Application;
 
 public interface IGameManager
 {
-    Result<PlayerSpecificGameStatusResponse> GetGameStatus(string gameId, int playerColour);
-
     Result<List<CoordinatesResponse>> GetAvailableSettlementLocations(string gameId, int playerColour);
 
     Result<List<CoordinatesResponse>> GetAvailableCityLocations(string gameId, int playerColour);

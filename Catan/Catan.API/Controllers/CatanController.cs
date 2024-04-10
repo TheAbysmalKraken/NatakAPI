@@ -1,5 +1,7 @@
 using Catan.API.Controllers.Models;
 using Catan.Application;
+using Catan.Core.Features.GetGame;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catan.API.Controllers;
@@ -7,17 +9,18 @@ namespace Catan.API.Controllers;
 [ApiController]
 [Route("api/catan")]
 public class CatanController(
+    ISender sender,
     IGameManager gameManager,
     ILogger<CatanController> logger) : ControllerBase
 {
     private readonly ILogger<CatanController> _logger = logger;
 
     [HttpGet("{gameId}/{playerColour}")]
-    public IActionResult GetGameStatus(string gameId, int playerColour)
+    public async Task<IActionResult> GetGameStatus(string gameId, int playerColour)
     {
         try
         {
-            var gameResult = gameManager.GetGameStatus(gameId, playerColour);
+            var gameResult = await sender.Send(new GetGameQuery(gameId, playerColour));
 
             if (gameResult.IsFailure)
             {
@@ -28,7 +31,7 @@ public class CatanController(
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "{Error}", ex.Message);
 
             return StatusCode(500);
         }

@@ -15,8 +15,4 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features/" />
-  </ItemGroup>
-
 </Project>
