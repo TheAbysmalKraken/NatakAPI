@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.API", "Catan.API\Cata
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.Domain", "Catan.Domain\Catan.Domain.csproj", "{4689EA58-7102-465B-A864-681E9275F313}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.Application", "Catan.Application\Catan.Application.csproj", "{8DA1E0CA-CAD2-4A0C-87D1-62FFA8B6D568}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.Infrastructure", "Catan.Infrastructure\Catan.Infrastructure.csproj", "{BD4947F8-F9AC-4B73-9D16-8E3842DCC995}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.UnitTests", "Catan.UnitTests\Catan.UnitTests.csproj", "{1C3A11B0-1A8E-4970-93DC-0DDC0BDF1801}"
@@ -18,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catan.Common", "Common\Catan.Common.csproj", "{CF194720-4A9B-4590-9FEE-270E5B5A0C9D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catan.Web", "Catan.Web\Catan.Web.csproj", "{462CD824-82D9-48B6-985B-9C719B8BE2FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catan.Core", "Catan.Core\Catan.Core.csproj", "{BCBDB7C3-2850-49FF-924C-FCE6307CFE2F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +33,6 @@ Global
 		{4689EA58-7102-465B-A864-681E9275F313}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4689EA58-7102-465B-A864-681E9275F313}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4689EA58-7102-465B-A864-681E9275F313}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8DA1E0CA-CAD2-4A0C-87D1-62FFA8B6D568}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8DA1E0CA-CAD2-4A0C-87D1-62FFA8B6D568}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8DA1E0CA-CAD2-4A0C-87D1-62FFA8B6D568}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8DA1E0CA-CAD2-4A0C-87D1-62FFA8B6D568}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BD4947F8-F9AC-4B73-9D16-8E3842DCC995}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BD4947F8-F9AC-4B73-9D16-8E3842DCC995}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD4947F8-F9AC-4B73-9D16-8E3842DCC995}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -57,6 +53,10 @@ Global
 		{462CD824-82D9-48B6-985B-9C719B8BE2FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{462CD824-82D9-48B6-985B-9C719B8BE2FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{462CD824-82D9-48B6-985B-9C719B8BE2FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCBDB7C3-2850-49FF-924C-FCE6307CFE2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCBDB7C3-2850-49FF-924C-FCE6307CFE2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCBDB7C3-2850-49FF-924C-FCE6307CFE2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCBDB7C3-2850-49FF-924C-FCE6307CFE2F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
