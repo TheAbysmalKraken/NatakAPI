@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Catan.Core;
 
-public static class DependencyInjection
+public static class CoreDependencyInjection
 {
     public static IServiceCollection AddCore(this IServiceCollection services)
     {

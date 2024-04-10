@@ -1,4 +1,5 @@
 using Catan.Core;
+using Catan.Infrastructure;
 
 const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddCore();
+builder.Services.AddInfrastructure();
 
 builder.Services.AddCors(options =>
 {
