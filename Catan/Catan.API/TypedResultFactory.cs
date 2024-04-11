@@ -23,6 +23,24 @@ public static class TypedResultFactory
             : BuildErrorResult(result.Error);
     }
 
+    public static IResult NoContent<TValue>(Result<TValue> result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : BuildErrorResult(result.Error);
+    }
+
+    public static IResult NoContent(Result result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : BuildErrorResult(result.Error);
+    }
+
     private static IResult BuildErrorResult(Error error)
     {
         ArgumentNullException.ThrowIfNull(error);

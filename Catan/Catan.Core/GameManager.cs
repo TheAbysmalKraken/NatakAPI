@@ -22,29 +22,6 @@ public sealed class GameManager(IMemoryCache cache) : IGameManager
         throw new NotImplementedException();
     }
 
-    public Result EndTurn(string gameId)
-    {
-        var gameResult = GetGameFromCache(gameId);
-
-        if (gameResult.IsFailure)
-        {
-            return Result.Failure(gameResult.Error);
-        }
-
-        var game = gameResult.Value;
-
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
-        game.NextPlayer();
-        SetGameInCache(game);
-
-        return Result.Success();
-    }
-
     public Result BuildRoad(string gameId, int firstX, int firstY, int secondX, int secondY)
     {
         var gameResult = GetGameFromCache(gameId);

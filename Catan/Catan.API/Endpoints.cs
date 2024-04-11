@@ -1,5 +1,6 @@
 ﻿using Catan.API.Requests;
 using Catan.Core.Features.CreateGame;
+using Catan.Core.Features.EndTurn;
 using Catan.Core.Features.GetGame;
 using Catan.Core.Features.RollDice;
 using MediatR;
@@ -22,6 +23,7 @@ public static class Endpoints
         builder.MapGet("{gameId}/{playerColour}", GetGameStatusAsync);
         builder.MapPost("", CreateGameAsync);
         builder.MapPost("{gameId}/roll", RollDiceAsync);
+        builder.MapPost("{gameId}/end-turn", EndTurnAsync);
 
         return builder;
     }
@@ -77,6 +79,25 @@ public static class Endpoints
             var result = await sender.Send(command, cancellationToken);
 
             return TypedResultFactory.Ok(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> EndTurnAsync(
+        ISender sender,
+        string gameId,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new EndTurnCommand(gameId);
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
         }
         catch
         {
