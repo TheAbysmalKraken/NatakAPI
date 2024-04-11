@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Catan.Domain;
 
 namespace Catan.API.Requests;
 
@@ -10,5 +11,5 @@ internal sealed class PointRequest
     [JsonPropertyName("y")]
     public required int Y { get; init; }
 
-    public Point ToPoint() => new Point(X, Y);
+    public Point ToPoint() => new(X, Y);
 }

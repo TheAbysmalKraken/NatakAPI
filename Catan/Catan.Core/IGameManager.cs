@@ -10,10 +10,6 @@ public interface IGameManager
 
     Result<List<RoadCoordinatesResponse>> GetAvailableRoadLocations(string gameId, int playerColour);
 
-    Result BuildSettlement(string gameId, int x, int y);
-
-    Result BuildCity(string gameId, int x, int y);
-
     Result BuyDevelopmentCard(string gameId);
 
     Result PlayKnightCard(string gameId, int x, int y, int playerColourToStealFrom);
