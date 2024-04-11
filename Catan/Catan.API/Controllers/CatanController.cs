@@ -12,28 +12,6 @@ public class CatanController(
 {
     private readonly ILogger<CatanController> _logger = logger;
 
-    [HttpPost("{gameId}/roll")]
-    public IActionResult RollDice(string gameId)
-    {
-        try
-        {
-            var rollResult = gameManager.RollDice(gameId);
-
-            if (rollResult.IsFailure)
-            {
-                return StatusCode((int)rollResult.Error.StatusCode, rollResult.Error.Message);
-            }
-
-            return Ok(rollResult.Value);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500);
-        }
-    }
-
     [HttpPost("{gameId}/end-turn")]
     public IActionResult EndTurn(string gameId)
     {

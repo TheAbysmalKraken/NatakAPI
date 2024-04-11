@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Catan.Core;
+namespace Catan.Core.Features.CreateGame;
 
 public sealed class CreateGameResponse
 {

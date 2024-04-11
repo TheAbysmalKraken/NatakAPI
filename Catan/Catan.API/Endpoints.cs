@@ -1,6 +1,7 @@
 ﻿using Catan.API.Requests;
 using Catan.Core.Features.CreateGame;
 using Catan.Core.Features.GetGame;
+using Catan.Core.Features.RollDice;
 using MediatR;
 
 namespace Catan.API;
@@ -20,6 +21,7 @@ public static class Endpoints
     {
         builder.MapGet("{gameId}/{playerColour}", GetGameStatusAsync);
         builder.MapPost("", CreateGameAsync);
+        builder.MapPost("{gameId}/roll", RollDiceAsync);
 
         return builder;
     }
@@ -54,6 +56,27 @@ public static class Endpoints
         try
         {
             var command = new CreateGameCommand(request.PlayerCount, request.Seed);
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return result.IsSuccess
+                ? TypedResults.Ok(result.Value)
+                : TypedResults.Content(result.Error.Message, statusCode: (int)result.Error.StatusCode);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> RollDiceAsync(
+        ISender sender,
+        string gameId,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new RollDiceCommand(gameId);
 
             var result = await sender.Send(command, cancellationToken);
 

@@ -10,8 +10,6 @@ public interface IGameManager
 
     Result<List<RoadCoordinatesResponse>> GetAvailableRoadLocations(string gameId, int playerColour);
 
-    Result<List<int>> RollDice(string gameId);
-
     Result EndTurn(string gameId);
 
     Result BuildRoad(string gameId, int firstX, int firstY, int secondX, int secondY);

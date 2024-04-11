@@ -22,31 +22,6 @@ public sealed class GameManager(IMemoryCache cache) : IGameManager
         throw new NotImplementedException();
     }
 
-    public Result<List<int>> RollDice(string gameId)
-    {
-        var gameResult = GetGameFromCache(gameId);
-
-        if (gameResult.IsFailure)
-        {
-            return Result.Failure<List<int>>(gameResult.Error);
-        }
-
-        var game = gameResult.Value;
-
-        if (game.GamePhase != GamePhase.Main || (game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard
-            && game.GameSubPhase != GameSubPhase.Roll))
-        {
-            return Result.Failure<List<int>>(Errors.InvalidGamePhase);
-        }
-
-        game.RollDiceAndDistributeResourcesToPlayers();
-        SetGameInCache(game);
-
-        var rollResult = game.LastRoll;
-
-        return Result.Success(rollResult);
-    }
-
     public Result EndTurn(string gameId)
     {
         var gameResult = GetGameFromCache(gameId);
