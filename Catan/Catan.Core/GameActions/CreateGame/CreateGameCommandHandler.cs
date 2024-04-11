@@ -2,7 +2,7 @@
 using Catan.Core.Services;
 using Catan.Domain;
 
-namespace Catan.Core.Features.CreateGame;
+namespace Catan.Core.GameActions.CreateGame;
 
 internal sealed class CreateGameCommandHandler(IActiveGameCache cache) :
     ICommandHandler<CreateGameCommand, CreateGameResponse>

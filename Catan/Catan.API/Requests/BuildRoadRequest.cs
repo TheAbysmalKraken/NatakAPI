@@ -2,17 +2,11 @@
 
 namespace Catan.API.Requests;
 
-public sealed class BuildRoadRequest
+internal sealed class BuildRoadRequest
 {
-    [JsonPropertyName("firstX")]
-    public int? FirstX { get; set; }
+    [JsonPropertyName("firstPoint")]
+    public required PointRequest FirstPoint { get; init; }
 
-    [JsonPropertyName("firstY")]
-    public int? FirstY { get; set; }
-
-    [JsonPropertyName("secondX")]
-    public int? SecondX { get; set; }
-
-    [JsonPropertyName("secondY")]
-    public int? SecondY { get; set; }
+    [JsonPropertyName("secondPoint")]
+    public required PointRequest SecondPoint { get; init; }
 }

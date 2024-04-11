@@ -22,46 +22,6 @@ public sealed class GameManager(IMemoryCache cache) : IGameManager
         throw new NotImplementedException();
     }
 
-    public Result BuildRoad(string gameId, int firstX, int firstY, int secondX, int secondY)
-    {
-        var gameResult = GetGameFromCache(gameId);
-
-        if (gameResult.IsFailure)
-        {
-            return Result.Failure(gameResult.Error);
-        }
-
-        var game = gameResult.Value;
-
-        if (game.GameSubPhase != GameSubPhase.BuildRoad
-        && game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
-        bool buildSuccess = false;
-
-        if (game.GamePhase == GamePhase.FirstRoundSetup
-        || game.GamePhase == GamePhase.SecondRoundSetup)
-        {
-            buildSuccess = game.BuildFreeRoad(new(firstX, firstY), new(secondX, secondY));
-        }
-        else if (game.GamePhase == GamePhase.Main)
-        {
-            buildSuccess = game.BuildRoad(new(firstX, firstY), new(secondX, secondY));
-        }
-
-        if (!buildSuccess)
-        {
-            return Result.Failure(Errors.InvalidBuildLocation);
-        }
-
-        SetGameInCache(game);
-
-        return Result.Success();
-    }
-
     public Result BuildSettlement(string gameId, int x, int y)
     {
         var gameResult = GetGameFromCache(gameId);

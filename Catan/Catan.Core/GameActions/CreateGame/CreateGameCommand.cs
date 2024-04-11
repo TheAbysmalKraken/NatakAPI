@@ -1,4 +1,4 @@
-﻿namespace Catan.Core.Features.CreateGame;
+﻿namespace Catan.Core.GameActions.CreateGame;
 
 public sealed record CreateGameCommand(
     int PlayerCount,

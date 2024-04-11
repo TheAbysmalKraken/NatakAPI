@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Catan.Core.Features.RollDice;
+namespace Catan.Core.GameActions.RollDice;
 
 public sealed class RollDiceResponse
 {

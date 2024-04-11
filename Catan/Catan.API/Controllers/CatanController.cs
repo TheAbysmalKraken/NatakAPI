@@ -12,33 +12,6 @@ public class CatanController(
 {
     private readonly ILogger<CatanController> _logger = logger;
 
-    [HttpPost("{gameId}/build/road")]
-    public IActionResult BuildRoad(string gameId, [FromBody] BuildRoadRequest request)
-    {
-        ArgumentNullException.ThrowIfNull(request.FirstX);
-        ArgumentNullException.ThrowIfNull(request.FirstY);
-        ArgumentNullException.ThrowIfNull(request.SecondX);
-        ArgumentNullException.ThrowIfNull(request.SecondY);
-
-        try
-        {
-            var buildRoadResult = gameManager.BuildRoad(gameId, request.FirstX.Value, request.FirstY.Value, request.SecondX.Value, request.SecondY.Value);
-
-            if (buildRoadResult.IsFailure)
-            {
-                return StatusCode((int)buildRoadResult.Error.StatusCode, buildRoadResult.Error.Message);
-            }
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500);
-        }
-    }
-
     [HttpPost("{gameId}/build/settlement")]
     public IActionResult BuildSettlement(string gameId, [FromBody] BuildBuildingRequest request)
     {

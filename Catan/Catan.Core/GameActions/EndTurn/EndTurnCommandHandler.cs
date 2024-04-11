@@ -2,7 +2,7 @@
 using Catan.Core.Services;
 using Catan.Domain.Enums;
 
-namespace Catan.Core.Features.EndTurn;
+namespace Catan.Core.GameActions.EndTurn;
 
 internal sealed class EndTurnCommandHandler(IActiveGameCache cache) :
     ICommandHandler<EndTurnCommand>

@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Catan.Application.Models;
 
-namespace Catan.Core.Features.CreateGame;
+namespace Catan.Core.GameActions.CreateGame;
 
 public static class CreateGameErrors
 {

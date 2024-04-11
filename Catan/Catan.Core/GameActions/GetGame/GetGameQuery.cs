@@ -1,6 +1,6 @@
 ﻿using Catan.Application.Models;
 
-namespace Catan.Core.Features.GetGame;
+namespace Catan.Core.GameActions.GetGame;
 
 public sealed record GetGameQuery(
     string GameId,

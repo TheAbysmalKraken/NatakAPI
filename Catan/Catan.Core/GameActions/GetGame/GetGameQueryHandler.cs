@@ -1,7 +1,7 @@
 ﻿using Catan.Application.Models;
 using Catan.Core.Services;
 
-namespace Catan.Core.Features.GetGame;
+namespace Catan.Core.GameActions.GetGame;
 
 internal sealed class GetGameQueryHandler(IActiveGameCache cache) :
     IQueryHandler<GetGameQuery, PlayerSpecificGameStatusResponse>

@@ -2,7 +2,7 @@
 using Catan.Core.Services;
 using Catan.Domain.Enums;
 
-namespace Catan.Core.Features.RollDice;
+namespace Catan.Core.GameActions.RollDice;
 
 internal sealed class RollDiceCommandHandler(IActiveGameCache cache) :
     ICommandHandler<RollDiceCommand, RollDiceResponse>
