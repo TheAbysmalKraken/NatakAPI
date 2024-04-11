@@ -38,9 +38,7 @@ public static class Endpoints
 
             var result = await sender.Send(query, cancellationToken);
 
-            return result.IsSuccess
-                ? TypedResults.Ok(result.Value)
-                : TypedResults.Content(result.Error.Message, statusCode: (int)result.Error.StatusCode);
+            return TypedResultFactory.Ok(result);
         }
         catch
         {
@@ -59,9 +57,7 @@ public static class Endpoints
 
             var result = await sender.Send(command, cancellationToken);
 
-            return result.IsSuccess
-                ? TypedResults.Ok(result.Value)
-                : TypedResults.Content(result.Error.Message, statusCode: (int)result.Error.StatusCode);
+            return TypedResultFactory.Ok(result);
         }
         catch
         {
@@ -80,9 +76,7 @@ public static class Endpoints
 
             var result = await sender.Send(command, cancellationToken);
 
-            return result.IsSuccess
-                ? TypedResults.Ok(result.Value)
-                : TypedResults.Content(result.Error.Message, statusCode: (int)result.Error.StatusCode);
+            return TypedResultFactory.Ok(result);
         }
         catch
         {
