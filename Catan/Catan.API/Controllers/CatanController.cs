@@ -1,7 +1,5 @@
-using Catan.API.Controllers.Models;
+using Catan.API.Requests;
 using Catan.Application;
-using Catan.Core.Features.GetGame;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catan.API.Controllers;
@@ -9,62 +7,10 @@ namespace Catan.API.Controllers;
 [ApiController]
 [Route("api/catan")]
 public class CatanController(
-    ISender sender,
     IGameManager gameManager,
     ILogger<CatanController> logger) : ControllerBase
 {
     private readonly ILogger<CatanController> _logger = logger;
-
-    [HttpGet("{gameId}/{playerColour}")]
-    public async Task<IActionResult> GetGameStatus(string gameId, int playerColour)
-    {
-        try
-        {
-            var gameResult = await sender.Send(new GetGameQuery(gameId, playerColour));
-
-            if (gameResult.IsFailure)
-            {
-                return StatusCode((int)gameResult.Error.StatusCode, gameResult.Error.Message);
-            }
-
-            return Ok(gameResult.Value);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "{Error}", ex.Message);
-
-            return StatusCode(500);
-        }
-    }
-
-    [HttpPost]
-    public IActionResult CreateNewGame(
-        [FromBody] CreateNewGameRequest request,
-        [FromQuery] int? seed = null)
-    {
-        if (request.PlayerCount is null)
-        {
-            return BadRequest("Player count is required");
-        }
-
-        try
-        {
-            var newGameResult = gameManager.CreateNewGame(request.PlayerCount.Value, seed);
-
-            if (newGameResult.IsFailure)
-            {
-                return StatusCode((int)newGameResult.Error.StatusCode, newGameResult.Error.Message);
-            }
-
-            return Ok(newGameResult.Value);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500);
-        }
-    }
 
     [HttpPost("{gameId}/roll")]
     public IActionResult RollDice(string gameId)

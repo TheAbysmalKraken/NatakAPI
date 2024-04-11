@@ -1,11 +1,10 @@
 ﻿using Catan.Application.Models;
 using Catan.Core.Services;
-using MediatR;
 
 namespace Catan.Core.Features.GetGame;
 
-public sealed class GetGameQueryHandler(IActiveGameCache cache) :
-    IRequestHandler<GetGameQuery, Result<PlayerSpecificGameStatusResponse>>
+internal sealed class GetGameQueryHandler(IActiveGameCache cache) :
+    IQueryHandler<GetGameQuery, PlayerSpecificGameStatusResponse>
 {
     public async Task<Result<PlayerSpecificGameStatusResponse>> Handle(GetGameQuery request, CancellationToken cancellationToken)
     {

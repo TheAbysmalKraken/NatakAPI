@@ -22,19 +22,6 @@ public sealed class GameManager(IMemoryCache cache) : IGameManager
         throw new NotImplementedException();
     }
 
-    public Result<string> CreateNewGame(int playerCount, int? seed)
-    {
-        if (playerCount < 3 || playerCount > 4)
-        {
-            return Result.Failure<string>(Errors.InvalidPlayerCount);
-        }
-
-        var newGame = new Game(playerCount, seed);
-        SetGameInCache(newGame);
-
-        return Result.Success(newGame.Id);
-    }
-
     public Result<List<int>> RollDice(string gameId)
     {
         var gameResult = GetGameFromCache(gameId);

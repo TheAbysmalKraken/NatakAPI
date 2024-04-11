@@ -1,3 +1,4 @@
+using Catan.API;
 using Catan.Core;
 using Catan.Infrastructure;
 
@@ -42,5 +43,7 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapEndpoints();
 
 app.Run();

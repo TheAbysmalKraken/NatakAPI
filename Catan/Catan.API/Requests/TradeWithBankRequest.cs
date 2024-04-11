@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Catan.API.Controllers.Models;
+namespace Catan.API.Requests;
 
 public sealed class TradeWithBankRequest
 {
