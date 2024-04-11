@@ -12,31 +12,6 @@ public class CatanController(
 {
     private readonly ILogger<CatanController> _logger = logger;
 
-    [HttpPost("{gameId}/build/settlement")]
-    public IActionResult BuildSettlement(string gameId, [FromBody] BuildBuildingRequest request)
-    {
-        ArgumentNullException.ThrowIfNull(request.X);
-        ArgumentNullException.ThrowIfNull(request.Y);
-
-        try
-        {
-            var buildSettlementResult = gameManager.BuildSettlement(gameId, request.X.Value, request.Y.Value);
-
-            if (buildSettlementResult.IsFailure)
-            {
-                return StatusCode((int)buildSettlementResult.Error.StatusCode, buildSettlementResult.Error.Message);
-            }
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500);
-        }
-    }
-
     [HttpPost("{gameId}/build/city")]
     public IActionResult BuildCity(string gameId, [FromBody] BuildBuildingRequest request)
     {

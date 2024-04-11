@@ -2,11 +2,8 @@
 
 namespace Catan.API.Requests;
 
-public sealed class BuildBuildingRequest
+internal sealed class BuildBuildingRequest
 {
-    [JsonPropertyName("x")]
-    public int? X { get; set; }
-
-    [JsonPropertyName("y")]
-    public int? Y { get; set; }
+    [JsonPropertyName("point")]
+    public required PointRequest Point { get; init; }
 }

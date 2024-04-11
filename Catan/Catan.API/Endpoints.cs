@@ -1,5 +1,6 @@
 ﻿using Catan.API.Requests;
 using Catan.Core.GameActions.BuildRoad;
+using Catan.Core.GameActions.BuildSettlement;
 using Catan.Core.GameActions.CreateGame;
 using Catan.Core.GameActions.EndTurn;
 using Catan.Core.GameActions.GetGame;
@@ -26,6 +27,7 @@ public static class Endpoints
         builder.MapPost("{gameId}/roll", RollDiceAsync);
         builder.MapPost("{gameId}/end-turn", EndTurnAsync);
         builder.MapPost("{gameId}/build/road", BuildRoadAsync);
+        builder.MapPost("{gameId}/build/settlement", BuildSettlementAsync);
 
         return builder;
     }
@@ -119,6 +121,28 @@ public static class Endpoints
                 gameId,
                 request.FirstPoint.ToPoint(),
                 request.SecondPoint.ToPoint());
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> BuildSettlementAsync(
+        ISender sender,
+        string gameId,
+        BuildBuildingRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new BuildSettlementCommand(
+                gameId,
+                request.Point.ToPoint());
 
             var result = await sender.Send(command, cancellationToken);
 

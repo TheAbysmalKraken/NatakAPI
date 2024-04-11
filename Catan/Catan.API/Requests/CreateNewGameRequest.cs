@@ -2,7 +2,7 @@
 
 namespace Catan.API.Requests;
 
-public sealed class CreateNewGameRequest
+internal sealed class CreateNewGameRequest
 {
     [JsonPropertyName("playerCount")]
     public required int PlayerCount { get; init; }
