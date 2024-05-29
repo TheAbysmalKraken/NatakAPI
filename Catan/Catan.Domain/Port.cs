@@ -2,9 +2,9 @@
 
 namespace Catan.Domain;
 
-public sealed class Port(PortType type, Point coordinates)
+public sealed class Port(PortType type, Point point)
 {
     public PortType Type { get; private set; } = type;
 
-    public Point Coordinates { get; private set; } = coordinates;
+    public Point Point { get; private set; } = point;
 }

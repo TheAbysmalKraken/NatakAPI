@@ -149,16 +149,16 @@ public class Game
             return false;
         }
 
-        var tileCoordinatesWithActivationNumber = Board.GetCoordinatesOfTilesWithActivationNumber(diceTotal);
+        var tilePointsWithActivationNumber = Board.GetPointsOfTilesWithActivationNumber(diceTotal);
 
-        foreach (var coordinates in tileCoordinatesWithActivationNumber)
+        foreach (var point in tilePointsWithActivationNumber)
         {
-            if (coordinates.Equals(Board.RobberPosition))
+            if (point.Equals(Board.RobberPosition))
             {
                 continue;
             }
 
-            var houses = Board.GetHousesOnTile(coordinates);
+            var houses = Board.GetHousesOnTile(point);
 
             foreach (var house in houses)
             {
@@ -171,7 +171,7 @@ public class Game
 
                 var isCity = house.Type == BuildingType.City;
 
-                var tile = Board.GetTile(coordinates);
+                var tile = Board.GetTile(point);
 
                 if (tile is null
                 || tile.Type == ResourceType.Desert
@@ -201,9 +201,9 @@ public class Game
         return true;
     }
 
-    public bool GiveResourcesSurroundingHouse(Point coordinates)
+    public bool GiveResourcesSurroundingHouse(Point point)
     {
-        var tiles = Board.GetTilesSurroundingHouse(coordinates);
+        var tiles = Board.GetTilesSurroundingHouse(point);
 
         foreach (var tile in tiles)
         {
@@ -311,15 +311,15 @@ public class Game
         return true;
     }
 
-    public bool PlayKnightCard(Point robberCoordinates, PlayerColour colourToStealFrom)
+    public bool PlayKnightCard(Point robberPoint, PlayerColour colourToStealFrom)
     {
         if (!CanPlayDevelopmentCard(DevelopmentCardType.Knight)
-        || !Board.GetHouseColoursOnTile(robberCoordinates).Contains(colourToStealFrom))
+        || !Board.GetHouseColoursOnTile(robberPoint).Contains(colourToStealFrom))
         {
             return false;
         }
 
-        var originalRobberCoordinates = Board.RobberPosition;
+        var originalRobberPoint = Board.RobberPosition;
 
         if (GameSubPhase == GameSubPhase.RollOrPlayDevelopmentCard)
         {
@@ -331,7 +331,7 @@ public class Game
             GameSubPhase = GameSubPhase.MoveRobberKnightCardAfterRoll;
         }
 
-        var moveRobberSuccess = MoveRobber(robberCoordinates);
+        var moveRobberSuccess = MoveRobber(robberPoint);
 
         if (!moveRobberSuccess)
         {
@@ -342,7 +342,7 @@ public class Game
 
         if (!stealResourceSuccess)
         {
-            Board.MoveRobberToCoordinates(originalRobberCoordinates);
+            Board.MoveRobberToPoint(originalRobberPoint);
             return false;
         }
 
@@ -419,19 +419,19 @@ public class Game
     }
 
     public bool PlayRoadBuildingCard(
-        Point coordinates1,
-        Point coordinates2,
-        Point coordinates3,
-        Point coordinates4)
+        Point point1,
+        Point point2,
+        Point point3,
+        Point point4)
     {
         if (!CanPlayDevelopmentCard(DevelopmentCardType.RoadBuilding)
-        || !Board.CanPlaceTwoRoadsBetweenCoordinates(coordinates1, coordinates2, coordinates3, coordinates4, CurrentPlayer.Colour))
+        || !Board.CanPlaceTwoRoadsBetweenPoints(point1, point2, point3, point4, CurrentPlayer.Colour))
         {
             return false;
         }
 
-        Board.PlaceRoad(coordinates1, coordinates2, CurrentPlayer.Colour);
-        Board.PlaceRoad(coordinates3, coordinates4, CurrentPlayer.Colour);
+        Board.PlaceRoad(point1, point2, CurrentPlayer.Colour);
+        Board.PlaceRoad(point3, point4, CurrentPlayer.Colour);
 
         PlayDevelopmentCard(DevelopmentCardType.RoadBuilding);
 
@@ -466,15 +466,15 @@ public class Game
         return true;
     }
 
-    public bool BuildFreeRoad(Point coordinates1, Point coordinates2)
+    public bool BuildFreeRoad(Point point1, Point point2)
     {
-        if (!Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, CurrentPlayer.Colour))
+        if (!Board.CanPlaceRoadBetweenPoints(point1, point2, CurrentPlayer.Colour))
         {
             return false;
         }
 
         CurrentPlayer.BuyFreeRoad();
-        Board.PlaceRoad(coordinates1, coordinates2, CurrentPlayer.Colour);
+        Board.PlaceRoad(point1, point2, CurrentPlayer.Colour);
 
         if (GamePhase == GamePhase.FirstRoundSetup
         || GamePhase == GamePhase.SecondRoundSetup)
@@ -486,15 +486,15 @@ public class Game
         return true;
     }
 
-    public bool BuildRoad(Point coordinates1, Point coordinates2)
+    public bool BuildRoad(Point point1, Point point2)
     {
-        if (!CurrentPlayer.CanBuyRoad() || !Board.CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, CurrentPlayer.Colour))
+        if (!CurrentPlayer.CanBuyRoad() || !Board.CanPlaceRoadBetweenPoints(point1, point2, CurrentPlayer.Colour))
         {
             return false;
         }
 
         CurrentPlayer.BuyRoad();
-        Board.PlaceRoad(coordinates1, coordinates2, CurrentPlayer.Colour);
+        Board.PlaceRoad(point1, point2, CurrentPlayer.Colour);
 
         UpdateLargestRoadPlayer();
 
@@ -503,19 +503,19 @@ public class Game
         return true;
     }
 
-    public bool BuildFreeSettlement(Point coordinates)
+    public bool BuildFreeSettlement(Point point)
     {
-        if (!Board.CanPlaceHouseAtCoordinates(coordinates, CurrentPlayer.Colour, true))
+        if (!Board.CanPlaceHouseAtPoint(point, CurrentPlayer.Colour, true))
         {
             return false;
         }
 
         CurrentPlayer.BuyFreeSettlement();
-        Board.PlaceHouse(coordinates, CurrentPlayer.Colour, true);
+        Board.PlaceHouse(point, CurrentPlayer.Colour, true);
 
         if (GamePhase == GamePhase.SecondRoundSetup)
         {
-            GiveResourcesSurroundingHouse(coordinates);
+            GiveResourcesSurroundingHouse(point);
         }
 
         if (GamePhase == GamePhase.FirstRoundSetup
@@ -527,15 +527,15 @@ public class Game
         return true;
     }
 
-    public bool BuildSettlement(Point coordinates)
+    public bool BuildSettlement(Point point)
     {
-        if (!CurrentPlayer.CanBuySettlement() || !Board.CanPlaceHouseAtCoordinates(coordinates, CurrentPlayer.Colour))
+        if (!CurrentPlayer.CanBuySettlement() || !Board.CanPlaceHouseAtPoint(point, CurrentPlayer.Colour))
         {
             return false;
         }
 
         CurrentPlayer.BuySettlement();
-        Board.PlaceHouse(coordinates, CurrentPlayer.Colour);
+        Board.PlaceHouse(point, CurrentPlayer.Colour);
 
         UpdateLargestRoadPlayer();
 
@@ -544,29 +544,29 @@ public class Game
         return true;
     }
 
-    public bool BuildCity(Point coordinates)
+    public bool BuildCity(Point point)
     {
-        if (!CurrentPlayer.CanBuyCity() || !Board.CanUpgradeHouseAtCoordinates(coordinates, CurrentPlayer.Colour))
+        if (!CurrentPlayer.CanBuyCity() || !Board.CanUpgradeHouseAtPoint(point, CurrentPlayer.Colour))
         {
             return false;
         }
 
         CurrentPlayer.BuyCity();
-        Board.UpgradeHouse(coordinates, CurrentPlayer.Colour);
+        Board.UpgradeHouse(point, CurrentPlayer.Colour);
 
         SetWinnerIndex();
 
         return true;
     }
 
-    public bool MoveRobber(Point coordinates)
+    public bool MoveRobber(Point point)
     {
-        if (!Board.CanMoveRobberToCoordinates(coordinates))
+        if (!Board.CanMoveRobberToPoint(point))
         {
             return false;
         }
 
-        Board.MoveRobberToCoordinates(coordinates);
+        Board.MoveRobberToPoint(point);
 
         if (GameSubPhase == GameSubPhase.MoveRobberKnightCardBeforeRoll)
         {

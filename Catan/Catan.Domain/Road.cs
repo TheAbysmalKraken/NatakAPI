@@ -4,10 +4,10 @@ namespace Catan.Domain;
 
 public class Road(
     PlayerColour colour,
-    Point firstCornerCoordinates,
-    Point secondCornerCoordinates) : Building(colour, BuildingType.Road)
+    Point firstPoint,
+    Point secondPoint) : Building(colour, BuildingType.Road)
 {
-    public Point FirstCornerCoordinates { get; private set; } = firstCornerCoordinates;
+    public Point FirstPoint { get; private set; } = firstPoint;
 
-    public Point SecondCornerCoordinates { get; private set; } = secondCornerCoordinates;
+    public Point SecondPoint { get; private set; } = secondPoint;
 }

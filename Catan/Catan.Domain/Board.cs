@@ -42,28 +42,28 @@ public sealed class Board
 
     public List<Port> GetPorts() => ports;
 
-    public Tile? GetTile(Point coordinates)
+    public Tile? GetTile(Point point)
     {
-        if (TileCoordinatesAreValid(coordinates))
+        if (TilePointIsValid(point))
         {
-            return tiles[coordinates.X, coordinates.Y];
+            return tiles[point.X, point.Y];
         }
 
         return null;
     }
 
-    public Building? GetHouse(Point coordinates)
+    public Building? GetHouse(Point point)
     {
-        if (HouseCoordinatesAreValid(coordinates))
+        if (HousePointIsValid(point))
         {
-            var house = houses[coordinates.X, coordinates.Y];
+            var house = houses[point.X, point.Y];
 
             if (house?.Type != BuildingType.Settlement && house?.Type != BuildingType.City)
             {
                 return null;
             }
 
-            return houses[coordinates.X, coordinates.Y];
+            return houses[point.X, point.Y];
         }
 
         return null;
@@ -104,26 +104,26 @@ public sealed class Board
 
         var roadsOfColour = roads.Where(r => r.Colour == colour).ToList();
 
-        var endRoads = roadsOfColour.Where(r => GetOccupiedRoadsConnectedToPoint(r.FirstCornerCoordinates).Count == 1
-            || GetOccupiedRoadsConnectedToPoint(r.SecondCornerCoordinates).Count == 1).ToList();
+        var endRoads = roadsOfColour.Where(r => GetOccupiedRoadsConnectedToPoint(r.FirstPoint).Count == 1
+            || GetOccupiedRoadsConnectedToPoint(r.SecondPoint).Count == 1).ToList();
 
-        var endCoordinates = endRoads.Select(r =>
+        var endPoints = endRoads.Select(r =>
         {
-            if (GetOccupiedRoadsConnectedToPoint(r.FirstCornerCoordinates).Count == 1)
+            if (GetOccupiedRoadsConnectedToPoint(r.FirstPoint).Count == 1)
             {
-                return r.FirstCornerCoordinates;
+                return r.FirstPoint;
             }
             else
             {
-                return r.SecondCornerCoordinates;
+                return r.SecondPoint;
             }
         }).ToList();
 
         int furthestDistance = 0;
 
-        foreach (var endCoordinate in endCoordinates)
+        foreach (var endPoint in endPoints)
         {
-            var distanceFromEnd = GetFurthestDistanceFromCoordinateAlongRoads(0, [], endCoordinate, roadsOfColour, colour);
+            var distanceFromEnd = GetFurthestDistanceFromPointAlongRoads(0, [], endPoint, roadsOfColour, colour);
 
             if (distanceFromEnd > furthestDistance)
             {
@@ -136,12 +136,12 @@ public sealed class Board
 
     public bool ColourHasPortOfType(PlayerColour colour, PortType portType)
     {
-        return ports.Any(p => p.Type == portType && houses[p.Coordinates.X, p.Coordinates.Y].Colour == colour);
+        return ports.Any(p => p.Type == portType && houses[p.Point.X, p.Point.Y].Colour == colour);
     }
 
-    public bool CanMoveRobberToCoordinates(Point coordinates)
+    public bool CanMoveRobberToPoint(Point point)
     {
-        if (!TileCoordinatesAreValid(coordinates) || coordinates.Equals(RobberPosition))
+        if (!TilePointIsValid(point) || point.Equals(RobberPosition))
         {
             return false;
         }
@@ -149,22 +149,22 @@ public sealed class Board
         return true;
     }
 
-    public void MoveRobberToCoordinates(Point coordinates)
+    public void MoveRobberToPoint(Point point)
     {
-        if (!CanMoveRobberToCoordinates(coordinates))
+        if (!CanMoveRobberToPoint(point))
         {
-            throw new ArgumentException("Cannot move robber to these coordinates.");
+            throw new ArgumentException("Cannot move robber to these point.");
         }
 
-        RobberPosition = coordinates;
+        RobberPosition = point;
     }
 
-    public bool CanUpgradeHouseAtCoordinates(Point coordinates, PlayerColour colour)
+    public bool CanUpgradeHouseAtPoint(Point point, PlayerColour colour)
     {
         if (colour == PlayerColour.None
-            || !HouseCoordinatesAreValid(coordinates)
-            || !PointContainsHouseOfColour(coordinates, colour)
-            || houses[coordinates.X, coordinates.Y].Type != BuildingType.Settlement)
+            || !HousePointIsValid(point)
+            || !PointContainsHouseOfColour(point, colour)
+            || houses[point.X, point.Y].Type != BuildingType.Settlement)
         {
             return false;
         }
@@ -172,23 +172,23 @@ public sealed class Board
         return true;
     }
 
-    public void UpgradeHouse(Point coordinates, PlayerColour colour)
+    public void UpgradeHouse(Point point, PlayerColour colour)
     {
-        if (!CanUpgradeHouseAtCoordinates(coordinates, colour))
+        if (!CanUpgradeHouseAtPoint(point, colour))
         {
-            throw new ArgumentException("Cannot upgrade house at these coordinates.");
+            throw new ArgumentException("Cannot upgrade house at these point.");
         }
 
-        houses[coordinates.X, coordinates.Y].SetTypeToCity();
+        houses[point.X, point.Y].SetTypeToCity();
     }
 
-    public bool CanPlaceHouseAtCoordinates(Point coordinates, PlayerColour colour, bool isFirstTurn = false)
+    public bool CanPlaceHouseAtPoint(Point point, PlayerColour colour, bool isFirstTurn = false)
     {
         if (colour == PlayerColour.None
-            || !HouseCoordinatesAreValid(coordinates)
-            || PointContainsHouse(coordinates)
-            || HouseCoordinatesAreTooCloseToAnotherHouse(coordinates)
-            || (!isFirstTurn && GetOccupiedRoadsOfColourConnectedToPoint(coordinates, colour).Count == 0))
+            || !HousePointIsValid(point)
+            || PointContainsHouse(point)
+            || HousePointIsTooCloseToAnotherHouse(point)
+            || (!isFirstTurn && GetOccupiedRoadsOfColourConnectedToPoint(point, colour).Count == 0))
         {
             return false;
         }
@@ -196,24 +196,24 @@ public sealed class Board
         return true;
     }
 
-    public void PlaceHouse(Point coordinates, PlayerColour colour, bool isFirstTurn = false)
+    public void PlaceHouse(Point point, PlayerColour colour, bool isFirstTurn = false)
     {
-        if (!CanPlaceHouseAtCoordinates(coordinates, colour, isFirstTurn))
+        if (!CanPlaceHouseAtPoint(point, colour, isFirstTurn))
         {
-            throw new ArgumentException("Cannot place house at these coordinates.");
+            throw new ArgumentException("Cannot place house at these point.");
         }
 
-        houses[coordinates.X, coordinates.Y].SetColour(colour);
-        houses[coordinates.X, coordinates.Y].SetTypeToHouse();
+        houses[point.X, point.Y].SetColour(colour);
+        houses[point.X, point.Y].SetTypeToHouse();
     }
 
-    public bool CanPlaceRoadBetweenCoordinates(Point coordinates1, Point coordinates2, PlayerColour colour)
+    public bool CanPlaceRoadBetweenPoints(Point point1, Point point2, PlayerColour colour)
     {
         if (colour == PlayerColour.None
-            || !RoadCoordinatesAreValid(coordinates1, coordinates2)
-            || RoadIsClaimed(coordinates1, coordinates2)
-            || RoadAtCoordinatesIsBlockedByOpposingHouse(coordinates1, coordinates2, colour)
-            || !RoadIsConnectedToHouseOrRoadOfSameColour(coordinates1, coordinates2, colour))
+            || !RoadPointsAreValid(point1, point2)
+            || RoadIsClaimed(point1, point2)
+            || RoadAtPointsIsBlockedByOpposingHouse(point1, point2, colour)
+            || !RoadIsConnectedToHouseOrRoadOfSameColour(point1, point2, colour))
         {
             return false;
         }
@@ -221,43 +221,43 @@ public sealed class Board
         return true;
     }
 
-    public bool CanPlaceTwoRoadsBetweenCoordinates(
-        Point coordinates1,
-        Point coordinates2,
-        Point coordinates3,
-        Point coordinates4,
+    public bool CanPlaceTwoRoadsBetweenPoints(
+        Point point1,
+        Point point2,
+        Point point3,
+        Point point4,
         PlayerColour colour)
     {
-        if (!CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, colour))
+        if (!CanPlaceRoadBetweenPoints(point1, point2, colour))
         {
             return false;
         }
 
-        PlaceRoad(coordinates1, coordinates2, colour);
+        PlaceRoad(point1, point2, colour);
 
-        if (!CanPlaceRoadBetweenCoordinates(coordinates3, coordinates4, colour))
+        if (!CanPlaceRoadBetweenPoints(point3, point4, colour))
         {
-            RemoveRoad(coordinates1, coordinates2);
+            RemoveRoad(point1, point2);
             return false;
         }
 
-        RemoveRoad(coordinates1, coordinates2);
+        RemoveRoad(point1, point2);
         return true;
     }
 
-    public void PlaceRoad(Point coordinates1, Point coordinates2, PlayerColour colour)
+    public void PlaceRoad(Point point1, Point point2, PlayerColour colour)
     {
-        if (!CanPlaceRoadBetweenCoordinates(coordinates1, coordinates2, colour))
+        if (!CanPlaceRoadBetweenPoints(point1, point2, colour))
         {
-            throw new ArgumentException("Cannot place road between these coordinates.");
+            throw new ArgumentException("Cannot place road between these point.");
         }
 
-        var roadInList = GetRoadAtCoordinates(coordinates1, coordinates2) ?? throw new ArgumentException("Cannot find road in list.");
+        var roadInList = GetRoadAtPoints(point1, point2) ?? throw new ArgumentException("Cannot find road in list.");
 
         roadInList.SetColour(colour);
     }
 
-    public List<Point> GetCoordinatesOfTilesWithActivationNumber(int activationNumber)
+    public List<Point> GetPointsOfTilesWithActivationNumber(int activationNumber)
     {
         if (activationNumber < 2 || activationNumber > 12)
         {
@@ -280,14 +280,14 @@ public sealed class Board
         return tilesWithActivationNumber;
     }
 
-    public List<PlayerColour> GetHouseColoursOnTile(Point coordinates)
+    public List<PlayerColour> GetHouseColoursOnTile(Point point)
     {
-        if (!TileCoordinatesAreValid(coordinates))
+        if (!TilePointIsValid(point))
         {
-            throw new ArgumentException("Coordinates are not valid.");
+            throw new ArgumentException("Point are not valid.");
         }
 
-        var surroundingHouses = GetHousesOnTile(coordinates);
+        var surroundingHouses = GetHousesOnTile(point);
 
         var houseColours = new List<PlayerColour>();
 
@@ -299,25 +299,25 @@ public sealed class Board
         return houseColours;
     }
 
-    public List<Building> GetHousesOnTile(Point coordinates)
+    public List<Building> GetHousesOnTile(Point point)
     {
-        if (!TileCoordinatesAreValid(coordinates))
+        if (!TilePointIsValid(point))
         {
-            throw new ArgumentException("Coordinates are not valid.");
+            throw new ArgumentException("Point are not valid.");
         }
 
-        var surroundingHouseCoordinates = TileToSurroundingHouseCoordinates(coordinates);
+        var surroundingHousePoints = TileToSurroundingHousePoints(point);
 
         var housesOnTile = new List<Building>();
 
-        foreach (var houseCoordinate in surroundingHouseCoordinates)
+        foreach (var housePoint in surroundingHousePoints)
         {
-            if (!HouseCoordinatesAreValid(houseCoordinate))
+            if (!HousePointIsValid(housePoint))
             {
                 continue;
             }
 
-            var house = houses[houseCoordinate.X, houseCoordinate.Y];
+            var house = houses[housePoint.X, housePoint.Y];
 
             if (house != null && house.Type != BuildingType.None)
             {
@@ -328,25 +328,25 @@ public sealed class Board
         return housesOnTile;
     }
 
-    public List<Tile> GetTilesSurroundingHouse(Point coordinates)
+    public List<Tile> GetTilesSurroundingHouse(Point point)
     {
-        if (!HouseCoordinatesAreValid(coordinates))
+        if (!HousePointIsValid(point))
         {
-            throw new ArgumentException("Coordinates are not valid.");
+            throw new ArgumentException("Point are not valid.");
         }
 
-        var surroundingTileCoordinates = HouseToSurroundingTileCoordinates(coordinates);
+        var surroundingTilePoints = HouseToSurroundingTilePoints(point);
 
         var tilesSurroundingHouse = new List<Tile>();
 
-        foreach (var tileCoordinate in surroundingTileCoordinates)
+        foreach (var tilePoint in surroundingTilePoints)
         {
-            if (!TileCoordinatesAreValid(tileCoordinate))
+            if (!TilePointIsValid(tilePoint))
             {
                 continue;
             }
 
-            var tile = tiles[tileCoordinate.X, tileCoordinate.Y];
+            var tile = tiles[tilePoint.X, tilePoint.Y];
 
             if (tile != null)
             {
@@ -357,13 +357,13 @@ public sealed class Board
         return tilesSurroundingHouse;
     }
 
-    private bool HouseCoordinatesAreTooCloseToAnotherHouse(Point coordinates)
+    private bool HousePointIsTooCloseToAnotherHouse(Point point)
     {
-        var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(coordinates);
+        var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(point);
 
         foreach (var road in roadsConnectedToPoint)
         {
-            if (PointContainsHouse(road.FirstCornerCoordinates) || PointContainsHouse(road.SecondCornerCoordinates))
+            if (PointContainsHouse(road.FirstPoint) || PointContainsHouse(road.SecondPoint))
             {
                 return true;
             }
@@ -372,24 +372,14 @@ public sealed class Board
         return false;
     }
 
-    private bool HouseCoordinatesAreValid(Point coordinates)
+    private bool HousePointIsValid(Point point)
     {
-        if (coordinates.X < 0 || coordinates.Y < 0 || coordinates.X >= houses.GetLength(0) || coordinates.Y >= houses.GetLength(1))
+        if (point.X < 0 || point.Y < 0 || point.X >= houses.GetLength(0) || point.Y >= houses.GetLength(1))
         {
             return false;
         }
 
-        if (houses[coordinates.X, coordinates.Y] is null)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    private bool RoadCoordinatesAreValid(Point coordinates1, Point coordinates2)
-    {
-        if (GetRoadAtCoordinates(coordinates1, coordinates2) is null)
+        if (houses[point.X, point.Y] is null)
         {
             return false;
         }
@@ -397,9 +387,19 @@ public sealed class Board
         return true;
     }
 
-    private bool RemoveRoad(Point coordinates1, Point coordinates2)
+    private bool RoadPointsAreValid(Point point1, Point point2)
     {
-        var road = GetRoadAtCoordinates(coordinates1, coordinates2);
+        if (GetRoadAtPoints(point1, point2) is null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool RemoveRoad(Point point1, Point point2)
+    {
+        var road = GetRoadAtPoints(point1, point2);
 
         if (road is null)
         {
@@ -411,14 +411,14 @@ public sealed class Board
         return true;
     }
 
-    private bool TileCoordinatesAreValid(Point coordinates)
+    private bool TilePointIsValid(Point point)
     {
-        if (coordinates.X < 0 || coordinates.Y < 0 || coordinates.X >= tiles.GetLength(0) || coordinates.Y >= tiles.GetLength(1))
+        if (point.X < 0 || point.Y < 0 || point.X >= tiles.GetLength(0) || point.Y >= tiles.GetLength(1))
         {
             return false;
         }
 
-        if (tiles[coordinates.X, coordinates.Y] is null)
+        if (tiles[point.X, point.Y] is null)
         {
             return false;
         }
@@ -426,9 +426,9 @@ public sealed class Board
         return true;
     }
 
-    private bool RoadIsClaimed(Point coordinates1, Point coordinates2)
+    private bool RoadIsClaimed(Point point1, Point point2)
     {
-        var road = GetRoadAtCoordinates(coordinates1, coordinates2);
+        var road = GetRoadAtPoints(point1, point2);
 
         if (road is null || road.Colour == PlayerColour.None)
         {
@@ -438,10 +438,10 @@ public sealed class Board
         return true;
     }
 
-    private bool RoadAtCoordinatesIsBlockedByOpposingHouse(Point coordinates1, Point coordinates2, PlayerColour colour)
+    private bool RoadAtPointsIsBlockedByOpposingHouse(Point point1, Point point2, PlayerColour colour)
     {
-        if ((PointContainsHouseNotOfColour(coordinates1, colour) && GetOccupiedRoadsOfColourConnectedToPoint(coordinates2, colour).Count == 0)
-            || (PointContainsHouseNotOfColour(coordinates2, colour) && GetOccupiedRoadsOfColourConnectedToPoint(coordinates1, colour).Count == 0))
+        if ((PointContainsHouseNotOfColour(point1, colour) && GetOccupiedRoadsOfColourConnectedToPoint(point2, colour).Count == 0)
+            || (PointContainsHouseNotOfColour(point2, colour) && GetOccupiedRoadsOfColourConnectedToPoint(point1, colour).Count == 0))
         {
             return true;
         }
@@ -449,15 +449,15 @@ public sealed class Board
         return false;
     }
 
-    private bool RoadIsConnectedToHouseOrRoadOfSameColour(Point coordinates1, Point coordinates2, PlayerColour colour)
+    private bool RoadIsConnectedToHouseOrRoadOfSameColour(Point point1, Point point2, PlayerColour colour)
     {
-        if (PointContainsHouseOfColour(coordinates1, colour) || PointContainsHouseOfColour(coordinates2, colour))
+        if (PointContainsHouseOfColour(point1, colour) || PointContainsHouseOfColour(point2, colour))
         {
             return true;
         }
 
-        if (GetOccupiedRoadsOfColourConnectedToPoint(coordinates1, colour).Count > 0
-            || GetOccupiedRoadsOfColourConnectedToPoint(coordinates2, colour).Count > 0)
+        if (GetOccupiedRoadsOfColourConnectedToPoint(point1, colour).Count > 0
+            || GetOccupiedRoadsOfColourConnectedToPoint(point2, colour).Count > 0)
         {
             return true;
         }
@@ -465,35 +465,35 @@ public sealed class Board
         return false;
     }
 
-    private bool PointContainsHouseNotOfColour(Point coordinates, PlayerColour colour)
+    private bool PointContainsHouseNotOfColour(Point point, PlayerColour colour)
     {
-        var house = houses[coordinates.X, coordinates.Y];
+        var house = houses[point.X, point.Y];
         return house?.Colour != colour && house?.Type != BuildingType.None;
     }
 
-    private bool PointContainsHouseOfColour(Point coordinates, PlayerColour colour)
+    private bool PointContainsHouseOfColour(Point point, PlayerColour colour)
     {
-        var house = houses[coordinates.X, coordinates.Y];
+        var house = houses[point.X, point.Y];
         return house?.Colour == colour && house?.Type != BuildingType.None;
     }
 
-    private bool PointContainsHouse(Point coordinates)
+    private bool PointContainsHouse(Point point)
     {
-        return houses[coordinates.X, coordinates.Y]?.Type != BuildingType.None;
+        return houses[point.X, point.Y]?.Type != BuildingType.None;
     }
 
-    private Road? GetRoadAtCoordinates(Point coordinates1, Point coordinates2)
+    private Road? GetRoadAtPoints(Point point1, Point point2)
     {
-        var roadInList = roads.FirstOrDefault(r => r.FirstCornerCoordinates.Equals(coordinates1) && r.SecondCornerCoordinates.Equals(coordinates2));
+        var roadInList = roads.FirstOrDefault(r => r.FirstPoint.Equals(point1) && r.SecondPoint.Equals(point2));
 
-        roadInList ??= roads.FirstOrDefault(r => r.FirstCornerCoordinates.Equals(coordinates2) && r.SecondCornerCoordinates.Equals(coordinates1));
+        roadInList ??= roads.FirstOrDefault(r => r.FirstPoint.Equals(point2) && r.SecondPoint.Equals(point1));
 
         return roadInList;
     }
 
-    private List<Road> GetOccupiedRoadsOfColourConnectedToPoint(Point coordinates, PlayerColour colour)
+    private List<Road> GetOccupiedRoadsOfColourConnectedToPoint(Point point, PlayerColour colour)
     {
-        var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(coordinates);
+        var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(point);
         var occupiedRoadsConnectedToPoint = new List<Road>();
 
         foreach (var road in roadsConnectedToPoint)
@@ -507,9 +507,9 @@ public sealed class Board
         return occupiedRoadsConnectedToPoint;
     }
 
-    private List<Road> GetOccupiedRoadsConnectedToPoint(Point coordinates)
+    private List<Road> GetOccupiedRoadsConnectedToPoint(Point point)
     {
-        var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(coordinates);
+        var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(point);
         var occupiedRoadsConnectedToPoint = new List<Road>();
 
         foreach (var road in roadsConnectedToPoint)
@@ -523,13 +523,13 @@ public sealed class Board
         return occupiedRoadsConnectedToPoint;
     }
 
-    private List<Road> GetRoadsPositionsConnectedToPoint(Point coordinates)
+    private List<Road> GetRoadsPositionsConnectedToPoint(Point point)
     {
         var roadsConnectedToPoint = new List<Road>();
 
         foreach (var road in roads)
         {
-            if (road.FirstCornerCoordinates.Equals(coordinates) || road.SecondCornerCoordinates.Equals(coordinates))
+            if (road.FirstPoint.Equals(point) || road.SecondPoint.Equals(point))
             {
                 roadsConnectedToPoint.Add(road);
             }
@@ -538,10 +538,10 @@ public sealed class Board
         return roadsConnectedToPoint;
     }
 
-    private int GetFurthestDistanceFromCoordinateAlongRoads(
+    private int GetFurthestDistanceFromPointAlongRoads(
         int distanceTravelled,
         List<Road> checkedRoads,
-        Point coordinates,
+        Point point,
         List<Road> roads,
         PlayerColour colour)
     {
@@ -550,12 +550,12 @@ public sealed class Board
             throw new ArgumentException($"{nameof(colour)} must not be {PlayerColour.None}.");
         }
 
-        var connectedRoads = GetOccupiedRoadsConnectedToPoint(coordinates);
+        var connectedRoads = GetOccupiedRoadsConnectedToPoint(point);
 
         var connectedRoadsNotChecked = connectedRoads.Where(r => !checkedRoads.Contains(r)).ToList();
 
         if (connectedRoadsNotChecked.Count == 0
-        || PointContainsHouseNotOfColour(coordinates, colour))
+        || PointContainsHouseNotOfColour(point, colour))
         {
             return distanceTravelled;
         }
@@ -566,11 +566,11 @@ public sealed class Board
         {
             checkedRoads.Add(road);
 
-            var newCoordinates = road.FirstCornerCoordinates.Equals(coordinates)
-                ? road.SecondCornerCoordinates
-                : road.FirstCornerCoordinates;
+            var newPoint = road.FirstPoint.Equals(point)
+                ? road.SecondPoint
+                : road.FirstPoint;
 
-            var distanceAlongRoad = GetFurthestDistanceFromCoordinateAlongRoads(distanceTravelled + 1, checkedRoads, newCoordinates, roads, colour);
+            var distanceAlongRoad = GetFurthestDistanceFromPointAlongRoads(distanceTravelled + 1, checkedRoads, newPoint, roads, colour);
 
             if (distanceAlongRoad > furthestDistanceFromPoint)
             {
@@ -657,7 +657,7 @@ public sealed class Board
     private void InitialisePorts()
     {
         var remainingPortTypes = DomainConstants.GetPortTypeTotals();
-        var allPortLocations = DomainConstants.GetStartingPortCoordinates();
+        var allPortLocations = DomainConstants.GetStartingPortPoints();
 
         for (var i = 0; i < allPortLocations.Count; i += 2)
         {
@@ -725,45 +725,45 @@ public sealed class Board
         return new Tile(catanTileType, activationNumber);
     }
 
-    private static List<Point> TileToSurroundingHouseCoordinates(Point tileCoordinates)
+    private static List<Point> TileToSurroundingHousePoints(Point tilePoint)
     {
-        var surroundingHouseCoordinates = new List<Point>();
+        var surroundingHousePoints = new List<Point>();
 
-        int y = tileCoordinates.Y;
+        int y = tilePoint.Y;
 
-        int firstX = 2 * (tileCoordinates.X - 1) + y;
+        int firstX = 2 * (tilePoint.X - 1) + y;
 
         for (int x = firstX; x < firstX + 3; x++)
         {
             for (int j = 0; j < 2; j++)
             {
-                surroundingHouseCoordinates.Add(new(x, y + j));
+                surroundingHousePoints.Add(new(x, y + j));
             }
         }
 
-        return surroundingHouseCoordinates;
+        return surroundingHousePoints;
     }
 
-    private static List<Point> HouseToSurroundingTileCoordinates(Point houseCoordinates)
+    private static List<Point> HouseToSurroundingTilePoints(Point housePoint)
     {
-        var surroundingTileCoordinates = new List<Point>();
+        var surroundingTilePoints = new List<Point>();
 
-        int y = houseCoordinates.Y;
+        int y = housePoint.Y;
 
-        int x = (int)(0.5 * (houseCoordinates.X - houseCoordinates.Y) + 1);
+        int x = (int)(0.5 * (housePoint.X - housePoint.Y) + 1);
 
-        surroundingTileCoordinates.Add(new(x, y));
-        surroundingTileCoordinates.Add(new(x, y - 1));
+        surroundingTilePoints.Add(new(x, y));
+        surroundingTilePoints.Add(new(x, y - 1));
 
-        if ((houseCoordinates.X + houseCoordinates.Y) % 2 != 0)
+        if ((housePoint.X + housePoint.Y) % 2 != 0)
         {
-            surroundingTileCoordinates.Add(new(x + 1, y - 1));
+            surroundingTilePoints.Add(new(x + 1, y - 1));
         }
         else
         {
-            surroundingTileCoordinates.Add(new(x - 1, y));
+            surroundingTilePoints.Add(new(x - 1, y));
         }
 
-        return surroundingTileCoordinates;
+        return surroundingTilePoints;
     }
 }

@@ -7,17 +7,17 @@ namespace Catan.Application;
 
 public sealed class GameManager(IMemoryCache cache) : IGameManager
 {
-    public Result<List<CoordinatesResponse>> GetAvailableSettlementLocations(string gameId, int playerColour)
+    public Result<List<PointResponse>> GetAvailableSettlementLocations(string gameId, int playerColour)
     {
         throw new NotImplementedException();
     }
 
-    public Result<List<CoordinatesResponse>> GetAvailableCityLocations(string gameId, int playerColour)
+    public Result<List<PointResponse>> GetAvailableCityLocations(string gameId, int playerColour)
     {
         throw new NotImplementedException();
     }
 
-    public Result<List<RoadCoordinatesResponse>> GetAvailableRoadLocations(string gameId, int playerColour)
+    public Result<List<RoadPointsResponse>> GetAvailableRoadLocations(string gameId, int playerColour)
     {
         throw new NotImplementedException();
     }

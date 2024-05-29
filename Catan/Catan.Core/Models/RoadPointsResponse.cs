@@ -2,7 +2,7 @@
 
 namespace Catan.Application.Models;
 
-public sealed class RoadCoordinatesResponse
+public sealed class RoadPointsResponse
 {
     [JsonPropertyName("firstX")]
     public int FirstX { get; set; }

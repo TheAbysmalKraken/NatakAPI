@@ -4,11 +4,11 @@ namespace Catan.Application;
 
 public interface IGameManager
 {
-    Result<List<CoordinatesResponse>> GetAvailableSettlementLocations(string gameId, int playerColour);
+    Result<List<PointResponse>> GetAvailableSettlementLocations(string gameId, int playerColour);
 
-    Result<List<CoordinatesResponse>> GetAvailableCityLocations(string gameId, int playerColour);
+    Result<List<PointResponse>> GetAvailableCityLocations(string gameId, int playerColour);
 
-    Result<List<RoadCoordinatesResponse>> GetAvailableRoadLocations(string gameId, int playerColour);
+    Result<List<RoadPointsResponse>> GetAvailableRoadLocations(string gameId, int playerColour);
 
     Result BuyDevelopmentCard(string gameId);
 

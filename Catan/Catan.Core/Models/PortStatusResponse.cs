@@ -18,8 +18,8 @@ public sealed class PortStatusResponse
     {
         return new PortStatusResponse
         {
-            X = port.Coordinates.X,
-            Y = port.Coordinates.Y,
+            X = port.Point.X,
+            Y = port.Point.Y,
             Resource = (int)port.Type
         };
     }

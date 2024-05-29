@@ -25,10 +25,10 @@ public sealed class RoadStatusResponse
         return new RoadStatusResponse
         {
             PlayerColour = (int)road.Colour,
-            StartX = road.FirstCornerCoordinates.X,
-            StartY = road.FirstCornerCoordinates.Y,
-            EndX = road.SecondCornerCoordinates.X,
-            EndY = road.SecondCornerCoordinates.Y
+            StartX = road.FirstPoint.X,
+            StartY = road.FirstPoint.Y,
+            EndX = road.SecondPoint.X,
+            EndY = road.SecondPoint.Y
         };
     }
 }

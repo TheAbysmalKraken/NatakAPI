@@ -6,8 +6,8 @@ public sealed class Point(int x, int y)
 
     public int Y { get; private set; } = y;
 
-    public bool Equals(Point coordinatesToCompare)
-        => X == coordinatesToCompare.X && Y == coordinatesToCompare.Y;
+    public bool Equals(Point pointToCompare)
+        => X == pointToCompare.X && Y == pointToCompare.Y;
 
     public static Point Add(Point c1, Point c2)
     => new(c1.X + c2.X, c1.Y + c2.Y);
