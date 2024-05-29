@@ -4,6 +4,9 @@ using Catan.Core.GameActions.BuildRoad;
 using Catan.Core.GameActions.BuildSettlement;
 using Catan.Core.GameActions.CreateGame;
 using Catan.Core.GameActions.EndTurn;
+using Catan.Core.GameActions.GetAvailableCityLocations;
+using Catan.Core.GameActions.GetAvailableRoadLocations;
+using Catan.Core.GameActions.GetAvailableSettlementLocations;
 using Catan.Core.GameActions.GetGame;
 using Catan.Core.GameActions.RollDice;
 using MediatR;
@@ -24,6 +27,9 @@ public static class Endpoints
         this RouteGroupBuilder builder)
     {
         builder.MapGet("{gameId}/{playerColour}", GetGameStatusAsync);
+        builder.MapGet("{gameId}/{playerColour}/available-settlement-locations", GetAvailableSettlementLocationsAsync);
+        builder.MapGet("{gameId}/{playerColour}/available-city-locations", GetAvailableCityLocationsAsync);
+        builder.MapGet("{gameId}/{playerColour}/available-road-locations", GetAvailableRoadLocationsAsync);
         builder.MapPost("", CreateGameAsync);
         builder.MapPost("{gameId}/roll", RollDiceAsync);
         builder.MapPost("{gameId}/end-turn", EndTurnAsync);
@@ -43,6 +49,66 @@ public static class Endpoints
         try
         {
             var query = new GetGameQuery(gameId, playerColour);
+
+            var result = await sender.Send(query, cancellationToken);
+
+            return TypedResultFactory.Ok(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> GetAvailableSettlementLocationsAsync(
+        ISender sender,
+        string gameId,
+        int playerColour,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var query = new GetAvailableSettlementLocationsQuery(gameId, playerColour);
+
+            var result = await sender.Send(query, cancellationToken);
+
+            return TypedResultFactory.Ok(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> GetAvailableRoadLocationsAsync(
+        ISender sender,
+        string gameId,
+        int playerColour,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var query = new GetAvailableRoadLocationsQuery(gameId, playerColour);
+
+            var result = await sender.Send(query, cancellationToken);
+
+            return TypedResultFactory.Ok(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> GetAvailableCityLocationsAsync(
+        ISender sender,
+        string gameId,
+        int playerColour,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var query = new GetAvailableCityLocationsQuery(gameId, playerColour);
 
             var result = await sender.Send(query, cancellationToken);
 

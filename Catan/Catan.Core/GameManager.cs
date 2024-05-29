@@ -7,21 +7,6 @@ namespace Catan.Application;
 
 public sealed class GameManager(IMemoryCache cache) : IGameManager
 {
-    public Result<List<PointResponse>> GetAvailableSettlementLocations(string gameId, int playerColour)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Result<List<PointResponse>> GetAvailableCityLocations(string gameId, int playerColour)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Result<List<RoadPointsResponse>> GetAvailableRoadLocations(string gameId, int playerColour)
-    {
-        throw new NotImplementedException();
-    }
-
     public Result BuyDevelopmentCard(string gameId)
     {
         var gameResult = GetGameFromCache(gameId);

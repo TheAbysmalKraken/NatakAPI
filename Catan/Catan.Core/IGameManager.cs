@@ -4,12 +4,6 @@ namespace Catan.Application;
 
 public interface IGameManager
 {
-    Result<List<PointResponse>> GetAvailableSettlementLocations(string gameId, int playerColour);
-
-    Result<List<PointResponse>> GetAvailableCityLocations(string gameId, int playerColour);
-
-    Result<List<RoadPointsResponse>> GetAvailableRoadLocations(string gameId, int playerColour);
-
     Result BuyDevelopmentCard(string gameId);
 
     Result PlayKnightCard(string gameId, int x, int y, int playerColourToStealFrom);
