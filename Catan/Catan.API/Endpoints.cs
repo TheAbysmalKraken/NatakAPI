@@ -2,6 +2,7 @@
 using Catan.Core.GameActions.BuildCity;
 using Catan.Core.GameActions.BuildRoad;
 using Catan.Core.GameActions.BuildSettlement;
+using Catan.Core.GameActions.BuyDevelopmentCard;
 using Catan.Core.GameActions.CreateGame;
 using Catan.Core.GameActions.EndTurn;
 using Catan.Core.GameActions.GetAvailableCityLocations;
@@ -36,6 +37,7 @@ public static class Endpoints
         builder.MapPost("{gameId}/build/road", BuildRoadAsync);
         builder.MapPost("{gameId}/build/settlement", BuildSettlementAsync);
         builder.MapPost("{gameId}/build/city", BuildCityAsync);
+        builder.MapPost("{gameId}/buy/development-card", BuyDevelopmentCardAsync);
 
         return builder;
     }
@@ -233,6 +235,25 @@ public static class Endpoints
             var command = new BuildCityCommand(
                 gameId,
                 request.Point.ToPoint());
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> BuyDevelopmentCardAsync(
+        ISender sender,
+        string gameId,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new BuyDevelopmentCardCommand(gameId);
 
             var result = await sender.Send(command, cancellationToken);
 

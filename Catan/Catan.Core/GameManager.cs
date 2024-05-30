@@ -7,35 +7,6 @@ namespace Catan.Application;
 
 public sealed class GameManager(IMemoryCache cache) : IGameManager
 {
-    public Result BuyDevelopmentCard(string gameId)
-    {
-        var gameResult = GetGameFromCache(gameId);
-
-        if (gameResult.IsFailure)
-        {
-            return Result.Failure(gameResult.Error);
-        }
-
-        var game = gameResult.Value;
-
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
-        var buySuccess = game.BuyDevelopmentCard();
-
-        if (!buySuccess)
-        {
-            return Result.Failure(Errors.CannotBuyDevelopmentCard);
-        }
-
-        SetGameInCache(game);
-
-        return Result.Success();
-    }
-
     public Result PlayKnightCard(string gameId, int x, int y, int playerColourToStealFrom)
     {
         var gameResult = GetGameFromCache(gameId);

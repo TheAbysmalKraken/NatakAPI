@@ -12,28 +12,6 @@ public class CatanController(
 {
     private readonly ILogger<CatanController> _logger = logger;
 
-    [HttpPost("{gameId}/buy/development-card")]
-    public IActionResult BuyDevelopmentCard(string gameId)
-    {
-        try
-        {
-            var buyDevelopmentCardResult = gameManager.BuyDevelopmentCard(gameId);
-
-            if (buyDevelopmentCardResult.IsFailure)
-            {
-                return StatusCode((int)buyDevelopmentCardResult.Error.StatusCode, buyDevelopmentCardResult.Error.Message);
-            }
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500);
-        }
-    }
-
     [HttpPost("{gameId}/play-development-card/knight")]
     public IActionResult PlayKnightCard(string gameId, [FromBody] PlayKnightCardRequest request)
     {

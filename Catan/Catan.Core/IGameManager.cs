@@ -4,8 +4,6 @@ namespace Catan.Application;
 
 public interface IGameManager
 {
-    Result BuyDevelopmentCard(string gameId);
-
     Result PlayKnightCard(string gameId, int x, int y, int playerColourToStealFrom);
 
     Result PlayRoadBuildingCard(
