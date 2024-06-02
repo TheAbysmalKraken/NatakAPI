@@ -7,36 +7,6 @@ namespace Catan.Application;
 
 public sealed class GameManager(IMemoryCache cache) : IGameManager
 {
-    public Result MoveRobber(string gameId, int x, int y)
-    {
-        var gameResult = GetGameFromCache(gameId);
-
-        if (gameResult.IsFailure)
-        {
-            return Result.Failure(gameResult.Error);
-        }
-
-        var game = gameResult.Value;
-
-        if (game.GameSubPhase != GameSubPhase.MoveRobberSevenRoll
-        && game.GameSubPhase != GameSubPhase.MoveRobberKnightCardBeforeRoll
-        && game.GameSubPhase != GameSubPhase.MoveRobberKnightCardAfterRoll)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
-        var moveSuccess = game.MoveRobber(new(x, y));
-
-        if (!moveSuccess)
-        {
-            return Result.Failure(Errors.CannotMoveRobberToLocation);
-        }
-
-        SetGameInCache(game);
-
-        return Result.Success();
-    }
-
     public Result StealResource(string gameId, int victimColour)
     {
         var gameResult = GetGameFromCache(gameId);

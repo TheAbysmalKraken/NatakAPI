@@ -12,31 +12,6 @@ public class CatanController(
 {
     private readonly ILogger<CatanController> _logger = logger;
 
-    [HttpPost("{gameId}/move-robber")]
-    public IActionResult MoveRobber(string gameId, [FromBody] MoveRobberRequest request)
-    {
-        ArgumentNullException.ThrowIfNull(request.X);
-        ArgumentNullException.ThrowIfNull(request.Y);
-
-        try
-        {
-            var moveRobberResult = gameManager.MoveRobber(gameId, request.X.Value, request.Y.Value);
-
-            if (moveRobberResult.IsFailure)
-            {
-                return StatusCode((int)moveRobberResult.Error.StatusCode, moveRobberResult.Error.Message);
-            }
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500);
-        }
-    }
-
     [HttpPost("{gameId}/steal-resource")]
     public IActionResult StealResource(string gameId, [FromBody] StealResourceRequest request)
     {

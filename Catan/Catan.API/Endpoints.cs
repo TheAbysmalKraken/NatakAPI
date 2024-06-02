@@ -9,6 +9,7 @@ using Catan.Core.GameActions.GetAvailableCityLocations;
 using Catan.Core.GameActions.GetAvailableRoadLocations;
 using Catan.Core.GameActions.GetAvailableSettlementLocations;
 using Catan.Core.GameActions.GetGame;
+using Catan.Core.GameActions.MoveRobber;
 using Catan.Core.GameActions.PlayKnightCard;
 using Catan.Core.GameActions.PlayMonopolyCard;
 using Catan.Core.GameActions.PlayRoadBuildingCard;
@@ -47,6 +48,7 @@ public static class Endpoints
         builder.MapPost("{gameId}/play-development-card/road-building", PlayRoadBuildingCardAsync);
         builder.MapPost("{gameId}/play-development-card/year-of-plenty", PlayYearOfPlentyCardAsync);
         builder.MapPost("{gameId}/play-development-card/monopoly", PlayMonopolyCardAsync);
+        builder.MapPost("{gameId}/move-robber", MoveRobberAsync);
 
         return builder;
     }
@@ -356,6 +358,28 @@ public static class Endpoints
             var command = new PlayMonopolyCardCommand(
                 gameId,
                 request.Resource);
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> MoveRobberAsync(
+        ISender sender,
+        string gameId,
+        [FromBody] MoveRobberRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new MoveRobberCommand(
+                gameId,
+                request.MoveRobberTo.ToPoint());
 
             var result = await sender.Send(command, cancellationToken);
 

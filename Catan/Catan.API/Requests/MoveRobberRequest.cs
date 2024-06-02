@@ -4,9 +4,6 @@ namespace Catan.API.Requests;
 
 public sealed class MoveRobberRequest
 {
-    [JsonPropertyName("x")]
-    public int? X { get; set; }
-
-    [JsonPropertyName("y")]
-    public int? Y { get; set; }
+    [JsonPropertyName("moveRobberTo")]
+    public required PointRequest MoveRobberTo { get; init; }
 }
