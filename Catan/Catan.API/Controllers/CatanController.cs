@@ -12,31 +12,6 @@ public class CatanController(
 {
     private readonly ILogger<CatanController> _logger = logger;
 
-    [HttpPost("{gameId}/play-development-card/year-of-plenty")]
-    public IActionResult PlayYearOfPlentyCard(string gameId, [FromBody] PlayYearOfPlentyCardRequest request)
-    {
-        ArgumentNullException.ThrowIfNull(request.FirstResourceType);
-        ArgumentNullException.ThrowIfNull(request.SecondResourceType);
-
-        try
-        {
-            var playYearOfPlentyCardResult = gameManager.PlayYearOfPlentyCard(gameId, request.FirstResourceType.Value, request.SecondResourceType.Value);
-
-            if (playYearOfPlentyCardResult.IsFailure)
-            {
-                return StatusCode((int)playYearOfPlentyCardResult.Error.StatusCode, playYearOfPlentyCardResult.Error.Message);
-            }
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500);
-        }
-    }
-
     [HttpPost("{gameId}/play-development-card/monopoly")]
     public IActionResult PlayMonopolyCard(string gameId, [FromBody] PlayMonopolyCardRequest request)
     {

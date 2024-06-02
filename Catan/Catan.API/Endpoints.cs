@@ -11,6 +11,7 @@ using Catan.Core.GameActions.GetAvailableSettlementLocations;
 using Catan.Core.GameActions.GetGame;
 using Catan.Core.GameActions.PlayKnightCard;
 using Catan.Core.GameActions.PlayRoadBuildingCard;
+using Catan.Core.GameActions.PlayYearOfPlentyCard;
 using Catan.Core.GameActions.RollDice;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -43,6 +44,7 @@ public static class Endpoints
         builder.MapPost("{gameId}/buy/development-card", BuyDevelopmentCardAsync);
         builder.MapPost("{gameId}/play-development-card/knight", PlayKnightCardAsync);
         builder.MapPost("{gameId}/play-development-card/road-building", PlayRoadBuildingCardAsync);
+        builder.MapPost("{gameId}/play-development-card/year-of-plenty", PlayYearOfPlentyCardAsync);
 
         return builder;
     }
@@ -307,6 +309,29 @@ public static class Endpoints
                 request.FirstRoadSecondPoint.ToPoint(),
                 request.SecondRoadFirstPoint.ToPoint(),
                 request.SecondRoadSecondPoint.ToPoint());
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> PlayYearOfPlentyCardAsync(
+        ISender sender,
+        string gameId,
+        [FromBody] PlayYearOfPlentyCardRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new PlayYearOfPlentyCardCommand(
+                gameId,
+                request.FirstResource,
+                request.SecondResource);
 
             var result = await sender.Send(command, cancellationToken);
 

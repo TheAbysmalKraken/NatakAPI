@@ -4,8 +4,6 @@ namespace Catan.Application;
 
 public interface IGameManager
 {
-    Result PlayYearOfPlentyCard(string gameId, int resourceType1, int resourceType2);
-
     Result PlayMonopolyCard(string gameId, int resourceType);
 
     Result MoveRobber(string gameId, int x, int y);

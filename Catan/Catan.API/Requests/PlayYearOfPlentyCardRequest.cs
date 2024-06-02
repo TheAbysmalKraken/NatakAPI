@@ -4,9 +4,9 @@ namespace Catan.API.Requests;
 
 public sealed class PlayYearOfPlentyCardRequest
 {
-    [JsonPropertyName("firstResourceType")]
-    public int? FirstResourceType { get; set; }
+    [JsonPropertyName("firstResource")]
+    public required int FirstResource { get; set; }
 
-    [JsonPropertyName("secondResourceType")]
-    public int? SecondResourceType { get; set; }
+    [JsonPropertyName("secondResource")]
+    public required int SecondResource { get; set; }
 }
