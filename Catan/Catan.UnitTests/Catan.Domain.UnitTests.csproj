@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Catan.Domain\Catan.Domain.csproj" />
-    <ProjectReference Include="..\Catan.Infrastructure\Catan.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
