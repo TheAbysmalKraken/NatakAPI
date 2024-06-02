@@ -4,8 +4,6 @@ namespace Catan.Application;
 
 public interface IGameManager
 {
-    Result DiscardResources(string gameId, int playerColour, Dictionary<int, int> resources);
-
     Result TradeWithBank(string gameId, int resourceToGive, int resourceToGet);
 
     Result EmbargoPlayer(string gameId, int playerColour, int playerColourToEmbargo);

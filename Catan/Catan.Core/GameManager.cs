@@ -7,37 +7,6 @@ namespace Catan.Application;
 
 public sealed class GameManager(IMemoryCache cache) : IGameManager
 {
-    public Result DiscardResources(string gameId, int playerColour, Dictionary<int, int> resources)
-    {
-        var gameResult = GetGameFromCache(gameId);
-
-        if (gameResult.IsFailure)
-        {
-            return Result.Failure(gameResult.Error);
-        }
-
-        var game = gameResult.Value;
-
-        if (game.GameSubPhase != GameSubPhase.DiscardResources)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
-        var catanResources = resources.ToDictionary(kvp => (ResourceType)kvp.Key, kvp => kvp.Value);
-
-        var discardSuccess = game.DiscardResources((PlayerColour)playerColour, catanResources);
-
-        if (!discardSuccess)
-        {
-            return Result.Failure(Errors.CannotDiscardResources);
-        }
-
-        game.TryFinishDiscardingResources();
-        SetGameInCache(game);
-
-        return Result.Success();
-    }
-
     public Result TradeWithBank(string gameId, int resourceToGive, int resourceToGet)
     {
         var gameResult = GetGameFromCache(gameId);

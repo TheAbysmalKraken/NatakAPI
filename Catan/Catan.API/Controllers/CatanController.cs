@@ -12,31 +12,6 @@ public class CatanController(
 {
     private readonly ILogger<CatanController> _logger = logger;
 
-    [HttpPost("{gameId}/{playerColour}/discard-resources")]
-    public IActionResult DiscardResources(string gameId, int playerColour, [FromBody] DiscardResourcesRequest request)
-    {
-        ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(request.Resources);
-
-        try
-        {
-            var discardResourcesResult = gameManager.DiscardResources(gameId, playerColour, request.Resources);
-
-            if (discardResourcesResult.IsFailure)
-            {
-                return StatusCode((int)discardResourcesResult.Error.StatusCode, discardResourcesResult.Error.Message);
-            }
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500);
-        }
-    }
-
     [HttpPost("{gameId}/trade-with-bank")]
     public IActionResult TradeWithBank(string gameId, [FromBody] TradeWithBankRequest request)
     {
