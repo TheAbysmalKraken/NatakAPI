@@ -1,7 +1,7 @@
 using Catan.Domain;
 using Catan.Domain.Enums;
 
-namespace Catan.UnitTests.Domain;
+namespace Catan.Domain.UnitTests;
 
 public class CatanGameTests
 {

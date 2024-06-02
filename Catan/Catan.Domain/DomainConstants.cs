@@ -31,7 +31,7 @@ public static class DomainConstants
             { 12, 1 }
         };
 
-    public static List<Point> GetStartingPortCoordinates()
+    public static List<Point> GetStartingPortPoints()
     {
         return [
             new(2, 0),

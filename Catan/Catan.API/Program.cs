@@ -1,5 +1,6 @@
-using Catan.Application;
-using Microsoft.Extensions.Caching.Memory;
+using Catan.API;
+using Catan.Core;
+using Catan.Infrastructure;
 
 const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -7,18 +8,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddSingleton<IMemoryCache, MemoryCache>();
-builder.Services.AddSingleton<IGameManager, GameManager>();
+builder.Services.AddCore();
+builder.Services.AddInfrastructure();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-                      policy =>
-                      {
-                          policy.WithOrigins("http://127.0.0.1:5500")
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
-                      });
+    options.AddPolicy(
+        name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://127.0.0.1:5500")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
 });
 
 builder.Services.AddControllers();
@@ -42,5 +44,7 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapEndpoints();
 
 app.Run();

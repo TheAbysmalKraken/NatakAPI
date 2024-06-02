@@ -1,6 +1,6 @@
 ﻿using Catan.Domain;
 
-namespace Catan.UnitTests.Domain;
+namespace Catan.Domain.UnitTests;
 
 public class DiceRollerTests
 {
