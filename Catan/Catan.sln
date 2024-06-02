@@ -11,10 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.Infrastructure", "Cat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.UnitTests", "Catan.UnitTests\Catan.UnitTests.csproj", "{1C3A11B0-1A8E-4970-93DC-0DDC0BDF1801}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catan.IntegrationTests", "Catan.IntegrationTests\Catan.IntegrationTests.csproj", "{D0C9F78F-78FD-4877-B292-2857854A4F14}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catan.Web", "Catan.Web\Catan.Web.csproj", "{462CD824-82D9-48B6-985B-9C719B8BE2FC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catan.Core", "Catan.Core\Catan.Core.csproj", "{BCBDB7C3-2850-49FF-924C-FCE6307CFE2F}"
 EndProject
 Global
@@ -39,14 +35,6 @@ Global
 		{1C3A11B0-1A8E-4970-93DC-0DDC0BDF1801}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C3A11B0-1A8E-4970-93DC-0DDC0BDF1801}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C3A11B0-1A8E-4970-93DC-0DDC0BDF1801}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D0C9F78F-78FD-4877-B292-2857854A4F14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D0C9F78F-78FD-4877-B292-2857854A4F14}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D0C9F78F-78FD-4877-B292-2857854A4F14}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D0C9F78F-78FD-4877-B292-2857854A4F14}.Release|Any CPU.Build.0 = Release|Any CPU
-		{462CD824-82D9-48B6-985B-9C719B8BE2FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{462CD824-82D9-48B6-985B-9C719B8BE2FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{462CD824-82D9-48B6-985B-9C719B8BE2FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{462CD824-82D9-48B6-985B-9C719B8BE2FC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BCBDB7C3-2850-49FF-924C-FCE6307CFE2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BCBDB7C3-2850-49FF-924C-FCE6307CFE2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCBDB7C3-2850-49FF-924C-FCE6307CFE2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
