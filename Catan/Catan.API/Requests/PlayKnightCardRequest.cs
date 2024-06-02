@@ -5,11 +5,11 @@ namespace Catan.API.Requests;
 public sealed class PlayKnightCardRequest
 {
     [JsonPropertyName("x")]
-    public int? X { get; set; }
+    public required int X { get; init; }
 
     [JsonPropertyName("y")]
-    public int? Y { get; set; }
+    public required int Y { get; init; }
 
     [JsonPropertyName("playerColourToStealFrom")]
-    public int? PlayerColourToStealFrom { get; set; }
+    public required int PlayerColourToStealFrom { get; init; }
 }

@@ -7,46 +7,6 @@ namespace Catan.Application;
 
 public sealed class GameManager(IMemoryCache cache) : IGameManager
 {
-    public Result PlayKnightCard(string gameId, int x, int y, int playerColourToStealFrom)
-    {
-        var gameResult = GetGameFromCache(gameId);
-
-        if (gameResult.IsFailure)
-        {
-            return Result.Failure(gameResult.Error);
-        }
-
-        var game = gameResult.Value;
-
-        if (!IsValidPlayerColour(playerColourToStealFrom, game.PlayerCount))
-        {
-            return Result.Failure<PlayerSpecificGameStatusResponse>(Errors.InvalidPlayerColour);
-        }
-
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild
-        && game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
-        if (game.HasPlayedDevelopmentCardThisTurn)
-        {
-            return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);
-        }
-
-        var playSuccess = game.PlayKnightCard(new(x, y), (PlayerColour)playerColourToStealFrom);
-
-        if (!playSuccess)
-        {
-            return Result.Failure(Errors.CannotPlayDevelopmentCard);
-        }
-
-        SetGameInCache(game);
-
-        return Result.Success();
-    }
-
     public Result PlayRoadBuildingCard(
         string gameId, int firstX, int firstY, int secondX, int secondY,
         int thirdX, int thirdY, int fourthX, int fourthY)

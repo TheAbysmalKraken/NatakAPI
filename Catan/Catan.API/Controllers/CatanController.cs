@@ -12,32 +12,6 @@ public class CatanController(
 {
     private readonly ILogger<CatanController> _logger = logger;
 
-    [HttpPost("{gameId}/play-development-card/knight")]
-    public IActionResult PlayKnightCard(string gameId, [FromBody] PlayKnightCardRequest request)
-    {
-        ArgumentNullException.ThrowIfNull(request.X);
-        ArgumentNullException.ThrowIfNull(request.Y);
-        ArgumentNullException.ThrowIfNull(request.PlayerColourToStealFrom);
-
-        try
-        {
-            var playKnightCardResult = gameManager.PlayKnightCard(gameId, request.X.Value, request.Y.Value, request.PlayerColourToStealFrom.Value);
-
-            if (playKnightCardResult.IsFailure)
-            {
-                return StatusCode((int)playKnightCardResult.Error.StatusCode, playKnightCardResult.Error.Message);
-            }
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500);
-        }
-    }
-
     [HttpPost("{gameId}/play-development-card/road-building")]
     public IActionResult PlayRoadBuildingCard(string gameId, [FromBody] PlayRoadBuildingCardRequest request)
     {

@@ -89,6 +89,11 @@ public class Game
     public List<DevelopmentCardType> GetRemainingDevelopmentCards()
         => remainingDevelopmentCards;
 
+    public bool ContainsPlayer(int playerColour)
+    {
+        return playerColour >= 0 && playerColour < PlayerCount;
+    }
+
     public void NextPlayer()
     {
         UpdateLargestArmyPlayer();

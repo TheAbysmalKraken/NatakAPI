@@ -9,8 +9,10 @@ using Catan.Core.GameActions.GetAvailableCityLocations;
 using Catan.Core.GameActions.GetAvailableRoadLocations;
 using Catan.Core.GameActions.GetAvailableSettlementLocations;
 using Catan.Core.GameActions.GetGame;
+using Catan.Core.GameActions.PlayKnightCard;
 using Catan.Core.GameActions.RollDice;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Catan.API;
 
@@ -38,6 +40,7 @@ public static class Endpoints
         builder.MapPost("{gameId}/build/settlement", BuildSettlementAsync);
         builder.MapPost("{gameId}/build/city", BuildCityAsync);
         builder.MapPost("{gameId}/buy/development-card", BuyDevelopmentCardAsync);
+        builder.MapPost("{gameId}/play-development-card/knight", PlayKnightCardAsync);
 
         return builder;
     }
@@ -254,6 +257,29 @@ public static class Endpoints
         try
         {
             var command = new BuyDevelopmentCardCommand(gameId);
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> PlayKnightCardAsync(
+        ISender sender,
+        string gameId,
+        [FromBody] PlayKnightCardRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new PlayKnightCardCommand(
+                gameId,
+                new(request.X, request.Y),
+                request.PlayerColourToStealFrom);
 
             var result = await sender.Send(command, cancellationToken);
 
