@@ -1,5 +1,6 @@
 ﻿using Catan.Core.Models;
 using Catan.Core.Services;
+using Catan.Domain.Enums;
 
 namespace Catan.Core.GameActions.GetGame;
 
@@ -14,8 +15,7 @@ internal sealed class GetGameQueryHandler(IActiveGameCache cache) :
         {
             return Result.Failure<GameResponse>(Errors.GameNotFound);
         }
-
-        if (!IsValidPlayerColour(request.PlayerColour, game.PlayerCount))
+        if (!game.ContainsPlayer((PlayerColour)request.PlayerColour))
         {
             return Result.Failure<GameResponse>(Errors.InvalidPlayerColour);
         }
@@ -23,10 +23,5 @@ internal sealed class GetGameQueryHandler(IActiveGameCache cache) :
         var response = GameResponse.FromDomain(game, request.PlayerColour);
 
         return Result.Success(response);
-    }
-
-    private static bool IsValidPlayerColour(int colour, int playerCount)
-    {
-        return colour >= 0 && colour < playerCount;
     }
 }
