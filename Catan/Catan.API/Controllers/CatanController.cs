@@ -12,30 +12,6 @@ public class CatanController(
 {
     private readonly ILogger<CatanController> _logger = logger;
 
-    [HttpPost("{gameId}/play-development-card/monopoly")]
-    public IActionResult PlayMonopolyCard(string gameId, [FromBody] PlayMonopolyCardRequest request)
-    {
-        ArgumentNullException.ThrowIfNull(request.ResourceType);
-
-        try
-        {
-            var playMonopolyCardResult = gameManager.PlayMonopolyCard(gameId, request.ResourceType.Value);
-
-            if (playMonopolyCardResult.IsFailure)
-            {
-                return StatusCode((int)playMonopolyCardResult.Error.StatusCode, playMonopolyCardResult.Error.Message);
-            }
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500);
-        }
-    }
-
     [HttpPost("{gameId}/move-robber")]
     public IActionResult MoveRobber(string gameId, [FromBody] MoveRobberRequest request)
     {

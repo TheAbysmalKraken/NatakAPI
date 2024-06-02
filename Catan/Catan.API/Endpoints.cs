@@ -10,6 +10,7 @@ using Catan.Core.GameActions.GetAvailableRoadLocations;
 using Catan.Core.GameActions.GetAvailableSettlementLocations;
 using Catan.Core.GameActions.GetGame;
 using Catan.Core.GameActions.PlayKnightCard;
+using Catan.Core.GameActions.PlayMonopolyCard;
 using Catan.Core.GameActions.PlayRoadBuildingCard;
 using Catan.Core.GameActions.PlayYearOfPlentyCard;
 using Catan.Core.GameActions.RollDice;
@@ -45,6 +46,7 @@ public static class Endpoints
         builder.MapPost("{gameId}/play-development-card/knight", PlayKnightCardAsync);
         builder.MapPost("{gameId}/play-development-card/road-building", PlayRoadBuildingCardAsync);
         builder.MapPost("{gameId}/play-development-card/year-of-plenty", PlayYearOfPlentyCardAsync);
+        builder.MapPost("{gameId}/play-development-card/monopoly", PlayMonopolyCardAsync);
 
         return builder;
     }
@@ -332,6 +334,28 @@ public static class Endpoints
                 gameId,
                 request.FirstResource,
                 request.SecondResource);
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> PlayMonopolyCardAsync(
+        ISender sender,
+        string gameId,
+        [FromBody] PlayMonopolyCardRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new PlayMonopolyCardCommand(
+                gameId,
+                request.Resource);
 
             var result = await sender.Send(command, cancellationToken);
 

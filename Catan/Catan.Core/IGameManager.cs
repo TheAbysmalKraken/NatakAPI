@@ -4,8 +4,6 @@ namespace Catan.Application;
 
 public interface IGameManager
 {
-    Result PlayMonopolyCard(string gameId, int resourceType);
-
     Result MoveRobber(string gameId, int x, int y);
 
     Result StealResource(string gameId, int victimColour);

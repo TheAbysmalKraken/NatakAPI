@@ -7,41 +7,6 @@ namespace Catan.Application;
 
 public sealed class GameManager(IMemoryCache cache) : IGameManager
 {
-    public Result PlayMonopolyCard(string gameId, int resourceType)
-    {
-        var gameResult = GetGameFromCache(gameId);
-
-        if (gameResult.IsFailure)
-        {
-            return Result.Failure(gameResult.Error);
-        }
-
-        var game = gameResult.Value;
-
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild
-        && game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
-        if (game.HasPlayedDevelopmentCardThisTurn)
-        {
-            return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);
-        }
-
-        var playSuccess = game.PlayMonopolyCard((ResourceType)resourceType);
-
-        if (!playSuccess)
-        {
-            return Result.Failure(Errors.CannotPlayDevelopmentCard);
-        }
-
-        SetGameInCache(game);
-
-        return Result.Success();
-    }
-
     public Result MoveRobber(string gameId, int x, int y)
     {
         var gameResult = GetGameFromCache(gameId);

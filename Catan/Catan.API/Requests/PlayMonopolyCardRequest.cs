@@ -4,6 +4,6 @@ namespace Catan.API.Requests;
 
 public sealed class PlayMonopolyCardRequest
 {
-    [JsonPropertyName("resourceType")]
-    public int? ResourceType { get; set; }
+    [JsonPropertyName("resource")]
+    public required int Resource { get; init; }
 }
