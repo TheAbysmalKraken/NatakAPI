@@ -7,49 +7,6 @@ namespace Catan.Application;
 
 public sealed class GameManager(IMemoryCache cache) : IGameManager
 {
-    public Result TradeWithBank(string gameId, int resourceToGive, int resourceToGet)
-    {
-        var gameResult = GetGameFromCache(gameId);
-
-        if (gameResult.IsFailure)
-        {
-            return Result.Failure(gameResult.Error);
-        }
-
-        var game = gameResult.Value;
-
-        if (game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
-        var tradeTwoToOneSuccess = game.TradeTwoToOne((ResourceType)resourceToGive, (ResourceType)resourceToGet);
-
-        if (tradeTwoToOneSuccess)
-        {
-            SetGameInCache(game);
-            return Result.Success();
-        }
-
-        var tradeThreeToOneSuccess = game.TradeThreeToOne((ResourceType)resourceToGive, (ResourceType)resourceToGet);
-
-        if (tradeThreeToOneSuccess)
-        {
-            SetGameInCache(game);
-            return Result.Success();
-        }
-
-        var tradeFourToOneSuccess = game.TradeFourToOne((ResourceType)resourceToGive, (ResourceType)resourceToGet);
-
-        if (tradeFourToOneSuccess)
-        {
-            SetGameInCache(game);
-            return Result.Success();
-        }
-
-        return Result.Failure(Errors.CannotTradeWithBank);
-    }
-
     public Result EmbargoPlayer(string gameId, int playerColour, int playerColourToEmbargo)
     {
         var gameResult = GetGameFromCache(gameId);

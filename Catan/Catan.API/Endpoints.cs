@@ -17,6 +17,7 @@ using Catan.Core.GameActions.PlayRoadBuildingCard;
 using Catan.Core.GameActions.PlayYearOfPlentyCard;
 using Catan.Core.GameActions.RollDice;
 using Catan.Core.GameActions.StealResource;
+using Catan.Core.GameActions.TradeWithBank;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,7 +53,8 @@ public static class Endpoints
         builder.MapPost("{gameId}/play-development-card/monopoly", PlayMonopolyCardAsync);
         builder.MapPost("{gameId}/move-robber", MoveRobberAsync);
         builder.MapPost("{gameId}/steal-resource", StealResourceAsync);
-        builder.MapPost("{gameId}/{playerColour}/discard-resources", StealResourceAsync);
+        builder.MapPost("{gameId}/{playerColour}/discard-resources", DiscardResourcesAsync);
+        builder.MapPost("{gameId}/trade-with-bank", TradeWithBankAsync);
 
         return builder;
     }
@@ -430,6 +432,29 @@ public static class Endpoints
                 gameId,
                 playerColour,
                 request.Resources);
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> TradeWithBankAsync(
+        ISender sender,
+        string gameId,
+        [FromBody] TradeWithBankRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new TradeWithBankCommand(
+                gameId,
+                request.ResourceToGive,
+                request.ResourceToGet);
 
             var result = await sender.Send(command, cancellationToken);
 

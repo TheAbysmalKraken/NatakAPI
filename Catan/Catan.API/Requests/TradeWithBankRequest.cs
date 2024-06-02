@@ -5,8 +5,8 @@ namespace Catan.API.Requests;
 public sealed class TradeWithBankRequest
 {
     [JsonPropertyName("resourceToGive")]
-    public int? ResourceToGive { get; set; }
+    public required int ResourceToGive { get; init; }
 
-    [JsonPropertyName("resourceToReceive")]
-    public int? ResourceToReceive { get; set; }
+    [JsonPropertyName("resourceToGet")]
+    public required int ResourceToGet { get; init; }
 }
