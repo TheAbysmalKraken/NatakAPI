@@ -12,46 +12,6 @@ public class CatanController(
 {
     private readonly ILogger<CatanController> _logger = logger;
 
-    [HttpPost("{gameId}/play-development-card/road-building")]
-    public IActionResult PlayRoadBuildingCard(string gameId, [FromBody] PlayRoadBuildingCardRequest request)
-    {
-        ArgumentNullException.ThrowIfNull(request.FirstX);
-        ArgumentNullException.ThrowIfNull(request.FirstY);
-        ArgumentNullException.ThrowIfNull(request.SecondX);
-        ArgumentNullException.ThrowIfNull(request.SecondY);
-        ArgumentNullException.ThrowIfNull(request.ThirdX);
-        ArgumentNullException.ThrowIfNull(request.ThirdY);
-        ArgumentNullException.ThrowIfNull(request.FourthX);
-        ArgumentNullException.ThrowIfNull(request.FourthY);
-
-        try
-        {
-            var playRoadBuildingCardResult = gameManager.PlayRoadBuildingCard(
-                gameId,
-                request.FirstX.Value,
-                request.FirstY.Value,
-                request.SecondX.Value,
-                request.SecondY.Value,
-                request.ThirdX.Value,
-                request.ThirdY.Value,
-                request.FourthX.Value,
-                request.FourthY.Value);
-
-            if (playRoadBuildingCardResult.IsFailure)
-            {
-                return StatusCode((int)playRoadBuildingCardResult.Error.StatusCode, playRoadBuildingCardResult.Error.Message);
-            }
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500);
-        }
-    }
-
     [HttpPost("{gameId}/play-development-card/year-of-plenty")]
     public IActionResult PlayYearOfPlentyCard(string gameId, [FromBody] PlayYearOfPlentyCardRequest request)
     {

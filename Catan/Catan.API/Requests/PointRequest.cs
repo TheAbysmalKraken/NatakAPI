@@ -3,7 +3,7 @@ using Catan.Domain;
 
 namespace Catan.API.Requests;
 
-internal sealed class PointRequest
+public sealed class PointRequest
 {
     [JsonPropertyName("x")]
     public required int X { get; init; }

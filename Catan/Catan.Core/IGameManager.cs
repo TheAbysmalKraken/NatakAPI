@@ -4,10 +4,6 @@ namespace Catan.Application;
 
 public interface IGameManager
 {
-    Result PlayRoadBuildingCard(
-        string gameId, int firstX, int firstY, int secondX, int secondY,
-        int thirdX, int thirdY, int fourthX, int fourthY);
-
     Result PlayYearOfPlentyCard(string gameId, int resourceType1, int resourceType2);
 
     Result PlayMonopolyCard(string gameId, int resourceType);

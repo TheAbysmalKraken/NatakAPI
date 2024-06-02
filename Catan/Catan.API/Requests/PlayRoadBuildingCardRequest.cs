@@ -4,27 +4,15 @@ namespace Catan.API.Requests;
 
 public sealed class PlayRoadBuildingCardRequest
 {
-    [JsonPropertyName("firstX")]
-    public int? FirstX { get; set; }
+    [JsonPropertyName("firstRoadFirstPoint")]
+    public required PointRequest FirstRoadFirstPoint { get; init; }
 
-    [JsonPropertyName("firstY")]
-    public int? FirstY { get; set; }
+    [JsonPropertyName("firstRoadSecondPoint")]
+    public required PointRequest FirstRoadSecondPoint { get; init; }
 
-    [JsonPropertyName("secondX")]
-    public int? SecondX { get; set; }
+    [JsonPropertyName("secondRoadFirstPoint")]
+    public required PointRequest SecondRoadFirstPoint { get; init; }
 
-    [JsonPropertyName("secondY")]
-    public int? SecondY { get; set; }
-
-    [JsonPropertyName("thirdX")]
-    public int? ThirdX { get; set; }
-
-    [JsonPropertyName("thirdY")]
-    public int? ThirdY { get; set; }
-
-    [JsonPropertyName("fourthX")]
-    public int? FourthX { get; set; }
-
-    [JsonPropertyName("fourthY")]
-    public int? FourthY { get; set; }
+    [JsonPropertyName("secondRoadSecondPoint")]
+    public required PointRequest SecondRoadSecondPoint { get; init; }
 }
