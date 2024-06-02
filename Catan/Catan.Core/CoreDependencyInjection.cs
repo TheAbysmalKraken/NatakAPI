@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Catan.Application;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +14,6 @@ public static class CoreDependencyInjection
         });
 
         services.AddSingleton<IMemoryCache, MemoryCache>();
-        services.AddSingleton<IGameManager, GameManager>();
 
         return services;
     }

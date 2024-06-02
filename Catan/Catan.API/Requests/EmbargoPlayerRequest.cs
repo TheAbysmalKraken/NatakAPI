@@ -5,5 +5,5 @@ namespace Catan.API.Requests;
 public sealed class EmbargoPlayerRequest
 {
     [JsonPropertyName("playerColourToEmbargo")]
-    public int? PlayerColourToEmbargo { get; set; }
+    public required int PlayerColourToEmbargo { get; init; }
 }

@@ -5,6 +5,7 @@ using Catan.Core.GameActions.BuildSettlement;
 using Catan.Core.GameActions.BuyDevelopmentCard;
 using Catan.Core.GameActions.CreateGame;
 using Catan.Core.GameActions.DiscardResources;
+using Catan.Core.GameActions.EmbargoPlayer;
 using Catan.Core.GameActions.EndTurn;
 using Catan.Core.GameActions.GetAvailableCityLocations;
 using Catan.Core.GameActions.GetAvailableRoadLocations;
@@ -55,6 +56,7 @@ public static class Endpoints
         builder.MapPost("{gameId}/steal-resource", StealResourceAsync);
         builder.MapPost("{gameId}/{playerColour}/discard-resources", DiscardResourcesAsync);
         builder.MapPost("{gameId}/trade-with-bank", TradeWithBankAsync);
+        builder.MapPost("{gameId}/{playerColour}/embargo-player", EmbargoPlayerAsync);
 
         return builder;
     }
@@ -455,6 +457,30 @@ public static class Endpoints
                 gameId,
                 request.ResourceToGive,
                 request.ResourceToGet);
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> EmbargoPlayerAsync(
+        ISender sender,
+        string gameId,
+        int playerColour,
+        [FromBody] EmbargoPlayerRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new EmbargoPlayerCommand(
+                gameId,
+                playerColour,
+                request.PlayerColourToEmbargo);
 
             var result = await sender.Send(command, cancellationToken);
 

@@ -89,9 +89,10 @@ public class Game
     public List<DevelopmentCardType> GetRemainingDevelopmentCards()
         => remainingDevelopmentCards;
 
-    public bool ContainsPlayer(int playerColour)
+    public bool ContainsPlayer(PlayerColour playerColour)
     {
-        return playerColour >= 0 && playerColour < PlayerCount;
+        var intPlayerColour = (int)playerColour;
+        return intPlayerColour >= 0 && intPlayerColour < PlayerCount;
     }
 
     public void NextPlayer()

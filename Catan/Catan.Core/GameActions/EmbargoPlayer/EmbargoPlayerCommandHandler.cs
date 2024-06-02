@@ -2,14 +2,14 @@
 using Catan.Core.Services;
 using Catan.Domain.Enums;
 
-namespace Catan.Core.GameActions.StealResource;
+namespace Catan.Core.GameActions.EmbargoPlayer;
 
-internal sealed class StealResourceCommandHandler(
+internal sealed class EmbargoPlayerCommandHandler(
     IActiveGameCache cache)
-    : ICommandHandler<StealResourceCommand>
+    : ICommandHandler<EmbargoPlayerCommand>
 {
     public async Task<Result> Handle(
-        StealResourceCommand request,
+        EmbargoPlayerCommand request,
         CancellationToken cancellationToken)
     {
         var game = await cache.GetAsync(request.GameId, cancellationToken);
@@ -19,26 +19,27 @@ internal sealed class StealResourceCommandHandler(
             return Result.Failure(Errors.GameNotFound);
         }
 
-        var victimColour = (PlayerColour)request.VictimColour;
+        var playerColour = (PlayerColour)request.PlayerColour;
+        var playerColourToEmbargo = (PlayerColour)request.PlayerColourToEmbargo;
 
-        if (!game.ContainsPlayer(victimColour))
+        if (!game.ContainsPlayer(playerColour)
+        || !game.ContainsPlayer(playerColourToEmbargo))
         {
             return Result.Failure(Errors.InvalidPlayerColour);
         }
 
-        if (game.GameSubPhase != GameSubPhase.StealResourceSevenRoll
-        && game.GameSubPhase != GameSubPhase.StealResourceKnightCardBeforeRoll
-        && game.GameSubPhase != GameSubPhase.StealResourceKnightCardAfterRoll)
+        if (game.GameSubPhase != GameSubPhase.TradeOrBuild)
         {
             return Result.Failure(Errors.InvalidGamePhase);
         }
 
-        var stealSuccess = game.StealResourceCard(
-            victimColour);
+        var embargoSuccess = game.EmbargoPlayer(
+            playerColour,
+            playerColourToEmbargo);
 
-        if (!stealSuccess)
+        if (!embargoSuccess)
         {
-            return Result.Failure(Errors.CannotStealResource);
+            return Result.Failure(Errors.CannotEmbargoPlayer);
         }
 
         await cache.UpsetAsync(

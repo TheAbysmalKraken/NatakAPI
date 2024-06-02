@@ -19,7 +19,7 @@ internal sealed class PlayKnightCardCommandHandler(
             return Result.Failure(Errors.GameNotFound);
         }
 
-        var playerColourToStealFrom = request.PlayerColourToStealFrom;
+        var playerColourToStealFrom = (PlayerColour)request.PlayerColourToStealFrom;
 
         if (!game.ContainsPlayer(playerColourToStealFrom))
         {
@@ -38,7 +38,9 @@ internal sealed class PlayKnightCardCommandHandler(
             return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);
         }
 
-        var playSuccess = game.PlayKnightCard(request.MoveRobberTo, (PlayerColour)playerColourToStealFrom);
+        var playSuccess = game.PlayKnightCard(
+            request.MoveRobberTo,
+            playerColourToStealFrom);
 
         if (!playSuccess)
         {
