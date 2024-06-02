@@ -12,30 +12,6 @@ public class CatanController(
 {
     private readonly ILogger<CatanController> _logger = logger;
 
-    [HttpPost("{gameId}/steal-resource")]
-    public IActionResult StealResource(string gameId, [FromBody] StealResourceRequest request)
-    {
-        ArgumentNullException.ThrowIfNull(request.PlayerColourToStealFrom);
-
-        try
-        {
-            var stealResourceResult = gameManager.StealResource(gameId, request.PlayerColourToStealFrom.Value);
-
-            if (stealResourceResult.IsFailure)
-            {
-                return StatusCode((int)stealResourceResult.Error.StatusCode, stealResourceResult.Error.Message);
-            }
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500);
-        }
-    }
-
     [HttpPost("{gameId}/{playerColour}/discard-resources")]
     public IActionResult DiscardResources(string gameId, int playerColour, [FromBody] DiscardResourcesRequest request)
     {

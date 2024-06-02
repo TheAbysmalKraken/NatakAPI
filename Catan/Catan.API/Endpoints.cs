@@ -15,6 +15,7 @@ using Catan.Core.GameActions.PlayMonopolyCard;
 using Catan.Core.GameActions.PlayRoadBuildingCard;
 using Catan.Core.GameActions.PlayYearOfPlentyCard;
 using Catan.Core.GameActions.RollDice;
+using Catan.Core.GameActions.StealResource;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,6 +50,7 @@ public static class Endpoints
         builder.MapPost("{gameId}/play-development-card/year-of-plenty", PlayYearOfPlentyCardAsync);
         builder.MapPost("{gameId}/play-development-card/monopoly", PlayMonopolyCardAsync);
         builder.MapPost("{gameId}/move-robber", MoveRobberAsync);
+        builder.MapPost("{gameId}/steal-resource", StealResourceAsync);
 
         return builder;
     }
@@ -380,6 +382,28 @@ public static class Endpoints
             var command = new MoveRobberCommand(
                 gameId,
                 request.MoveRobberTo.ToPoint());
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> StealResourceAsync(
+        ISender sender,
+        string gameId,
+        [FromBody] StealResourceRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new StealResourceCommand(
+                gameId,
+                request.VictimColour);
 
             var result = await sender.Send(command, cancellationToken);
 
