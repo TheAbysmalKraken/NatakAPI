@@ -1,4 +1,4 @@
-﻿using Catan.Application.Models;
+﻿using Catan.Core.Models;
 using MediatR;
 
 namespace Catan.Core;

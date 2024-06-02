@@ -1,4 +1,4 @@
-﻿using Catan.Application.Models;
+﻿using Catan.Core.Models;
 using Catan.Core.Services;
 
 namespace Catan.Core.GameActions.GetAvailableSettlementLocations;

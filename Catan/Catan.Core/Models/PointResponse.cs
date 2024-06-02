@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
+using Catan.Domain;
 
-namespace Catan.Application.Models;
+namespace Catan.Core.Models;
 
 public sealed class PointResponse
 {
@@ -9,4 +10,13 @@ public sealed class PointResponse
 
     [JsonPropertyName("y")]
     public int Y { get; set; }
+
+    public static PointResponse FromPoint(Point point)
+    {
+        return new()
+        {
+            X = point.X,
+            Y = point.Y
+        };
+    }
 }

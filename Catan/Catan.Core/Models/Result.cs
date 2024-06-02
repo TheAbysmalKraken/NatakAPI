@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 
-namespace Catan.Application.Models;
+namespace Catan.Core.Models;
 
 public class Result
 {

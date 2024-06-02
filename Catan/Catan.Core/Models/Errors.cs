@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Catan.Application.Models;
+namespace Catan.Core.Models;
 
 public static class Errors
 {

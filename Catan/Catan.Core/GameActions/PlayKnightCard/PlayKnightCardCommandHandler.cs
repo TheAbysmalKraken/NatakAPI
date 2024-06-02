@@ -1,4 +1,4 @@
-﻿using Catan.Application.Models;
+﻿using Catan.Core.Models;
 using Catan.Core.Services;
 using Catan.Domain.Enums;
 
@@ -23,7 +23,7 @@ internal sealed class PlayKnightCardCommandHandler(
 
         if (!game.ContainsPlayer(playerColourToStealFrom))
         {
-            return Result.Failure<PlayerSpecificGameStatusResponse>(Errors.InvalidPlayerColour);
+            return Result.Failure(Errors.InvalidPlayerColour);
         }
 
         if (game.GameSubPhase != GameSubPhase.PlayTurn

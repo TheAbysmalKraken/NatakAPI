@@ -1,26 +1,26 @@
-﻿using Catan.Application.Models;
+﻿using Catan.Core.Models;
 using Catan.Core.Services;
 
 namespace Catan.Core.GameActions.GetGame;
 
 internal sealed class GetGameQueryHandler(IActiveGameCache cache) :
-    IQueryHandler<GetGameQuery, PlayerSpecificGameStatusResponse>
+    IQueryHandler<GetGameQuery, GameResponse>
 {
-    public async Task<Result<PlayerSpecificGameStatusResponse>> Handle(GetGameQuery request, CancellationToken cancellationToken)
+    public async Task<Result<GameResponse>> Handle(GetGameQuery request, CancellationToken cancellationToken)
     {
         var game = await cache.GetAsync(request.GameId, cancellationToken);
 
         if (game is null)
         {
-            return Result.Failure<PlayerSpecificGameStatusResponse>(Errors.GameNotFound);
+            return Result.Failure<GameResponse>(Errors.GameNotFound);
         }
 
         if (!IsValidPlayerColour(request.PlayerColour, game.PlayerCount))
         {
-            return Result.Failure<PlayerSpecificGameStatusResponse>(Errors.InvalidPlayerColour);
+            return Result.Failure<GameResponse>(Errors.InvalidPlayerColour);
         }
 
-        var response = PlayerSpecificGameStatusResponse.FromDomain(game, request.PlayerColour);
+        var response = GameResponse.FromDomain(game, request.PlayerColour);
 
         return Result.Success(response);
     }

@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using Catan.Application.Models;
+using Catan.Core.Models;
 
 namespace Catan.Core.GameActions.CreateGame;
 
