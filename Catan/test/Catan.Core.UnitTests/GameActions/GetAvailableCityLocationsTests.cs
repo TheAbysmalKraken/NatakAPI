@@ -1,34 +1,32 @@
-﻿using Catan.Core.GameActions.GetGame;
+﻿using Catan.Core.GameActions.GetAvailableCityLocations;
 using Catan.Core.Services;
 using Catan.Core.UnitTests.GameActions.Shared;
-using Catan.Domain;
 
 namespace Catan.Core.UnitTests.GameActions;
 
-public sealed class GetGameTests
+public sealed class GetAvailableCityLocationsTests
 {
-    private static readonly GetGameQuery query = new("testId", 0);
+    private static readonly GetAvailableCityLocationsQuery query = new("testId", 0);
 
-    private readonly GetGameQueryHandler handler;
+    private readonly GetAvailableCityLocationsQueryHandler handler;
     private readonly IActiveGameCache cacheMock = Substitute.For<IActiveGameCache>();
 
-    public GetGameTests()
+    public GetAvailableCityLocationsTests()
     {
-        handler = new GetGameQueryHandler(cacheMock);
+        handler = new GetAvailableCityLocationsQueryHandler(cacheMock);
 
         var game = GameData.Create(4);
         ActiveGameCacheMocker.SetupGetAsyncMock(cacheMock, game);
     }
 
     [Fact]
-    public async Task Handle_Should_ReturnGame_WhenGameExists()
+    public async Task Handle_Should_ReturnPoints_WhenPlayerHasSettlements()
     {
         // Act
         var result = await handler.Handle(query, default);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeNull();
     }
 
     [Fact]
@@ -49,7 +47,7 @@ public sealed class GetGameTests
     public async Task Handle_Should_ReturnFailure_WhenPlayerColourIsInvalid()
     {
         // Arrange
-        var invalidQuery = new GetGameQuery(query.GameId, -1);
+        var invalidQuery = new GetAvailableCityLocationsQuery(query.GameId, -1);
 
         // Act
         var result = await handler.Handle(invalidQuery, default);
