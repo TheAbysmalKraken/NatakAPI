@@ -27,36 +27,35 @@ internal sealed class GetAvailableCityLocationsQueryHandler(
         }
 
         var board = game.Board;
-        var buildings = board.GetHouses();
 
-        var settlementPoints = SelectSettlementsOfColourPoints(
-            buildings,
+        var availableCityPoints = SelectCityPoints(
+            board,
             playerColour);
 
-        var response = settlementPoints.Select(PointResponse.FromPoint).ToList();
+        var response = availableCityPoints.Select(PointResponse.FromPoint).ToList();
 
         return Result.Success(response);
     }
 
-    private static List<Point> SelectSettlementsOfColourPoints(Building[,] buildings, PlayerColour playerColour)
+    private static List<Point> SelectCityPoints(
+        Board board,
+        PlayerColour playerColour)
     {
-        var settlementPoints = new List<Point>();
+        var availableCityPoints = new List<Point>();
 
         for (int x = 0; x < 11; x++)
         {
             for (int y = 0; y < 6; y++)
             {
-                var building = buildings[x, y];
+                var point = new Point(x, y);
 
-                if (building is not null
-                    && building.Type == BuildingType.Settlement
-                    && building.Colour == playerColour)
+                if (board.CanUpgradeHouseAtPoint(point, playerColour))
                 {
-                    settlementPoints.Add(new(x, y));
+                    availableCityPoints.Add(point);
                 }
             }
         }
 
-        return settlementPoints;
+        return availableCityPoints;
     }
 }
