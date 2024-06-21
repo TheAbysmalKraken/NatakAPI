@@ -46,7 +46,7 @@ jobs:
       run: dotnet build --no-restore --configuration Release
 
     - name: Publish the project
-      run: dotnet publish -c Release --property:PublishDir='${{ github.workspace }}/publish'
+      run: dotnet publish -c Release -o ${{ github.workspace }}/publish
 
     - name: Login via Azure CLI
       uses: azure/login@v1
