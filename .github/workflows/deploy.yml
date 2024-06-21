@@ -46,13 +46,13 @@ jobs:
       run: dotnet build --no-restore --configuration Release
 
     - name: Publish the project
-      run: dotnet publish -c Release -o ${{ github.workspace }}/publish
+      run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v4
       with:
         name: opencatan
-        path: ${{ github.workspace }}/publish
+        path: ${{env.DOTNET_ROOT}}/myapp
 
     - name: Download artifact from build job
       uses: actions/download-artifact@v4
@@ -67,12 +67,12 @@ jobs:
     - name: Deploy to dev
       if: github.ref == 'refs/heads/dev'
       run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_DEV_WEB_APP_NAME }} --src-path ${{ github.workspace }}/publish
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_DEV_WEB_APP_NAME }} --src-path ${{env.DOTNET_ROOT}}/myapp
 
     - name: Deploy to prod
       if: github.ref == 'refs/heads/main'
       run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_PROD_WEB_APP_NAME }} --src-path ${{ github.workspace }}/publish
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_PROD_WEB_APP_NAME }} --src-path ${{env.DOTNET_ROOT}}/myapp
 
     - name: Logout
       run: |
