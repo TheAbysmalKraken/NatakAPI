@@ -29,13 +29,13 @@ jobs:
       run: dotnet restore
       
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore --configuration Release
       
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
     - name: Publish the project
-      run: dotnet publish -c Release -o ${{ github.workspace }}/publish --no-build
+      run: dotnet publish -c Release --property:PublishDir='${{ github.workspace }}/publish'
 
     - name: Set Web App Name
       id: set-webapp-name
@@ -49,3 +49,7 @@ jobs:
     - name: Deploy to Azure Web App
       run: |
         az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ steps.set-webapp-name.outputs.webapp_name }} --src-path ${{ github.workspace }}/publish
+
+    - name: Logout
+      run: |
+        az logout
