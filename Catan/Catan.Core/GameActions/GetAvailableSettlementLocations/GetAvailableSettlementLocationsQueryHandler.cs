@@ -30,7 +30,8 @@ internal sealed class GetAvailableSettlementLocationsQueryHandler(
 
         var availableSettlementPoints = SelectAvailableSettlementPoints(
             board,
-            playerColour);
+            playerColour,
+            request.IsInitialPlacement);
 
         var response = availableSettlementPoints.Select(PointResponse.FromPoint).ToList();
 
@@ -39,7 +40,8 @@ internal sealed class GetAvailableSettlementLocationsQueryHandler(
 
     private static List<Point> SelectAvailableSettlementPoints(
         Board board,
-        PlayerColour playerColour)
+        PlayerColour playerColour,
+        bool isInitialPlacement)
     {
         var availableSettlementPoints = new List<Point>();
 
@@ -49,7 +51,7 @@ internal sealed class GetAvailableSettlementLocationsQueryHandler(
             {
                 var point = new Point(x, y);
 
-                if (board.CanPlaceHouseAtPoint(point, playerColour))
+                if (board.CanPlaceHouseAtPoint(point, playerColour, isInitialPlacement))
                 {
                     availableSettlementPoints.Add(point);
                 }

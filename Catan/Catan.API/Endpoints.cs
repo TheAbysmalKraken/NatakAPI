@@ -89,11 +89,15 @@ public static class Endpoints
         ISender sender,
         string gameId,
         int playerColour,
+        [FromQuery] bool isSetup = false,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var query = new GetAvailableSettlementLocationsQuery(gameId, playerColour);
+            var query = new GetAvailableSettlementLocationsQuery(
+                gameId,
+                playerColour,
+                isSetup);
 
             var result = await sender.Send(query, cancellationToken);
 
