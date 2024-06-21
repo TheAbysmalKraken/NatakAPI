@@ -15,6 +15,7 @@ public class Game
     private int currentPlayerIndex = 0;
     private int knightsRequiredForLargestArmy;
     private bool developmentCardPlayedThisTurn;
+    private TradeOffer tradeOffer;
     private readonly Random random = new();
 
     public Game(int numberOfPlayers, int? seed = null)
@@ -44,6 +45,12 @@ public class Game
         GamePhase = GamePhase.FirstRoundSetup;
         GameSubPhase = GameSubPhase.BuildSettlement;
         PlayerCount = numberOfPlayers;
+        tradeOffer = new()
+        {
+            IsActive = false,
+            Offer = [],
+            Request = []
+        };
     }
 
     public string Id { get; init; }
@@ -448,26 +455,69 @@ public class Game
         return true;
     }
 
-    public bool MakeTradeWithPlayer(
-        PlayerColour otherPlayerColour,
-        Dictionary<ResourceType, int> resourcesGivenByCurrentPlayer,
-        Dictionary<ResourceType, int> resourcesReceivedByCurrentPlayer)
+    public bool MakeTradeOffer(
+        Dictionary<ResourceType, int> offer,
+        Dictionary<ResourceType, int> request)
     {
-        var playerToTradeWith = GetPlayerByColour(otherPlayerColour);
-
-        if (playerToTradeWith == null
-        || !CurrentPlayer.CanTradeWithPlayer(otherPlayerColour)
-        || !playerToTradeWith.CanTradeWithPlayer(CurrentPlayer.Colour)
-        || !CurrentPlayer.HasAdequateResourceCardsOfTypes(resourcesGivenByCurrentPlayer)
-        || !playerToTradeWith.HasAdequateResourceCardsOfTypes(resourcesReceivedByCurrentPlayer))
+        if (!CurrentPlayer.CanMakeTradeOffer(offer))
         {
             return false;
         }
 
-        CurrentPlayer.AddResourceCards(resourcesReceivedByCurrentPlayer);
-        CurrentPlayer.RemoveResourceCards(resourcesGivenByCurrentPlayer);
-        playerToTradeWith.AddResourceCards(resourcesGivenByCurrentPlayer);
-        playerToTradeWith.RemoveResourceCards(resourcesReceivedByCurrentPlayer);
+        tradeOffer = new()
+        {
+            IsActive = true,
+            Offer = offer,
+            Request = request
+        };
+
+        return true;
+    }
+
+    public bool RejectTradeOffer(PlayerColour playerColour)
+    {
+        if (playerColour == CurrentPlayer.Colour)
+        {
+            return false;
+        }
+
+        if (!tradeOffer.IsActive || tradeOffer.RejectedBy.Contains(playerColour))
+        {
+            return false;
+        }
+
+        tradeOffer.RejectedBy.Add(playerColour);
+
+        if (tradeOffer.RejectedBy.Count == PlayerCount - 1)
+        {
+            tradeOffer = new()
+            {
+                IsActive = false,
+                Offer = [],
+                Request = []
+            };
+        }
+
+        return true;
+    }
+
+    public bool AcceptTradeOffer(PlayerColour playerColour)
+    {
+        var playerToTradeWith = GetPlayerByColour(playerColour);
+
+        if (playerToTradeWith == null
+        || !CurrentPlayer.CanTradeWithPlayer(playerColour)
+        || !playerToTradeWith.CanTradeWithPlayer(CurrentPlayer.Colour)
+        || !CurrentPlayer.HasAdequateResourceCardsOfTypes(tradeOffer.Offer)
+        || !playerToTradeWith.HasAdequateResourceCardsOfTypes(tradeOffer.Request))
+        {
+            return false;
+        }
+
+        CurrentPlayer.AddResourceCards(tradeOffer.Request);
+        CurrentPlayer.RemoveResourceCards(tradeOffer.Offer);
+        playerToTradeWith.AddResourceCards(tradeOffer.Offer);
+        playerToTradeWith.RemoveResourceCards(tradeOffer.Request);
 
         return true;
     }

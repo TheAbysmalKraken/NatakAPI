@@ -2,14 +2,14 @@
 using Catan.Core.Services;
 using Catan.Domain.Enums;
 
-namespace Catan.Core.GameActions.DiscardResources;
+namespace Catan.Core.GameActions.MakeTradeOffer;
 
-internal sealed class DiscardResourcesCommandHandler(
+internal sealed class MakeTradeOfferCommandHandler(
     IActiveGameCache cache)
-    : ICommandHandler<DiscardResourcesCommand>
+    : ICommandHandler<MakeTradeOfferCommand>
 {
     public async Task<Result> Handle(
-        DiscardResourcesCommand request,
+        MakeTradeOfferCommand request,
         CancellationToken cancellationToken)
     {
         var game = await cache.GetAsync(request.GameId, cancellationToken);
@@ -19,25 +19,19 @@ internal sealed class DiscardResourcesCommandHandler(
             return Result.Failure(Errors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.DiscardResources)
+        if (game.GameSubPhase != GameSubPhase.TradeOrBuild)
         {
             return Result.Failure(Errors.InvalidGamePhase);
         }
 
-        var catanResources = request.Resources
-            .ToDictionary(kvp =>
-                kvp.Key, kvp => kvp.Value);
+        var tradeSuccess = game.MakeTradeOffer(
+            request.Offer,
+            request.Request);
 
-        var discardSuccess = game.DiscardResources(
-            (PlayerColour)request.PlayerColour,
-            catanResources);
-
-        if (!discardSuccess)
+        if (!tradeSuccess)
         {
-            return Result.Failure(Errors.CannotDiscardResources);
+            return Result.Failure(Errors.CannotMakeTradeOffer);
         }
-
-        game.TryFinishDiscardingResources();
 
         await cache.UpsetAsync(
             request.GameId,

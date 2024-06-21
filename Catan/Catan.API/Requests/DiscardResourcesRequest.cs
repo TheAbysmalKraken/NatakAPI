@@ -1,9 +1,10 @@
 ﻿using System.Text.Json.Serialization;
+using Catan.Domain.Enums;
 
 namespace Catan.API.Requests;
 
 public sealed class DiscardResourcesRequest
 {
     [JsonPropertyName("resources")]
-    public required Dictionary<int, int> Resources { get; init; }
+    public required Dictionary<ResourceType, int> Resources { get; init; }
 }

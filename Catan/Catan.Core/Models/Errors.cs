@@ -64,4 +64,8 @@ public static class Errors
         "Catan.CannotEmbargoPlayer",
         "Player cannot embargo the specified player at this time.");
 
+    public static readonly Error CannotMakeTradeOffer = new(
+        HttpStatusCode.BadRequest,
+        "Catan.CannotMakeTradeOffer",
+        "Player cannot make the specified trade offer at this time.");
 }

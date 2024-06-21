@@ -11,6 +11,7 @@ using Catan.Core.GameActions.GetAvailableCityLocations;
 using Catan.Core.GameActions.GetAvailableRoadLocations;
 using Catan.Core.GameActions.GetAvailableSettlementLocations;
 using Catan.Core.GameActions.GetGame;
+using Catan.Core.GameActions.MakeTradeOffer;
 using Catan.Core.GameActions.MoveRobber;
 using Catan.Core.GameActions.PlayKnightCard;
 using Catan.Core.GameActions.PlayMonopolyCard;
@@ -55,8 +56,9 @@ public static class Endpoints
         builder.MapPost("{gameId}/move-robber", MoveRobberAsync);
         builder.MapPost("{gameId}/steal-resource", StealResourceAsync);
         builder.MapPost("{gameId}/{playerColour}/discard-resources", DiscardResourcesAsync);
-        builder.MapPost("{gameId}/trade-with-bank", TradeWithBankAsync);
+        builder.MapPost("{gameId}/trade/bank", TradeWithBankAsync);
         builder.MapPost("{gameId}/{playerColour}/embargo-player", EmbargoPlayerAsync);
+        builder.MapPost("{gameId}/trade/player", MakeTradeOfferAsync);
 
         return builder;
     }
@@ -481,6 +483,29 @@ public static class Endpoints
                 gameId,
                 playerColour,
                 request.PlayerColourToEmbargo);
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> MakeTradeOfferAsync(
+        ISender sender,
+        string gameId,
+        [FromBody] MakeTradeOfferRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new MakeTradeOfferCommand(
+                gameId,
+                request.Offer,
+                request.Request);
 
             var result = await sender.Send(command, cancellationToken);
 

@@ -91,6 +91,16 @@ public class Player(PlayerColour colour)
         return !embargoedPlayers.Contains(colour) && colour != Colour;
     }
 
+    public bool CanMakeTradeOffer(Dictionary<ResourceType, int> offer)
+    {
+        if (!HasAdequateResourceCardsOfTypes(offer))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public bool CanBuyRoad()
     {
         if (RemainingRoads <= 0)

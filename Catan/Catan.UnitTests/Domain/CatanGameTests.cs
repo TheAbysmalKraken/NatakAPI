@@ -1,4 +1,3 @@
-using Catan.Domain;
 using Catan.Domain.Enums;
 
 namespace Catan.Domain.UnitTests;
