@@ -47,6 +47,9 @@ public sealed class GameResponse
     [JsonPropertyName("remainingDevelopmentCards")]
     public required List<int> RemainingDevelopmentCards { get; init; }
 
+    [JsonPropertyName("tradeOffer")]
+    public required TradeOfferResponse TradeOffer { get; init; }
+
     public static GameResponse FromDomain(Game game, int playerColour)
     {
         ArgumentNullException.ThrowIfNull(game);
@@ -83,7 +86,8 @@ public sealed class GameResponse
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
             RemainingDevelopmentCards = game.GetRemainingDevelopmentCards()
                 .Select(dc => (int)dc)
-                .ToList()
+                .ToList(),
+            TradeOffer = TradeOfferResponse.FromDomain(game.TradeOffer)
         };
     }
 }

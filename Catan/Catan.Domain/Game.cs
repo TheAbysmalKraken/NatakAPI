@@ -45,12 +45,7 @@ public class Game
         GamePhase = GamePhase.FirstRoundSetup;
         GameSubPhase = GameSubPhase.BuildSettlement;
         PlayerCount = numberOfPlayers;
-        tradeOffer = new()
-        {
-            IsActive = false,
-            Offer = [],
-            Request = []
-        };
+        tradeOffer = TradeOffer.Inactive();
     }
 
     public string Id { get; init; }
@@ -109,6 +104,7 @@ public class Game
         UpdateLargestArmyPlayer();
 
         developmentCardPlayedThisTurn = false;
+        tradeOffer = TradeOffer.Inactive();
 
         CurrentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
 
@@ -473,6 +469,14 @@ public class Game
             Request = request
         };
 
+        foreach (var player in players)
+        {
+            if (player.GetEmbargoedPlayers().Contains(CurrentPlayer.Colour))
+            {
+                tradeOffer.RejectedBy.Add(player.Colour);
+            }
+        }
+
         return true;
     }
 
@@ -492,12 +496,7 @@ public class Game
 
         if (tradeOffer.RejectedBy.Count == PlayerCount - 1)
         {
-            tradeOffer = new()
-            {
-                IsActive = false,
-                Offer = [],
-                Request = []
-            };
+            tradeOffer = TradeOffer.Inactive();
         }
 
         return true;

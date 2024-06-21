@@ -11,4 +11,11 @@ public sealed class TradeOffer
     public required Dictionary<ResourceType, int> Request { get; init; }
 
     public List<PlayerColour> RejectedBy { get; init; } = [];
+
+    public static TradeOffer Inactive() => new()
+    {
+        IsActive = false,
+        Offer = [],
+        Request = []
+    };
 }
