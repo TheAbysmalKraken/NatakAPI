@@ -48,6 +48,17 @@ jobs:
     - name: Publish the project
       run: dotnet publish -c Release -o ${{ github.workspace }}/publish
 
+    - name: Upload artifact for deployment job
+      uses: actions/upload-artifact@v4
+      with:
+        name: opencatan
+        path: ${{ github.workspace }}/publish
+
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v4
+      with:
+        name: opencatan
+
     - name: Login via Azure CLI
       uses: azure/login@v1
       with:
