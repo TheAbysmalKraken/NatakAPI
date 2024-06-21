@@ -8,10 +8,7 @@ on:
     branches: [ "main","dev" ]
   pull_request:
     branches: [ "main","dev" ]
-
-env:
-  WEB_APP_NAME: $(if [ '${{ github.ref }}' == 'refs/heads/main' ]; then echo '${{ secrets.AZURE_PROD_WEB_APP_NAME }}'; else echo '${{ secrets.AZURE_DEV_WEB_APP_NAME }}'; fi)
-
+    
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -56,9 +53,15 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Deploy to Azure Web App
+    - name: Deploy to dev
+      if: github.ref == 'refs/heads/dev'
       run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name $WEB_APP_NAME --src-path ${{ github.workspace }}/publish
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_DEV_WEB_APP_NAME }} --src-path ${{ github.workspace }}/publish
+
+    - name: Deploy to prod
+      if: github.ref == 'refs/heads/main'
+      run: |
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_PROD_WEB_APP_NAME }} --src-path ${{ github.workspace }}/publish
 
     - name: Logout
       run: |
