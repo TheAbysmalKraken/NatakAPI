@@ -48,16 +48,14 @@ jobs:
     - name: Publish the project
       run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
-    - name: Upload artifact for deployment job
-      uses: actions/upload-artifact@v4
-      with:
-        name: opencatan
-        path: ${{env.DOTNET_ROOT}}/myapp
+    - name: Check if publish directory exists
+      run: if [ -d "${{ github.workspace }}/publish" ]; then echo "Publish directory exists"; else echo "Publish directory does not exist"; fi
 
-    - name: Download artifact from build job
-      uses: actions/download-artifact@v4
-      with:
-        name: opencatan
+    - name: Print working directory
+      run: pwd
+
+    - name: List all files and directories
+      run: ls -R
 
     - name: Login via Azure CLI
       uses: azure/login@v1
@@ -67,7 +65,7 @@ jobs:
     - name: Deploy to dev
       if: github.ref == 'refs/heads/dev'
       run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_DEV_WEB_APP_NAME }} --src-path ${{env.DOTNET_ROOT}}/myapp
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_DEV_WEB_APP_NAME }} --src-path ${{env.DOTNET_ROOT}}/myapp/
 
     - name: Deploy to prod
       if: github.ref == 'refs/heads/main'
