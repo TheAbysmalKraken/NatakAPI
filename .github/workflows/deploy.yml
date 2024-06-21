@@ -28,11 +28,14 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
       
-    - name: Build
-      run: dotnet build --no-restore --configuration Release
+    - name: Build (Debug)
+      run: dotnet build --no-restore --configuration Debug
       
     - name: Test
       run: dotnet test --no-build --verbosity normal
+
+    - name: Build (Release)
+      run: dotnet build --no-restore --configuration Release
 
     - name: Publish the project
       run: dotnet publish -c Release --property:PublishDir='${{ github.workspace }}/publish'
