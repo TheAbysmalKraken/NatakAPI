@@ -1,0 +1,51 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: Build and Deploy to Azure
+
+on:
+  push:
+    branches: [ "main","dev" ]
+  pull_request:
+    branches: [ "main","dev" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./Catan
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --no-restore
+      
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+
+    - name: Publish the project
+      run: dotnet publish -c Release -o ${{ github.workspace }}/publish --no-build
+
+    - name: Set Web App Name
+      id: set-webapp-name
+      run: echo "::set-output name=webapp_name::$(if [ '${{ github.ref }}' == 'refs/heads/main' ]; then echo '${{ secrets.AZURE_PROD_WEB_APP_NAME }}'; else echo '${{ secrets.AZURE_DEV_WEB_APP_NAME }}'; fi)"
+
+    - name: Login via Azure CLI
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy to Azure Web App
+      run: |
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ steps.set-webapp-name.outputs.webapp_name }} --src-path ${{ github.workspace }}/publish
