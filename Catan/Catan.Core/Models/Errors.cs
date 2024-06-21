@@ -68,4 +68,14 @@ public static class Errors
         HttpStatusCode.BadRequest,
         "Catan.CannotMakeTradeOffer",
         "Player cannot make the specified trade offer at this time.");
+
+    public static readonly Error NoTradeOfferToRespondTo = new(
+        HttpStatusCode.BadRequest,
+        "Catan.NoTradeOfferToRespondTo",
+        "Player cannot respond to a trade offer as there is none active.");
+
+    public static readonly Error CannotRespondToTradeOffer = new(
+        HttpStatusCode.BadRequest,
+        "Catan.CannotRespondToTradeOffer",
+        "Player cannot respond to the trade offer at this time.");
 }

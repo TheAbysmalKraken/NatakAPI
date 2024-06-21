@@ -79,6 +79,8 @@ public class Game
 
     public bool HasPlayedDevelopmentCardThisTurn => developmentCardPlayedThisTurn;
 
+    public TradeOffer TradeOffer => tradeOffer;
+
     public GamePhase GamePhase { get; private set; }
 
     public GameSubPhase GameSubPhase { get; private set; }

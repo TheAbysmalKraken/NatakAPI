@@ -17,6 +17,7 @@ using Catan.Core.GameActions.PlayKnightCard;
 using Catan.Core.GameActions.PlayMonopolyCard;
 using Catan.Core.GameActions.PlayRoadBuildingCard;
 using Catan.Core.GameActions.PlayYearOfPlentyCard;
+using Catan.Core.GameActions.RespondToTradeOffer;
 using Catan.Core.GameActions.RollDice;
 using Catan.Core.GameActions.StealResource;
 using Catan.Core.GameActions.TradeWithBank;
@@ -59,6 +60,7 @@ public static class Endpoints
         builder.MapPost("{gameId}/trade/bank", TradeWithBankAsync);
         builder.MapPost("{gameId}/{playerColour}/embargo-player", EmbargoPlayerAsync);
         builder.MapPost("{gameId}/trade/player", MakeTradeOfferAsync);
+        builder.MapPost("{gameId}/trade/player/{accept}", RespondToTradeOfferAsync);
 
         return builder;
     }
@@ -506,6 +508,30 @@ public static class Endpoints
                 gameId,
                 request.Offer,
                 request.Request);
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> RespondToTradeOfferAsync(
+        ISender sender,
+        string gameId,
+        int playerColour,
+        bool accept,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new RespondToTradeOfferCommand(
+                gameId,
+                playerColour,
+                accept);
 
             var result = await sender.Send(command, cancellationToken);
 
