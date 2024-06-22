@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./Catan/Catan.API
+        working-directory: ./Catan
 
     steps:
     - uses: actions/checkout@v4
@@ -37,16 +37,13 @@ jobs:
       run: dotnet restore
       
     - name: Test
-      run: dotnet test --verbosity normal ./..
+      run: dotnet test --verbosity normal
 
     - name: Build (Release)
-      run: dotnet build --no-restore -c Release
+      run: dotnet build Catan.sln --no-restore --configuration Release
 
     - name: Publish the project
-      run: dotnet publish -c Release -r linux-x64 -o ./publish --self-contained -p:PublishReadyToRun=true
-
-    - name: Zip
-      run: zip -r ./openCatan.zip ./publish
+      run: dotnet publish Catan.API/Catan.API.csproj -c Release -o ./publish
       
     - name: Login via Azure CLI
       uses: azure/login@v1
@@ -58,7 +55,7 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ secrets.AZURE_DEV_WEB_APP_NAME }}
-        package: ./openCatan.zip
+        package: ./publish
         resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
         
     - name: Deploy to prod
@@ -66,7 +63,7 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ secrets.AZURE_DEV_WEB_APP_NAME }}
-        package: ./openCatan.zip
+        package: ./publish
         resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
     
     - name: Logout
