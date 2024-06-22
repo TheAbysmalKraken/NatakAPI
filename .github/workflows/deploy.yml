@@ -46,7 +46,7 @@ jobs:
       run: dotnet publish -c Release -r linux-x64 -o ./publish --self-contained -p:PublishReadyToRun=true
 
     - name: Zip
-      run: zip -r openCatan.zip ./publish
+      run: zip -r ./openCatan.zip ./publish
       
     - name: Login via Azure CLI
       uses: azure/login@v1
@@ -58,7 +58,7 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ secrets.AZURE_DEV_WEB_APP_NAME }}
-        package: openCatan.zip
+        package: ./openCatan.zip
         resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
         
     - name: Deploy to prod
@@ -66,7 +66,7 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ secrets.AZURE_DEV_WEB_APP_NAME }}
-        package: openCatan.zip
+        package: ./openCatan.zip
         resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
     
     - name: Logout
