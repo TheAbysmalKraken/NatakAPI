@@ -40,17 +40,14 @@ jobs:
       run: dotnet test --verbosity normal ./..
 
     - name: Build (Release)
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build --no-restore --c Release
 
     - name: Publish the project
-      run: dotnet publish -c Release -o ${{ github.workspace }}/publish
+      run: dotnet publish -c Release -r linux-x64 -o ${{ github.workspace }}/publish --self-contained -p:PublishReadyToRun=true
 
     - name: Zip
       run: zip -r openCatan.zip ${{ github.workspace }}/publish
-
-    - name: Check if publish directory exists
-      run: if [ -d "${{ github.workspace }}/publish" ]; then echo "Publish directory exists"; else echo "Publish directory does not exist"; fi
-
+      
     - name: Login via Azure CLI
       uses: azure/login@v1
       with:
