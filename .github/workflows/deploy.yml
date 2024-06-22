@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./Catan
+        working-directory: ./Catan/Catan.API
 
     steps:
     - uses: actions/checkout@v4
@@ -37,16 +37,16 @@ jobs:
       run: dotnet restore
       
     - name: Test
-      run: dotnet test --verbosity normal
+      run: dotnet test --verbosity normal ./..
 
     - name: Build (Release)
       run: dotnet build --no-restore -c Release
 
     - name: Publish the project
-      run: dotnet publish -c Release -r linux-x64 -o ${{ github.workspace }}/publish --self-contained -p:PublishReadyToRun=true
+      run: dotnet publish -c Release -r linux-x64 --self-contained -p:PublishReadyToRun=true
 
     - name: Zip
-      run: zip -r openCatan.zip ${{ github.workspace }}/publish
+      run: zip -r openCatan.zip
       
     - name: Login via Azure CLI
       uses: azure/login@v1
@@ -56,12 +56,12 @@ jobs:
     - name: Deploy to dev
       if: github.ref == 'refs/heads/dev'
       run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_DEV_WEB_APP_NAME }} --src-path openCatan.zip --type zip --async true
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_DEV_WEB_APP_NAME }} --src-path openCatan.zip --async true
 
     - name: Deploy to prod
       if: github.ref == 'refs/heads/main'
       run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_PROD_WEB_APP_NAME }} --src-path openCatan.zip --type zip --async true
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_PROD_WEB_APP_NAME }} --src-path openCatan.zip --async true
 
     - name: Logout
       run: |
