@@ -55,14 +55,20 @@ jobs:
 
     - name: Deploy to dev
       if: github.ref == 'refs/heads/dev'
-      run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_DEV_WEB_APP_NAME }} --src-path openCatan.zip --async true
-
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.AZURE_DEV_WEB_APP_NAME }}
+        package: openCatan.zip
+        resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        
     - name: Deploy to prod
       if: github.ref == 'refs/heads/main'
-      run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_PROD_WEB_APP_NAME }} --src-path openCatan.zip --async true
-
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.AZURE_DEV_WEB_APP_NAME }}
+        package: openCatan.zip
+        resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
+    
     - name: Logout
       run: |
         az logout
