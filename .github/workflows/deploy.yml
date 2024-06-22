@@ -8,14 +8,13 @@ on:
     branches: [ "main","dev" ]
   pull_request:
     branches: [ "main","dev" ]
+
+env:
+  AZURE_WEBAPP_PACKAGE_PATH: "./publish"
     
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ./Catan
 
     steps:
     - uses: actions/checkout@v4
@@ -40,13 +39,10 @@ jobs:
       run: dotnet test --verbosity normal
 
     - name: Build (Release)
-      run: dotnet build Catan.sln --no-restore --configuration Release
+      run: dotnet build ./Catan.sln --no-restore -c Release
 
     - name: Publish the project
-      run: dotnet publish Catan.API/Catan.API.csproj -c Release -o ${{ github.workspace }}/publish
-
-    - name: Zip package
-      run: zip -r opencatan.zip ${{ github.workspace }}/publish
+      run: dotnet publish ./Catan.sln --no-build -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
       
     - name: Login via Azure CLI
       uses: azure/login@v1
@@ -56,12 +52,12 @@ jobs:
     - name: Deploy to dev
       if: github.ref == 'refs/heads/dev'
       run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_DEV_WEB_APP_NAME }} --src-path opencatan.zip --type zip --async true
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_DEV_WEB_APP_NAME }} --src-path '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}' --async true
 
     - name: Deploy to prod
       if: github.ref == 'refs/heads/main'
       run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_PROD_WEB_APP_NAME }} --src-path opencatan.zip --type zip --async true
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_PROD_WEB_APP_NAME }} --src-path '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}' --async true
     
     - name: Logout
       run: |
