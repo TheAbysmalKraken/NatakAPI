@@ -46,7 +46,7 @@ jobs:
       run: dotnet build ./Catan.sln --no-restore -c Release
 
     - name: Publish the project
-      run: dotnet publish ./Catan.sln --no-build -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
+      run: dotnet publish ./Catan.API/Catan.API.csproj --no-build -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
       
     - name: Login via Azure CLI
       uses: azure/login@v1
