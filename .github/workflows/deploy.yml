@@ -40,7 +40,7 @@ jobs:
       run: dotnet test --verbosity normal ./..
 
     - name: Build (Release)
-      run: dotnet build --no-restore --c Release
+      run: dotnet build --no-restore -c Release
 
     - name: Publish the project
       run: dotnet publish -c Release -r linux-x64 -o ${{ github.workspace }}/publish --self-contained -p:PublishReadyToRun=true
