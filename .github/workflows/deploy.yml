@@ -44,6 +44,9 @@ jobs:
 
     - name: Publish the project
       run: dotnet publish Catan.API/Catan.API.csproj -c Release -o ${{ github.workspace }}/publish
+
+    - name: Zip package
+      run: zip -r opencatan.zip ${{ github.workspace }}/publish
       
     - name: Login via Azure CLI
       uses: azure/login@v1
@@ -53,12 +56,12 @@ jobs:
     - name: Deploy to dev
       if: github.ref == 'refs/heads/dev'
       run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_DEV_WEB_APP_NAME }} --src-path ${{ github.workspace }}/publish --type zip --async true
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_DEV_WEB_APP_NAME }} --src-path opencatan.zip --type zip --async true
 
     - name: Deploy to prod
       if: github.ref == 'refs/heads/main'
       run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_PROD_WEB_APP_NAME }} --src-path ${{ github.workspace }}/publish --type zip --async true
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_PROD_WEB_APP_NAME }} --src-path opencatan.zip --type zip --async true
     
     - name: Logout
       run: |
