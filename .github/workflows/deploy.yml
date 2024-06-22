@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./Catan/Catan.API
+        working-directory: ./Catan
 
     steps:
     - uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
       run: dotnet restore
       
     - name: Test
-      run: dotnet test --verbosity normal ./..
+      run: dotnet test --verbosity normal
 
     - name: Build (Release)
       run: dotnet build --no-restore -c Release
