@@ -49,7 +49,7 @@ jobs:
       run: dotnet publish ./Catan.API/Catan.API.csproj --no-build -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
 
     - name: Zip package
-      run: zip -r opencatan.zip '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}' 
+      run: zip -r ./opencatan.zip '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}' 
       
     - name: Login via Azure CLI
       uses: azure/login@v1
@@ -62,7 +62,7 @@ jobs:
       with:
         app-name: ${{ secrets.AZURE_DEV_WEB_APP_NAME }}
         publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-        package: opencatan.zip
+        package: ./opencatan.zip
 
     - name: Deploy to prod
       if: github.ref == 'refs/heads/main'
@@ -70,7 +70,7 @@ jobs:
       with:
         app-name: ${{ secrets.AZURE_PROD_WEB_APP_NAME }}
         publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-        package: opencatan.zip
+        package: ./opencatan.zip
       
     - name: Logout
       run: |
