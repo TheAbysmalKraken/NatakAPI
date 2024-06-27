@@ -94,6 +94,9 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: ${{ env.ARTIFACT_NAME }}
+
+    - name: List downloaded contents
+      run: ls -R
         
     - name: Login via Azure CLI
       uses: azure/login@v1
