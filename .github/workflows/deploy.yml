@@ -1,7 +1,7 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: Build and Deploy to Azure
+name: Catan API CI/CD
 
 on:
   push:
@@ -13,7 +13,7 @@ env:
   AZURE_WEBAPP_PACKAGE_PATH: "./publish"
     
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     defaults:
@@ -42,20 +42,45 @@ jobs:
     - name: Test
       run: dotnet test --verbosity normal
 
+  publish:
+    needs: build-and-test
+    if: github.event_name = 'push'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./Catan
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Set up dependency caching for faster builds
+      uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
     - name: Build (Release)
-      run: dotnet build ./Catan.sln --no-restore -c Release
+      run: dotnet build ./Catan.sln -c Release
 
     - name: Publish the project
       run: dotnet publish ./Catan.API/Catan.API.csproj --no-build -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: publish-artifact
-        path: './Catan/${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
+        path: 'Catan/${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
         
   deploy:
-    needs: build
+    needs: publish
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
@@ -65,7 +90,7 @@ jobs:
 
     steps:
     - name: Download artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: publish-artifact
         
