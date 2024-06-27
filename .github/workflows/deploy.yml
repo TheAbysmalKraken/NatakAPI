@@ -47,7 +47,28 @@ jobs:
 
     - name: Publish the project
       run: dotnet publish ./Catan.API/Catan.API.csproj --no-build -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
-      
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: publish-artifact
+        path: './Catan/${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
+        
+  deploy:
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./Catan
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: publish-artifact
+        
     - name: Login via Azure CLI
       uses: azure/login@v1
       with:
