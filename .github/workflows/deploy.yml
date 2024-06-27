@@ -15,6 +15,7 @@ env:
     
 jobs:
   build-and-test:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     defaults:
@@ -44,7 +45,6 @@ jobs:
       run: dotnet test --verbosity normal
 
   publish:
-    needs: build-and-test
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
