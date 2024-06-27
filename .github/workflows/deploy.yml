@@ -85,11 +85,9 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./Catan
-
     steps:
+    - uses: actions/checkout@v4
+    
     - name: Download artifact
       uses: actions/download-artifact@v4
       with:
@@ -109,7 +107,7 @@ jobs:
       with:
         app-name: ${{ secrets.AZURE_DEV_WEB_APP_NAME }}
         publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-        package: ./Catan/${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
     - name: Deploy to prod
       if: github.ref == 'refs/heads/main'
@@ -117,7 +115,7 @@ jobs:
       with:
         app-name: ${{ secrets.AZURE_PROD_WEB_APP_NAME }}
         publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-        package: ./Catan/${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
       
     - name: Logout
       run: |
