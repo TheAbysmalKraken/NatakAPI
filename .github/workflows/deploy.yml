@@ -106,7 +106,7 @@ jobs:
       with:
         app-name: ${{ secrets.AZURE_DEV_WEB_APP_NAME }}
         publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-        package: ./${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        package: ./Catan/${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
     - name: Deploy to prod
       if: github.ref == 'refs/heads/main'
@@ -114,7 +114,7 @@ jobs:
       with:
         app-name: ${{ secrets.AZURE_PROD_WEB_APP_NAME }}
         publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-        package: ./${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        package: ./Catan/${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
       
     - name: Logout
       run: |
