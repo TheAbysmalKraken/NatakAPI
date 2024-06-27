@@ -97,9 +97,6 @@ jobs:
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.ARTIFACT_PATH }}
-
-    - name: List downloaded contents
-      run: ls -R
         
     - name: Login via Azure CLI
       uses: azure/login@v1
