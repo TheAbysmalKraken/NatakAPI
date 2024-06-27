@@ -10,7 +10,7 @@ on:
     branches: [ "main","dev" ]
 
 env:
-  AZURE_WEBAPP_PACKAGE_PATH: "./publish"
+  AZURE_WEBAPP_PACKAGE_PATH: "publish"
     
 jobs:
   build-and-test:
