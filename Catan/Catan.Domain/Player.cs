@@ -189,6 +189,7 @@ public class Player(PlayerColour colour)
         resourceCards[ResourceType.Ore] -= 3;
 
         RemainingCities--;
+        RemainingSettlements++;
 
         victoryPointsFromBuildings++;
     }
