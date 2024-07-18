@@ -45,7 +45,7 @@ public sealed class GameResponse
     public required Dictionary<int, int> RemainingResourceCards { get; init; }
 
     [JsonPropertyName("remainingDevelopmentCards")]
-    public required List<int> RemainingDevelopmentCards { get; init; }
+    public required int RemainingDevelopmentCards { get; init; }
 
     [JsonPropertyName("tradeOffer")]
     public required TradeOfferResponse TradeOffer { get; init; }
@@ -84,9 +84,7 @@ public sealed class GameResponse
             RemainingResourceCards = game.GetRemainingResourceCards()
                 .Select(kvp => new KeyValuePair<int, int>((int)kvp.Key, kvp.Value))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
-            RemainingDevelopmentCards = game.GetRemainingDevelopmentCards()
-                .Select(dc => (int)dc)
-                .ToList(),
+            RemainingDevelopmentCards = game.GetRemainingDevelopmentCards().Count,
             TradeOffer = TradeOfferResponse.FromDomain(game.TradeOffer)
         };
     }
