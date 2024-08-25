@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Catan.Core.Mappers;
 using Catan.Domain;
 
 namespace Catan.Core.Models;
@@ -14,11 +15,11 @@ public sealed class GameResponse
     [JsonPropertyName("currentPlayerColour")]
     public required int CurrentPlayerColour { get; init; }
 
-    [JsonPropertyName("gamePhase")]
-    public required int GamePhase { get; init; }
+    [JsonPropertyName("gameState")]
+    public required int GameState { get; init; }
 
-    [JsonPropertyName("gameSubPhase")]
-    public required int GameSubPhase { get; init; }
+    [JsonPropertyName("actions")]
+    public required List<int> Actions { get; init; }
 
     [JsonPropertyName("player")]
     public required DetailedPlayerResponse Player { get; init; }
@@ -64,11 +65,16 @@ public sealed class GameResponse
             Id = game.Id,
             PlayerCount = game.PlayerCount,
             CurrentPlayerColour = (int)game.CurrentPlayer.Colour,
-            GamePhase = (int)game.GamePhase,
-            GameSubPhase = (int)game.GameSubPhase,
+            GameState = (int)game.CurrentState,
+            Actions = game.Actions
+                .Select(ActionTypeResponseMapper.FromDomain)
+                .Where(action => action is not null)
+                .Select(action => (int)action!)
+                .Distinct()
+                .ToList(),
             Player = DetailedPlayerResponse.FromDomain(chosenPlayer),
             Players = allPlayers
-                .Select(p => PlayerResponse.FromDomain(p))
+                .Select(PlayerResponse.FromDomain)
                 .ToList(),
             Board = BoardResponse.FromDomain(game.Board),
             Winner = game.WinnerIndex != null

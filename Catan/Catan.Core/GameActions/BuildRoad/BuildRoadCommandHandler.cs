@@ -16,21 +16,14 @@ internal sealed class BuildRoadCommandHandler(IActiveGameCache cache) :
             return Result.Failure(Errors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.BuildRoad
-        && game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
+        bool buildSuccess;
 
-        bool buildSuccess = false;
-
-        if (game.GamePhase == GamePhase.FirstRoundSetup
-        || game.GamePhase == GamePhase.SecondRoundSetup)
+        if (game.CurrentState == GameState.FirstRoad
+        || game.CurrentState == GameState.SecondRoad)
         {
             buildSuccess = game.BuildFreeRoad(request.FirstPoint, request.SecondPoint);
         }
-        else if (game.GamePhase == GamePhase.Main)
+        else
         {
             buildSuccess = game.BuildRoad(request.FirstPoint, request.SecondPoint);
         }

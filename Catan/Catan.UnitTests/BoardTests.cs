@@ -2,10 +2,10 @@
 
 namespace Catan.Domain.UnitTests;
 
-public sealed class CatanBoardTests
+public sealed class BoardTests
 {
     [Fact]
-    public void CreateCatanBoard_EmptyTilesAreNull()
+    public void CreateBoard_EmptyTilesAreNull()
     {
         // Act
         var board = new Board();
@@ -21,7 +21,7 @@ public sealed class CatanBoardTests
     }
 
     [Fact]
-    public void CreateCatanBoard_CorrectResourceCounts()
+    public void CreateBoard_CorrectResourceCounts()
     {
         // Arrange
         var resourceCounts = DomainConstants.GetTileResourceTypeTotals();
@@ -48,7 +48,7 @@ public sealed class CatanBoardTests
     }
 
     [Fact]
-    public void CreateCatanBoard_CorrectActivationNumberCounts()
+    public void CreateBoard_CorrectActivationNumberCounts()
     {
         // Arrange
         var activationNumberCounts = DomainConstants.GetTileActivationNumberTotals();
@@ -82,7 +82,7 @@ public sealed class CatanBoardTests
     }
 
     [Fact]
-    public void CreateCatanBoard_EmptySettlementsAndCitiesAreNull()
+    public void CreateBoard_EmptySettlementsAndCitiesAreNull()
     {
         // Act
         var board = new Board();
@@ -112,7 +112,7 @@ public sealed class CatanBoardTests
     }
 
     [Fact]
-    public void CreateCatanBoard_IndividualRoadPointsAreAllValid()
+    public void CreateBoard_IndividualRoadPointsAreAllValid()
     {
         // Act
         var board = new Board();
@@ -155,7 +155,7 @@ public sealed class CatanBoardTests
     [InlineData(5, 0, 5, 1)]
     [InlineData(2, 1, 2, 2)]
     [InlineData(4, 1, 4, 2)]
-    public void CreateCatanBoard_RoadsDoNotExistAcrossTiles(int x1, int y1, int x2, int y2)
+    public void CreateBoard_RoadsDoNotExistAcrossTiles(int x1, int y1, int x2, int y2)
     {
         // Act
         var board = new Board();
@@ -170,7 +170,7 @@ public sealed class CatanBoardTests
     }
 
     [Fact]
-    public void CreateCatanBoard_CorrectNumberOfPorts()
+    public void CreateBoard_CorrectNumberOfPorts()
     {
         // Arrange
         var correctPortLocations = DomainConstants.GetStartingPortPoints();
@@ -184,7 +184,7 @@ public sealed class CatanBoardTests
     }
 
     [Fact]
-    public void CreateCatanBoard_PortsAreAtCorrectLocations()
+    public void CreateBoard_PortsAreAtCorrectLocations()
     {
         // Arrange
         var correctPortLocations = DomainConstants.GetStartingPortPoints();
@@ -202,7 +202,7 @@ public sealed class CatanBoardTests
     }
 
     [Fact]
-    public void CreateCatanBoard_PortsAreCorrectTypes()
+    public void CreateBoard_PortsAreCorrectTypes()
     {
         // Arrange
         var remainingPortTypeTotals = DomainConstants.GetPortTypeTotals();

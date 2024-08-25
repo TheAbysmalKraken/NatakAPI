@@ -26,13 +26,6 @@ internal sealed class StealResourceCommandHandler(
             return Result.Failure(Errors.InvalidPlayerColour);
         }
 
-        if (game.GameSubPhase != GameSubPhase.StealResourceSevenRoll
-        && game.GameSubPhase != GameSubPhase.StealResourceKnightCardBeforeRoll
-        && game.GameSubPhase != GameSubPhase.StealResourceKnightCardAfterRoll)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
         var stealSuccess = game.StealResourceCard(
             victimColour);
 

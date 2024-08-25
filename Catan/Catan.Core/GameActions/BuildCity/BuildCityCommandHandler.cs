@@ -16,12 +16,6 @@ internal sealed class BuildCityCommandHandler(IActiveGameCache cache) :
             return Result.Failure(Errors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
         var buildSuccess = game.BuildCity(request.BuildPoint);
 
         if (!buildSuccess)

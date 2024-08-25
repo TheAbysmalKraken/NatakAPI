@@ -17,6 +17,7 @@ public class Game
     private bool developmentCardPlayedThisTurn;
     private TradeOffer tradeOffer;
     private readonly Random random = new();
+    private readonly GameStateManager gameStateManager;
 
     public Game(int numberOfPlayers, int? seed = null)
     {
@@ -41,9 +42,7 @@ public class Game
 
         knightsRequiredForLargestArmy = 3;
         developmentCardPlayedThisTurn = false;
-
-        GamePhase = GamePhase.FirstRoundSetup;
-        GameSubPhase = GameSubPhase.BuildSettlement;
+        gameStateManager = new GameStateManager();
         PlayerCount = numberOfPlayers;
         tradeOffer = TradeOffer.Inactive();
     }
@@ -76,9 +75,9 @@ public class Game
 
     public TradeOffer TradeOffer => tradeOffer;
 
-    public GamePhase GamePhase { get; private set; }
+    public GameState CurrentState => gameStateManager.CurrentState;
 
-    public GameSubPhase GameSubPhase { get; private set; }
+    public List<ActionType> Actions => gameStateManager.GetValidActions();
 
     public List<Player> GetPlayers() => players;
 
@@ -108,23 +107,22 @@ public class Game
 
         CurrentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
 
-        if (GamePhase == GamePhase.SecondRoundSetup)
+        if (CurrentState == GameState.SecondSettlement)
         {
             if (currentPlayerIndex == 0)
             {
-                GamePhase = GamePhase.Main;
-                GameSubPhase = GameSubPhase.RollOrPlayDevelopmentCard;
+                gameStateManager.MoveState(ActionType.SecondSetupFinished);
             }
             else
             {
                 currentPlayerIndex = (currentPlayerIndex - 1) % players.Count;
             }
         }
-        else if (GamePhase == GamePhase.FirstRoundSetup)
+        else if (CurrentState == GameState.FirstSettlement)
         {
             if (currentPlayerIndex == players.Count - 1)
             {
-                GamePhase = GamePhase.SecondRoundSetup;
+                gameStateManager.MoveState(ActionType.FirstSetupFinished);
             }
             else
             {
@@ -134,8 +132,7 @@ public class Game
         else
         {
             currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
-            GamePhase = GamePhase.Main;
-            GameSubPhase = GameSubPhase.RollOrPlayDevelopmentCard;
+            gameStateManager.MoveState(ActionType.EndTurn);
         }
     }
 
@@ -153,7 +150,7 @@ public class Game
 
         if (diceTotal == 7)
         {
-            GameSubPhase = GameSubPhase.DiscardResources;
+            gameStateManager.MoveState(ActionType.RollSeven);
 
             TryFinishDiscardingResources();
 
@@ -206,8 +203,6 @@ public class Game
                 }
             }
         }
-
-        GameSubPhase = GameSubPhase.TradeOrBuild;
 
         return true;
     }
@@ -332,15 +327,7 @@ public class Game
 
         var originalRobberPoint = Board.RobberPosition;
 
-        if (GameSubPhase == GameSubPhase.RollOrPlayDevelopmentCard)
-        {
-            GameSubPhase = GameSubPhase.MoveRobberKnightCardBeforeRoll;
-        }
-        else if (GameSubPhase == GameSubPhase.TradeOrBuild
-        || GameSubPhase == GameSubPhase.PlayTurn)
-        {
-            GameSubPhase = GameSubPhase.MoveRobberKnightCardAfterRoll;
-        }
+        gameStateManager.MoveState(ActionType.PlayKnightCard);
 
         var moveRobberSuccess = MoveRobber(robberPoint);
 
@@ -533,12 +520,7 @@ public class Game
         CurrentPlayer.BuyFreeRoad();
         Board.PlaceRoad(point1, point2, CurrentPlayer.Colour);
 
-        if (GamePhase == GamePhase.FirstRoundSetup
-        || GamePhase == GamePhase.SecondRoundSetup)
-        {
-            GameSubPhase = GameSubPhase.BuildSettlement;
-            NextPlayer();
-        }
+        gameStateManager.MoveState(ActionType.BuildRoad);
 
         return true;
     }
@@ -570,16 +552,12 @@ public class Game
         CurrentPlayer.BuyFreeSettlement();
         Board.PlaceHouse(point, CurrentPlayer.Colour, true);
 
-        if (GamePhase == GamePhase.SecondRoundSetup)
+        if (CurrentState == GameState.SecondSettlement)
         {
             GiveResourcesSurroundingHouse(point);
         }
 
-        if (GamePhase == GamePhase.FirstRoundSetup
-        || GamePhase == GamePhase.SecondRoundSetup)
-        {
-            GameSubPhase = GameSubPhase.BuildRoad;
-        }
+        gameStateManager.MoveState(ActionType.BuildSettlement);
 
         return true;
     }
@@ -625,14 +603,7 @@ public class Game
 
         Board.MoveRobberToPoint(point);
 
-        if (GameSubPhase == GameSubPhase.MoveRobberKnightCardBeforeRoll)
-        {
-            GameSubPhase = GameSubPhase.StealResourceKnightCardBeforeRoll;
-        }
-        else if (GameSubPhase == GameSubPhase.MoveRobberSevenRoll)
-        {
-            GameSubPhase = GameSubPhase.StealResourceKnightCardAfterRoll;
-        }
+        gameStateManager.MoveState(ActionType.MoveRobber);
 
         return true;
     }
@@ -651,15 +622,6 @@ public class Game
         if (stolenCard != null)
         {
             CurrentPlayer.AddResourceCard(stolenCard.Value);
-        }
-
-        if (GameSubPhase == GameSubPhase.StealResourceKnightCardBeforeRoll)
-        {
-            GameSubPhase = GameSubPhase.Roll;
-        }
-        else if (GameSubPhase == GameSubPhase.StealResourceKnightCardAfterRoll)
-        {
-            GameSubPhase = GameSubPhase.TradeOrBuild;
         }
 
         return true;
@@ -693,7 +655,7 @@ public class Game
     {
         if (!players.Any(p => p.GetResourceCards().Count > 7))
         {
-            GameSubPhase = GameSubPhase.MoveRobberSevenRoll;
+            gameStateManager.MoveState(ActionType.AllResourcesDiscarded);
         }
     }
 

@@ -16,21 +16,14 @@ internal sealed class BuildSettlementCommandHandler(IActiveGameCache cache) :
             return Result.Failure(Errors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.BuildSettlement
-        && game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
+        bool buildSuccess;
 
-        bool buildSuccess = false;
-
-        if (game.GamePhase == GamePhase.FirstRoundSetup
-        || game.GamePhase == GamePhase.SecondRoundSetup)
+        if (game.CurrentState == GameState.FirstSettlement
+        || game.CurrentState == GameState.SecondSettlement)
         {
             buildSuccess = game.BuildFreeSettlement(request.BuildPoint);
         }
-        else if (game.GamePhase == GamePhase.Main)
+        else
         {
             buildSuccess = game.BuildSettlement(request.BuildPoint);
         }

@@ -19,13 +19,6 @@ internal sealed class PlayMonopolyCardCommandHandler(
             return Result.Failure(Errors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild
-        && game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
         if (game.HasPlayedDevelopmentCardThisTurn)
         {
             return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);

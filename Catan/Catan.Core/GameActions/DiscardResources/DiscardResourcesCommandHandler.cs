@@ -19,11 +19,6 @@ internal sealed class DiscardResourcesCommandHandler(
             return Result.Failure(Errors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.DiscardResources)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
         var catanResources = request.Resources
             .ToDictionary(kvp =>
                 kvp.Key, kvp => kvp.Value);

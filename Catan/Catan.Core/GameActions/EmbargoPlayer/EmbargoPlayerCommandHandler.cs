@@ -28,11 +28,6 @@ internal sealed class EmbargoPlayerCommandHandler(
             return Result.Failure(Errors.InvalidPlayerColour);
         }
 
-        if (game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
         var embargoSuccess = game.EmbargoPlayer(
             playerColour,
             playerColourToEmbargo);

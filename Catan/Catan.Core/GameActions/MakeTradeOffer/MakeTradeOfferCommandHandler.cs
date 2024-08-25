@@ -19,11 +19,6 @@ internal sealed class MakeTradeOfferCommandHandler(
             return Result.Failure(Errors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
         var tradeSuccess = game.MakeTradeOffer(
             request.Offer,
             request.Request);

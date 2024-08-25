@@ -19,13 +19,6 @@ internal sealed class MoveRobberCommandHandler(
             return Result.Failure(Errors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.MoveRobberSevenRoll
-        && game.GameSubPhase != GameSubPhase.MoveRobberKnightCardBeforeRoll
-        && game.GameSubPhase != GameSubPhase.MoveRobberKnightCardAfterRoll)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
         var moveSuccess = game.MoveRobber(request.MoveRobberTo);
 
         if (!moveSuccess)

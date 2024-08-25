@@ -16,12 +16,6 @@ internal sealed class EndTurnCommandHandler(IActiveGameCache cache) :
             return Result.Failure(Errors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
         game.NextPlayer();
         await cache.UpsetAsync(
             request.GameId,

@@ -19,12 +19,6 @@ internal sealed class BuyDevelopmentCardCommandHandler(
             return Result.Failure(Errors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
         var buySuccess = game.BuyDevelopmentCard();
 
         if (!buySuccess)

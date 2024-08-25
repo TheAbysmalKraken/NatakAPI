@@ -24,11 +24,6 @@ internal sealed class RespondToTradeOfferCommandHandler(
             return Result.Failure(Errors.NoTradeOfferToRespondTo);
         }
 
-        if (game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
         var playerColour = (PlayerColour)request.PlayerColour;
 
         if (request.Accept)

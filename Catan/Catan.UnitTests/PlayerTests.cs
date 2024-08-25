@@ -2,11 +2,11 @@
 
 namespace Catan.Domain.UnitTests;
 
-public class CatanPlayerTests
+public class PlayerTests
 {
     private readonly Player testPlayer;
 
-    public CatanPlayerTests()
+    public PlayerTests()
     {
         testPlayer = new(PlayerColour.Red);
     }

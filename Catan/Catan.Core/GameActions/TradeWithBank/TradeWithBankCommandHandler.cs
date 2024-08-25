@@ -19,11 +19,6 @@ internal sealed class TradeWithBankCommandHandler(
             return Result.Failure(Errors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
         var resourceToGive = (ResourceType)request.ResourceToGive;
         var resourceToGet = (ResourceType)request.ResourceToGet;
 

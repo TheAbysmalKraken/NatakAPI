@@ -17,13 +17,6 @@ internal sealed class RollDiceCommandHandler(IActiveGameCache cache) :
                 Errors.GameNotFound);
         }
 
-        if (game.GamePhase != GamePhase.Main || (game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard
-            && game.GameSubPhase != GameSubPhase.Roll))
-        {
-            return Result.Failure<RollDiceResponse>(
-                Errors.InvalidGamePhase);
-        }
-
         game.RollDiceAndDistributeResourcesToPlayers();
         await cache.UpsetAsync(
             game.Id,

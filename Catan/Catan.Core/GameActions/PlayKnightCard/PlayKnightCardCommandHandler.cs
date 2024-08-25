@@ -26,13 +26,6 @@ internal sealed class PlayKnightCardCommandHandler(
             return Result.Failure(Errors.InvalidPlayerColour);
         }
 
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild
-        && game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
         if (game.HasPlayedDevelopmentCardThisTurn)
         {
             return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);
