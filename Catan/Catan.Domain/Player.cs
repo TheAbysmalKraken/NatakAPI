@@ -1,4 +1,5 @@
 ﻿using Catan.Domain.Enums;
+using Catan.Domain.Errors;
 
 namespace Catan.Domain;
 
@@ -61,29 +62,48 @@ public class Player(PlayerColour colour)
 
     public void RemoveLongestRoadCard() => HasLongestRoad = false;
 
-    public void EmbargoPlayer(PlayerColour colour)
+    public Result EmbargoPlayer(PlayerColour colour)
     {
-        if (colour == PlayerColour.None || colour == Colour)
+        if (colour == Colour)
         {
-            throw new ArgumentException("Player cannot embargo themselves or no player.");
+            return Result.Failure(PlayerErrors.CannotEmbargoSelf);
+        }
+
+        if (colour == PlayerColour.None)
+        {
+            return Result.Failure(PlayerErrors.InvalidPlayerColour);
         }
 
         if (embargoedPlayers.Contains(colour))
         {
-            return;
+            return Result.Failure(PlayerErrors.AlreadyEmbargoed);
         }
 
         embargoedPlayers.Add(colour);
+
+        return Result.Success();
     }
 
-    public void RemoveEmbargo(PlayerColour colour)
+    public Result RemoveEmbargo(PlayerColour colour)
     {
-        if (colour == PlayerColour.None || colour == Colour)
+        if (colour == Colour)
         {
-            throw new ArgumentException("Player cannot remove embargo from themselves or no player.");
+            return Result.Failure(PlayerErrors.CannotEmbargoSelf);
+        }
+
+        if (colour == PlayerColour.None)
+        {
+            return Result.Failure(PlayerErrors.InvalidPlayerColour);
+        }
+
+        if (!embargoedPlayers.Contains(colour))
+        {
+            return Result.Failure(PlayerErrors.NotEmbargoed);
         }
 
         embargoedPlayers.Remove(colour);
+
+        return Result.Success();
     }
 
     public bool CanTradeWithPlayer(PlayerColour colour)
@@ -91,14 +111,14 @@ public class Player(PlayerColour colour)
         return !embargoedPlayers.Contains(colour) && colour != Colour;
     }
 
-    public bool CanMakeTradeOffer(Dictionary<ResourceType, int> offer)
+    public Result CanMakeTradeOffer(Dictionary<ResourceType, int> offer)
     {
         if (!HasAdequateResourceCardsOfTypes(offer))
         {
-            return false;
+            return Result.Failure(PlayerErrors.MissingResources);
         }
 
-        return true;
+        return Result.Success();
     }
 
     public bool CanBuyRoad()
@@ -206,8 +226,13 @@ public class Player(PlayerColour colour)
         return true;
     }
 
-    public void BuyDevelopmentCard(DevelopmentCardType type)
+    public Result BuyDevelopmentCard(DevelopmentCardType type)
     {
+        if (!CanBuyDevelopmentCard())
+        {
+            return Result.Failure(PlayerErrors.MissingResources);
+        }
+
         if (type == DevelopmentCardType.VictoryPoint)
         {
             victoryPointDevelopmentCardCount++;
@@ -220,6 +245,8 @@ public class Player(PlayerColour colour)
 
             developmentCardsOnHold[type]++;
         }
+
+        return Result.Success();
     }
 
     public bool CanTradeTwoToOneOfCardType(ResourceType type)
@@ -232,12 +259,19 @@ public class Player(PlayerColour colour)
         return true;
     }
 
-    public void TradeTwoToOne(
+    public Result TradeTwoToOne(
         ResourceType typeToGive,
         ResourceType typeToReceive)
     {
+        if (!CanTradeTwoToOneOfCardType(typeToGive))
+        {
+            return Result.Failure(PlayerErrors.MissingResources);
+        }
+
         resourceCards[typeToGive] -= 2;
         resourceCards[typeToReceive]++;
+
+        return Result.Success();
     }
 
     public bool CanTradeThreeToOneOfCardType(ResourceType type)
@@ -250,12 +284,19 @@ public class Player(PlayerColour colour)
         return true;
     }
 
-    public void TradeThreeToOne(
+    public Result TradeThreeToOne(
         ResourceType typeToGive,
         ResourceType typeToReceive)
     {
+        if (!CanTradeThreeToOneOfCardType(typeToGive))
+        {
+            return Result.Failure(PlayerErrors.MissingResources);
+        }
+
         resourceCards[typeToGive] -= 3;
         resourceCards[typeToReceive]++;
+
+        return Result.Success();
     }
 
     public bool CanTradeFourToOneOfCardType(ResourceType type)
@@ -268,12 +309,19 @@ public class Player(PlayerColour colour)
         return true;
     }
 
-    public void TradeFourToOne(
+    public Result TradeFourToOne(
         ResourceType typeToGive,
         ResourceType typeToReceive)
     {
+        if (!CanTradeFourToOneOfCardType(typeToGive))
+        {
+            return Result.Failure(PlayerErrors.MissingResources);
+        }
+
         resourceCards[typeToGive] -= 4;
         resourceCards[typeToReceive]++;
+
+        return Result.Success();
     }
 
     public bool HasAdequateResourceCardsOfTypes(Dictionary<ResourceType, int> cardsToDiscard)
@@ -297,17 +345,19 @@ public class Player(PlayerColour colour)
         }
     }
 
-    public void RemoveResourceCards(Dictionary<ResourceType, int> cardsToDiscard)
+    public Result RemoveResourceCards(Dictionary<ResourceType, int> cardsToDiscard)
     {
         if (!HasAdequateResourceCardsOfTypes(cardsToDiscard))
         {
-            throw new ArgumentException("Player does not have enough of the specified resource cards to discard.");
+            return Result.Failure(PlayerErrors.MissingResources);
         }
 
         foreach (var type in cardsToDiscard.Keys)
         {
             resourceCards[type] -= cardsToDiscard[type];
         }
+
+        return Result.Success();
     }
 
     public bool CanRemoveResourceCard(ResourceType type, int count = 1)
@@ -356,27 +406,28 @@ public class Player(PlayerColour colour)
         }
     }
 
-    public bool CanRemoveDevelopmentCard(DevelopmentCardType type)
-    {
-        if (type == DevelopmentCardType.VictoryPoint
-            || playableDevelopmentCards[type] <= 0)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    public void RemoveDevelopmentCard(DevelopmentCardType type)
+    public Result CanRemoveDevelopmentCard(DevelopmentCardType type)
     {
         if (type == DevelopmentCardType.VictoryPoint)
         {
-            return;
+            return Result.Failure(PlayerErrors.CannotPlayVictoryPointCard);
         }
 
-        if (playableDevelopmentCards[type] == 0)
+        if (playableDevelopmentCards[type] <= 0)
         {
-            return;
+            return Result.Failure(PlayerErrors.NoDevelopmentCardsOfType);
+        }
+
+        return Result.Success();
+    }
+
+    public Result RemoveDevelopmentCard(DevelopmentCardType type)
+    {
+        var canRemoveResult = CanRemoveDevelopmentCard(type);
+
+        if (canRemoveResult.IsFailure)
+        {
+            return canRemoveResult;
         }
 
         if (type == DevelopmentCardType.Knight)
@@ -385,6 +436,8 @@ public class Player(PlayerColour colour)
         }
 
         playableDevelopmentCards[type]--;
+
+        return Result.Success();
     }
 
     private static Dictionary<ResourceType, int> InitialiseResourceCards()

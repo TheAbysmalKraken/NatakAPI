@@ -9,9 +9,9 @@ public static class ActionTypeResponseMapper
     {
         { ActionType.BuildSettlement, ActionTypeResponse.BuildSettlement },
         { ActionType.BuildRoad, ActionTypeResponse.BuildRoad },
+        { ActionType.BuildCity, ActionTypeResponse.BuildCity },
         { ActionType.RollDice, ActionTypeResponse.RollDice },
         { ActionType.EndTurn, ActionTypeResponse.EndTurn },
-        { ActionType.Build, ActionTypeResponse.Build },
         { ActionType.Trade, ActionTypeResponse.Trade },
         { ActionType.PlayKnightCard, ActionTypeResponse.PlayDevelopmentCard },
         { ActionType.PlayRoadBuildingCard, ActionTypeResponse.PlayDevelopmentCard },

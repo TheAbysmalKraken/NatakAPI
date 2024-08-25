@@ -14,6 +14,14 @@ public class PlayerTests
     [Fact]
     public void BuyDevelopmentCard_VictoryPointCardAdded_VictoryPointAddedToCount()
     {
+        // Arrange
+        testPlayer.AddResourceCards(new Dictionary<ResourceType, int>
+        {
+            { ResourceType.Ore, 1 },
+            { ResourceType.Sheep, 1 },
+            { ResourceType.Wheat, 1 }
+        });
+
         // Act
         testPlayer.BuyDevelopmentCard(DevelopmentCardType.VictoryPoint);
 
@@ -28,6 +36,14 @@ public class PlayerTests
     [InlineData(DevelopmentCardType.Monopoly)]
     public void BuyDevelopmentCard_DevelopmentCardAddedToOnHold(DevelopmentCardType cardType)
     {
+        // Arrange
+        testPlayer.AddResourceCards(new Dictionary<ResourceType, int>
+        {
+            { ResourceType.Ore, 1 },
+            { ResourceType.Sheep, 1 },
+            { ResourceType.Wheat, 1 }
+        });
+
         // Act
         testPlayer.BuyDevelopmentCard(cardType);
 
@@ -46,6 +62,13 @@ public class PlayerTests
     {
         // Arrange
         var cardsToAdd = 3;
+
+        testPlayer.AddResourceCards(new Dictionary<ResourceType, int>
+        {
+            { ResourceType.Ore, cardsToAdd },
+            { ResourceType.Sheep, cardsToAdd },
+            { ResourceType.Wheat, cardsToAdd }
+        });
 
         for (var i = 0; i < cardsToAdd; i++)
         {
@@ -70,6 +93,13 @@ public class PlayerTests
         // Arrange
         var cardsToAdd = 3;
 
+        testPlayer.AddResourceCards(new Dictionary<ResourceType, int>
+        {
+            { ResourceType.Ore, cardsToAdd },
+            { ResourceType.Sheep, cardsToAdd },
+            { ResourceType.Wheat, cardsToAdd }
+        });
+
         for (var i = 0; i < cardsToAdd; i++)
         {
             testPlayer.BuyDevelopmentCard(cardType);
@@ -84,32 +114,49 @@ public class PlayerTests
     }
 
     [Fact]
-    public void CanPlayDevelopmentCardOfType_VictoryPointReturnsFalse()
+    public void CanPlayDevelopmentCardOfType_VictoryPointReturnsFailure()
     {
+        // Arrange
+        testPlayer.AddResourceCards(new Dictionary<ResourceType, int>
+        {
+            { ResourceType.Ore, 1 },
+            { ResourceType.Sheep, 1 },
+            { ResourceType.Wheat, 1 }
+        });
+
+        testPlayer.BuyDevelopmentCard(DevelopmentCardType.VictoryPoint);
+
         // Act
-        var canPlay = testPlayer.CanRemoveDevelopmentCard(DevelopmentCardType.VictoryPoint);
+        var result = testPlayer.CanRemoveDevelopmentCard(DevelopmentCardType.VictoryPoint);
 
         // Assert
-        Assert.False(canPlay);
+        Assert.True(result.IsFailure);
     }
 
     [Theory]
     [InlineData(DevelopmentCardType.RoadBuilding)]
     [InlineData(DevelopmentCardType.YearOfPlenty)]
     [InlineData(DevelopmentCardType.Monopoly)]
-    public void CanPlayDevelopmentCardOfType_HasNoneOfThatType_ReturnsFalse(
+    public void CanPlayDevelopmentCardOfType_HasNoneOfThatType_ReturnsFailure(
         DevelopmentCardType cardType)
     {
         // Arrange
+        testPlayer.AddResourceCards(new Dictionary<ResourceType, int>
+        {
+            { ResourceType.Ore, 1 },
+            { ResourceType.Sheep, 1 },
+            { ResourceType.Wheat, 1 }
+        });
+
         testPlayer.BuyDevelopmentCard(DevelopmentCardType.Knight);
         testPlayer.MoveOnHoldDevelopmentCardsToPlayable();
         testPlayer.BuyDevelopmentCard(cardType);
 
         // Act
-        var canPlay = testPlayer.CanRemoveDevelopmentCard(cardType);
+        var result = testPlayer.CanRemoveDevelopmentCard(cardType);
 
         // Assert
-        Assert.False(canPlay);
+        Assert.True(result.IsFailure);
     }
 
     [Theory]
@@ -117,18 +164,25 @@ public class PlayerTests
     [InlineData(DevelopmentCardType.RoadBuilding)]
     [InlineData(DevelopmentCardType.YearOfPlenty)]
     [InlineData(DevelopmentCardType.Monopoly)]
-    public void CanPlayDevelopmentCardOfType_HasSomeOfThatType_ReturnsTrue(
+    public void CanPlayDevelopmentCardOfType_HasSomeOfThatType_ReturnsSuccess(
         DevelopmentCardType cardType)
     {
         // Arrange
+        testPlayer.AddResourceCards(new Dictionary<ResourceType, int>
+        {
+            { ResourceType.Ore, 1 },
+            { ResourceType.Sheep, 1 },
+            { ResourceType.Wheat, 1 }
+        });
+
         testPlayer.BuyDevelopmentCard(cardType);
         testPlayer.MoveOnHoldDevelopmentCardsToPlayable();
 
         // Act
-        var canPlay = testPlayer.CanRemoveDevelopmentCard(cardType);
+        var result = testPlayer.CanRemoveDevelopmentCard(cardType);
 
         // Assert
-        Assert.True(canPlay);
+        Assert.True(result.IsSuccess);
     }
 
     [Theory]
@@ -156,6 +210,13 @@ public class PlayerTests
         DevelopmentCardType cardType)
     {
         // Arrange
+        testPlayer.AddResourceCards(new Dictionary<ResourceType, int>
+        {
+            { ResourceType.Ore, 2 },
+            { ResourceType.Sheep, 2 },
+            { ResourceType.Wheat, 2 }
+        });
+
         testPlayer.BuyDevelopmentCard(cardType);
         testPlayer.BuyDevelopmentCard(cardType);
         testPlayer.MoveOnHoldDevelopmentCardsToPlayable();

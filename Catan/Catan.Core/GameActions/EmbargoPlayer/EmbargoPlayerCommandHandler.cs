@@ -17,25 +17,19 @@ internal sealed class EmbargoPlayerCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
         var playerColour = (PlayerColour)request.PlayerColour;
         var playerColourToEmbargo = (PlayerColour)request.PlayerColourToEmbargo;
 
-        if (!game.ContainsPlayer(playerColour)
-        || !game.ContainsPlayer(playerColourToEmbargo))
-        {
-            return Result.Failure(Errors.InvalidPlayerColour);
-        }
-
-        var embargoSuccess = game.EmbargoPlayer(
+        var result = game.EmbargoPlayer(
             playerColour,
             playerColourToEmbargo);
 
-        if (!embargoSuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.CannotEmbargoPlayer);
+            return result;
         }
 
         await cache.UpsetAsync(

@@ -14,24 +14,24 @@ internal sealed class BuildSettlementCommandHandler(IActiveGameCache cache) :
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        bool buildSuccess;
+        Result result;
 
         if (game.CurrentState == GameState.FirstSettlement
         || game.CurrentState == GameState.SecondSettlement)
         {
-            buildSuccess = game.BuildFreeSettlement(request.BuildPoint);
+            result = game.BuildSettlement(request.BuildPoint, true);
         }
         else
         {
-            buildSuccess = game.BuildSettlement(request.BuildPoint);
+            result = game.BuildSettlement(request.BuildPoint);
         }
 
-        if (!buildSuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.InvalidBuildLocation);
+            return result;
         }
 
         await cache.UpsetAsync(

@@ -235,7 +235,7 @@ public sealed class BoardTests
     }
 
     [Fact]
-    public void CanPlaceRoadBetweenPoints_ReturnsTrue()
+    public void CanPlaceRoadBetweenPoints_ReturnsSuccess()
     {
         // Arrange
         var board = new Board();
@@ -246,37 +246,37 @@ public sealed class BoardTests
         board.PlaceHouse(road.FirstPoint, playerColour, true);
 
         // Act
-        var canPlaceRoad = board.CanPlaceRoadBetweenPoints(road.FirstPoint, road.SecondPoint, playerColour);
+        var result = board.CanPlaceRoadBetweenPoints(road.FirstPoint, road.SecondPoint, playerColour);
 
         // Assert
-        Assert.True(canPlaceRoad);
+        Assert.True(result.IsSuccess);
     }
 
     [Fact]
-    public void CanPlaceRoadBetweenPoints_OutsideOfBoard_ReturnsFalse()
+    public void CanPlaceRoadBetweenPoints_OutsideOfBoard_ReturnsFailure()
     {
         // Arrange
         var board = new Board();
 
         // Act
-        var canPlaceRoad = board.CanPlaceRoadBetweenPoints(new Point(0, 0), new Point(0, 1), PlayerColour.Blue);
+        var result = board.CanPlaceRoadBetweenPoints(new Point(0, 0), new Point(0, 1), PlayerColour.Blue);
 
         // Assert
-        Assert.False(canPlaceRoad);
+        Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void CanPlaceRoadBetweenPoints_ColourIsNone_ReturnsFalse()
+    public void CanPlaceRoadBetweenPoints_ColourIsNone_ReturnsFailure()
     {
         // Arrange
         var board = new Board();
         var road = new Road(PlayerColour.None, new Point(0, 2), new Point(0, 3));
 
         // Act
-        var canPlaceRoad = board.CanPlaceRoadBetweenPoints(road.FirstPoint, road.SecondPoint, PlayerColour.None);
+        var result = board.CanPlaceRoadBetweenPoints(road.FirstPoint, road.SecondPoint, PlayerColour.None);
 
         // Assert
-        Assert.False(canPlaceRoad);
+        Assert.True(result.IsFailure);
     }
 
     [Theory]
@@ -286,7 +286,7 @@ public sealed class BoardTests
     [InlineData(1, 3, 0, 2)]
     [InlineData(3, 1, 5, 1)]
     [InlineData(3, 0, 3, 1)]
-    public void CanPlaceRoadBetweenPoints_PointsDoNotConnect_ReturnsFalse(int x1, int y1, int x2, int y2)
+    public void CanPlaceRoadBetweenPoints_PointsDoNotConnect_ReturnsFailure(int x1, int y1, int x2, int y2)
     {
         // Arrange
         var board = new Board();
@@ -296,14 +296,14 @@ public sealed class BoardTests
         board.PlaceHouse(new Point(x1, y1), playerColour, true);
 
         // Act
-        var canPlaceRoad = board.CanPlaceRoadBetweenPoints(new Point(x1, y1), new Point(x2, y2), playerColour);
+        var result = board.CanPlaceRoadBetweenPoints(new Point(x1, y1), new Point(x2, y2), playerColour);
 
         // Assert
-        Assert.False(canPlaceRoad);
+        Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void CanPlaceRoadBetweenPoints_NoConnectingRoadsOrHouses_ReturnsFalse()
+    public void CanPlaceRoadBetweenPoints_NoConnectingRoadsOrHouses_ReturnsFailure()
     {
         // Arrange
         var board = new Board();
@@ -312,10 +312,10 @@ public sealed class BoardTests
         var playerColour = PlayerColour.Blue;
 
         // Act
-        var canPlaceRoad = board.CanPlaceRoadBetweenPoints(road.FirstPoint, road.SecondPoint, playerColour);
+        var result = board.CanPlaceRoadBetweenPoints(road.FirstPoint, road.SecondPoint, playerColour);
 
         // Assert
-        Assert.False(canPlaceRoad);
+        Assert.True(result.IsFailure);
     }
 
     [Theory]
@@ -323,7 +323,7 @@ public sealed class BoardTests
     [InlineData(PlayerColour.Red)]
     [InlineData(PlayerColour.Green)]
     [InlineData(PlayerColour.Yellow)]
-    public void CanPlaceRoadBetweenPoints_RoadAlreadyPlaced_ReturnsFalse(PlayerColour colourToPlace)
+    public void CanPlaceRoadBetweenPoints_RoadAlreadyPlaced_ReturnsFailure(PlayerColour colourToPlace)
     {
         // Arrange
         var board = new Board();
@@ -335,14 +335,14 @@ public sealed class BoardTests
         board.PlaceRoad(road.FirstPoint, road.SecondPoint, playerColour);
 
         // Act
-        var canPlaceRoad = board.CanPlaceRoadBetweenPoints(road.FirstPoint, road.SecondPoint, colourToPlace);
+        var result = board.CanPlaceRoadBetweenPoints(road.FirstPoint, road.SecondPoint, colourToPlace);
 
         // Assert
-        Assert.False(canPlaceRoad);
+        Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void CanPlaceRoadBetweenPoints_BlockedByOpposingHouse_ReturnsFalse()
+    public void CanPlaceRoadBetweenPoints_BlockedByOpposingHouse_ReturnsFailure()
     {
         // Arrange
         var board = new Board();
@@ -358,15 +358,15 @@ public sealed class BoardTests
         board.PlaceHouse(roadConnectedToFirst.SecondPoint, PlayerColour.Red, true);
 
         // Act
-        var canPlaceRoad = board.CanPlaceRoadBetweenPoints(
+        var result = board.CanPlaceRoadBetweenPoints(
             roadConnectedToSecond.FirstPoint, roadConnectedToSecond.SecondPoint, playerColour);
 
         // Assert
-        Assert.False(canPlaceRoad);
+        Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void CanPlaceHouseAtPoint_ReturnsTrue()
+    public void CanPlaceHouseAtPoint_ReturnsSuccess()
     {
         // Arrange
         var board = new Board();
@@ -374,10 +374,10 @@ public sealed class BoardTests
         var playerColour = PlayerColour.Blue;
 
         // Act
-        var canPlaceHouse = board.CanPlaceHouseAtPoint(new Point(0, 2), playerColour, true);
+        var result = board.CanPlaceHouseAtPoint(new Point(0, 2), playerColour, true);
 
         // Assert
-        Assert.True(canPlaceHouse);
+        Assert.True(result.IsSuccess);
     }
 
     [Theory]
@@ -386,50 +386,33 @@ public sealed class BoardTests
     [InlineData(0, 6)]
     [InlineData(11, 0)]
     [InlineData(11, 6)]
-    public void CanPlaceHouseAtPoint_OutsideOfBoard_ReturnsFalse(int x, int y)
+    public void CanPlaceHouseAtPoint_OutsideOfBoard_ReturnsFailure(int x, int y)
     {
         // Arrange
         var board = new Board();
 
         // Act
-        var canPlaceHouse = board.CanPlaceHouseAtPoint(new Point(x, y), PlayerColour.Blue);
+        var result = board.CanPlaceHouseAtPoint(new Point(x, y), PlayerColour.Blue);
 
         // Assert
-        Assert.False(canPlaceHouse);
+        Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void CanPlaceHouseAtPoint_ColourIsNone_ReturnsFalse()
+    public void CanPlaceHouseAtPoint_ColourIsNone_ReturnsFailure()
     {
         // Arrange
         var board = new Board();
 
         // Act
-        var canPlaceHouse = board.CanPlaceHouseAtPoint(new Point(0, 2), PlayerColour.None);
+        var result = board.CanPlaceHouseAtPoint(new Point(0, 2), PlayerColour.None);
 
         // Assert
-        Assert.False(canPlaceHouse);
+        Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void CanPlaceHouseAtPoint_PointAlreadyOccupied_ReturnsFalse()
-    {
-        // Arrange
-        var board = new Board();
-
-        var playerColour = PlayerColour.Blue;
-
-        board.PlaceHouse(new Point(0, 2), playerColour, true);
-
-        // Act
-        var canPlaceHouse = board.CanPlaceHouseAtPoint(new Point(0, 2), playerColour);
-
-        // Assert
-        Assert.False(canPlaceHouse);
-    }
-
-    [Fact]
-    public void CanPlaceHouseAtPoint_TooCloseToAnotherHouse_ReturnsFalse()
+    public void CanPlaceHouseAtPoint_PointAlreadyOccupied_ReturnsFailure()
     {
         // Arrange
         var board = new Board();
@@ -439,14 +422,31 @@ public sealed class BoardTests
         board.PlaceHouse(new Point(0, 2), playerColour, true);
 
         // Act
-        var canPlaceHouse = board.CanPlaceHouseAtPoint(new Point(0, 3), playerColour);
+        var result = board.CanPlaceHouseAtPoint(new Point(0, 2), playerColour);
 
         // Assert
-        Assert.False(canPlaceHouse);
+        Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void CanUpgradeHouseAtPoint_NoHouseAtPoint_ReturnsFalse()
+    public void CanPlaceHouseAtPoint_TooCloseToAnotherHouse_ReturnsFailure()
+    {
+        // Arrange
+        var board = new Board();
+
+        var playerColour = PlayerColour.Blue;
+
+        board.PlaceHouse(new Point(0, 2), playerColour, true);
+
+        // Act
+        var result = board.CanPlaceHouseAtPoint(new Point(0, 3), playerColour);
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void CanUpgradeHouseAtPoint_NoHouseAtPoint_ReturnsFailure()
     {
         // Arrange
         var board = new Board();
@@ -454,14 +454,14 @@ public sealed class BoardTests
         var playerColour = PlayerColour.Blue;
 
         // Act
-        var canUpgradeHouse = board.CanUpgradeHouseAtPoint(new Point(0, 2), playerColour);
+        var result = board.CanUpgradeHouseAtPoint(new Point(0, 2), playerColour);
 
         // Assert
-        Assert.False(canUpgradeHouse);
+        Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void CanUpgradeHouseAtPoint_HouseIsNotOwnedByPlayer_ReturnsFalse()
+    public void CanUpgradeHouseAtPoint_HouseIsNotOwnedByPlayer_ReturnsFailure()
     {
         // Arrange
         var board = new Board();
@@ -471,14 +471,14 @@ public sealed class BoardTests
         board.PlaceHouse(new Point(0, 2), PlayerColour.Red, true);
 
         // Act
-        var canUpgradeHouse = board.CanUpgradeHouseAtPoint(new Point(0, 2), playerColour);
+        var result = board.CanUpgradeHouseAtPoint(new Point(0, 2), playerColour);
 
         // Assert
-        Assert.False(canUpgradeHouse);
+        Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void CanUpgradeHouseAtPoint_HouseIsAlreadyACity_ReturnsFalse()
+    public void CanUpgradeHouseAtPoint_HouseIsAlreadyACity_ReturnsFailure()
     {
         // Arrange
         var board = new Board();
@@ -489,14 +489,14 @@ public sealed class BoardTests
         board.UpgradeHouse(new Point(0, 2), playerColour);
 
         // Act
-        var canUpgradeHouse = board.CanUpgradeHouseAtPoint(new Point(0, 2), playerColour);
+        var result = board.CanUpgradeHouseAtPoint(new Point(0, 2), playerColour);
 
         // Assert
-        Assert.False(canUpgradeHouse);
+        Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void CanUpgradeHouseAtPoint_ReturnsTrue()
+    public void CanUpgradeHouseAtPoint_ReturnsSuccess()
     {
         // Arrange
         var board = new Board();
@@ -506,14 +506,14 @@ public sealed class BoardTests
         board.PlaceHouse(new Point(0, 2), playerColour, true);
 
         // Act
-        var canUpgradeHouse = board.CanUpgradeHouseAtPoint(new Point(0, 2), playerColour);
+        var result = board.CanUpgradeHouseAtPoint(new Point(0, 2), playerColour);
 
         // Assert
-        Assert.True(canUpgradeHouse);
+        Assert.True(result.IsSuccess);
     }
 
     [Fact]
-    public void CanMoveRobberToPoint_RobberAlreadyAtPoint_ReturnsFalse()
+    public void CanMoveRobberToPoint_RobberAlreadyAtPoint_ReturnsFailure()
     {
         // Arrange
         var board = new Board();
@@ -526,10 +526,10 @@ public sealed class BoardTests
         }
 
         // Act
-        var canMoveRobber = board.CanMoveRobberToPoint(initialPoint);
+        var result = board.CanMoveRobberToPoint(initialPoint);
 
         // Assert
-        Assert.False(canMoveRobber);
+        Assert.True(result.IsFailure);
     }
 
     [Theory]
@@ -538,7 +538,7 @@ public sealed class BoardTests
     [InlineData(0, 5)]
     [InlineData(5, 0)]
     [InlineData(5, 5)]
-    public void CanMoveRobberToPoint_PointIsInvalid_ReturnsFalse(int x, int y)
+    public void CanMoveRobberToPoint_PointIsInvalid_ReturnsFailure(int x, int y)
     {
         // Arrange
         var board = new Board();
@@ -546,14 +546,14 @@ public sealed class BoardTests
         var point = new Point(x, y);
 
         // Act
-        var canMoveRobber = board.CanMoveRobberToPoint(point);
+        var result = board.CanMoveRobberToPoint(point);
 
         // Assert
-        Assert.False(canMoveRobber);
+        Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void CanMoveRobberToPoint_ReturnsTrue()
+    public void CanMoveRobberToPoint_ReturnsSuccess()
     {
         // Arrange
         var board = new Board();
@@ -567,10 +567,10 @@ public sealed class BoardTests
         var newPoint = new Point(1, 2);
 
         // Act
-        var canMoveRobber = board.CanMoveRobberToPoint(newPoint);
+        var result = board.CanMoveRobberToPoint(newPoint);
 
         // Assert
-        Assert.True(canMoveRobber);
+        Assert.True(result.IsSuccess);
     }
 
     [Fact]

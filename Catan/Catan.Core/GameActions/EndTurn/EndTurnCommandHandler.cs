@@ -13,10 +13,16 @@ internal sealed class EndTurnCommandHandler(IActiveGameCache cache) :
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        game.NextPlayer();
+        var result = game.NextPlayer();
+
+        if (result.IsFailure)
+        {
+            return result;
+        }
+
         await cache.UpsetAsync(
             request.GameId,
             game,

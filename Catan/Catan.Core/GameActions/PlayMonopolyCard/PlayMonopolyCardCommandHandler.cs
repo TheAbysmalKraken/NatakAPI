@@ -17,20 +17,15 @@ internal sealed class PlayMonopolyCardCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        if (game.HasPlayedDevelopmentCardThisTurn)
-        {
-            return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);
-        }
-
-        var playSuccess = game.PlayMonopolyCard(
+        var result = game.PlayMonopolyCard(
             (ResourceType)request.Resource);
 
-        if (!playSuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.CannotPlayDevelopmentCard);
+            return result;
         }
 
         await cache.UpsetAsync(

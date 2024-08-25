@@ -16,23 +16,18 @@ internal sealed class PlayRoadBuildingCardCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        if (game.HasPlayedDevelopmentCardThisTurn)
-        {
-            return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);
-        }
-
-        var playSuccess = game.PlayRoadBuildingCard(
+        var result = game.PlayRoadBuildingCard(
             request.FirstRoadFirstPoint,
             request.FirstRoadSecondPoint,
             request.SecondRoadFirstPoint,
             request.SecondRoadSecondPoint);
 
-        if (!playSuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.CannotPlayDevelopmentCard);
+            return result;
         }
 
         await cache.UpsetAsync(

@@ -18,13 +18,13 @@ internal sealed class GetAvailableCityLocationsQueryHandler(
 
         if (game is null)
         {
-            return Result.Failure<List<PointResponse>>(Errors.GameNotFound);
+            return Result.Failure<List<PointResponse>>(GeneralErrors.GameNotFound);
         }
 
         var playerColour = (PlayerColour)request.PlayerColour;
         if (!game.ContainsPlayer(playerColour))
         {
-            return Result.Failure<List<PointResponse>>(Errors.InvalidPlayerColour);
+            return Result.Failure<List<PointResponse>>(GeneralErrors.InvalidPlayerColour);
         }
 
         var board = game.Board;
@@ -50,7 +50,9 @@ internal sealed class GetAvailableCityLocationsQueryHandler(
             {
                 var point = new Point(x, y);
 
-                if (board.CanUpgradeHouseAtPoint(point, playerColour))
+                var canUpgradeResult = board.CanUpgradeHouseAtPoint(point, playerColour);
+
+                if (canUpgradeResult.IsSuccess)
                 {
                     availableCityPoints.Add(point);
                 }

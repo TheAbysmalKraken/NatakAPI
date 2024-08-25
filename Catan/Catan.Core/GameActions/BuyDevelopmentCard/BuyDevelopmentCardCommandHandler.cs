@@ -16,14 +16,14 @@ internal sealed class BuyDevelopmentCardCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        var buySuccess = game.BuyDevelopmentCard();
+        var result = game.BuyDevelopmentCard();
 
-        if (!buySuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.CannotBuyDevelopmentCard);
+            return result;
         }
 
         await cache.UpsetAsync(

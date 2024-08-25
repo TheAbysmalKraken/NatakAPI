@@ -295,15 +295,11 @@ public static class Endpoints
     private static async Task<IResult> PlayKnightCardAsync(
         ISender sender,
         string gameId,
-        [FromBody] PlayKnightCardRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var command = new PlayKnightCardCommand(
-                gameId,
-                request.MoveRobberTo.ToPoint(),
-                request.PlayerColourToStealFrom);
+            var command = new PlayKnightCardCommand(gameId);
 
             var result = await sender.Send(command, cancellationToken);
 

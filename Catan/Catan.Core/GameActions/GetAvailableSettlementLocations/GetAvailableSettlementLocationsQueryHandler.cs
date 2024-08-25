@@ -18,13 +18,13 @@ internal sealed class GetAvailableSettlementLocationsQueryHandler(
 
         if (game is null)
         {
-            return Result.Failure<List<PointResponse>>(Errors.GameNotFound);
+            return Result.Failure<List<PointResponse>>(GeneralErrors.GameNotFound);
         }
 
         var playerColour = (PlayerColour)request.PlayerColour;
         if (!game.ContainsPlayer(playerColour))
         {
-            return Result.Failure<List<PointResponse>>(Errors.InvalidPlayerColour);
+            return Result.Failure<List<PointResponse>>(GeneralErrors.InvalidPlayerColour);
         }
 
         var board = game.Board;
@@ -52,7 +52,12 @@ internal sealed class GetAvailableSettlementLocationsQueryHandler(
             {
                 var point = new Point(x, y);
 
-                if (board.CanPlaceHouseAtPoint(point, playerColour, isInitialPlacement))
+                var canPlaceHouseResult = board.CanPlaceHouseAtPoint(
+                    point,
+                    playerColour,
+                    isInitialPlacement);
+
+                if (canPlaceHouseResult.IsSuccess)
                 {
                     availableSettlementPoints.Add(point);
                 }

@@ -72,9 +72,10 @@ public class GameTests
         var currentPlayer = game.CurrentPlayer;
 
         // Act
-        game.NextPlayer();
+        var result = game.NextPlayer();
 
         // Assert
+        Assert.True(result.IsSuccess);
         var newCurrentPlayer = game.CurrentPlayer;
         Assert.NotEqual(currentPlayer, newCurrentPlayer);
     }
@@ -88,7 +89,8 @@ public class GameTests
         // Act
         for (int i = 0; i < defaultPlayerCount; i++)
         {
-            game.NextPlayer();
+            var result = game.NextPlayer();
+            Assert.True(result.IsSuccess);
         }
 
         // Assert
@@ -105,7 +107,8 @@ public class GameTests
         // Act
         for (int i = 0; i < defaultPlayerCount * 2; i++)
         {
-            game.NextPlayer();
+            var result = game.NextPlayer();
+            Assert.True(result.IsSuccess);
         }
 
         // Assert

@@ -17,23 +17,21 @@ internal sealed class DiscardResourcesCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
         var catanResources = request.Resources
             .ToDictionary(kvp =>
                 kvp.Key, kvp => kvp.Value);
 
-        var discardSuccess = game.DiscardResources(
+        var result = game.DiscardResources(
             (PlayerColour)request.PlayerColour,
             catanResources);
 
-        if (!discardSuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.CannotDiscardResources);
+            return result;
         }
-
-        game.TryFinishDiscardingResources();
 
         await cache.UpsetAsync(
             request.GameId,

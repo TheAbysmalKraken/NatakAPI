@@ -1,4 +1,5 @@
 ﻿using Catan.Domain.Enums;
+using Catan.Domain.Errors;
 
 namespace Catan.Domain;
 
@@ -139,122 +140,196 @@ public sealed class Board
         return ports.Any(p => p.Type == portType && houses[p.Point.X, p.Point.Y].Colour == colour);
     }
 
-    public bool CanMoveRobberToPoint(Point point)
+    public Result CanMoveRobberToPoint(Point point)
     {
         if (!TilePointIsValid(point) || point.Equals(RobberPosition))
         {
-            return false;
+            return Result.Failure(BoardErrors.InvalidTilePoint);
         }
 
-        return true;
+        if (point.Equals(RobberPosition))
+        {
+            return Result.Failure(BoardErrors.RobberAlreadyAtLocation);
+        }
+
+        return Result.Success();
     }
 
-    public void MoveRobberToPoint(Point point)
+    public Result MoveRobberToPoint(Point point)
     {
-        if (!CanMoveRobberToPoint(point))
+        var result = CanMoveRobberToPoint(point);
+
+        if (result.IsFailure)
         {
-            throw new ArgumentException("Cannot move robber to these point.");
+            return result;
         }
 
         RobberPosition = point;
+
+        return Result.Success();
     }
 
-    public bool CanUpgradeHouseAtPoint(Point point, PlayerColour colour)
+    public Result CanUpgradeHouseAtPoint(Point point, PlayerColour colour)
     {
-        if (colour == PlayerColour.None
-            || !HousePointIsValid(point)
-            || !PointContainsHouseOfColour(point, colour)
-            || houses[point.X, point.Y].Type != BuildingType.Settlement)
+        if (colour == PlayerColour.None)
         {
-            return false;
+            return Result.Failure(PlayerErrors.InvalidPlayerColour);
         }
 
-        return true;
+        if (!HousePointIsValid(point))
+        {
+            return Result.Failure(BoardErrors.InvalidSettlementPoint);
+        }
+
+        if (!PointContainsHouseOfColour(point, colour))
+        {
+            return Result.Failure(BoardErrors.SettlementNotOwnedByPlayer);
+        }
+
+        if (houses[point.X, point.Y].Type != BuildingType.Settlement)
+        {
+            return Result.Failure(BoardErrors.SettlementAlreadyUpgraded);
+        }
+
+        return Result.Success();
     }
 
-    public void UpgradeHouse(Point point, PlayerColour colour)
+    public Result UpgradeHouse(Point point, PlayerColour colour)
     {
-        if (!CanUpgradeHouseAtPoint(point, colour))
+        var canUpgradeResult = CanUpgradeHouseAtPoint(point, colour);
+
+        if (canUpgradeResult.IsFailure)
         {
-            throw new ArgumentException("Cannot upgrade house at these point.");
+            return canUpgradeResult;
         }
 
         houses[point.X, point.Y].SetTypeToCity();
+
+        return Result.Success();
     }
 
-    public bool CanPlaceHouseAtPoint(Point point, PlayerColour colour, bool isFirstTurn = false)
+    public Result CanPlaceHouseAtPoint(Point point, PlayerColour colour, bool isFirstTurn = false)
     {
-        if (colour == PlayerColour.None
-            || !HousePointIsValid(point)
-            || PointContainsHouse(point)
-            || HousePointIsTooCloseToAnotherHouse(point)
-            || (!isFirstTurn && GetOccupiedRoadsOfColourConnectedToPoint(point, colour).Count == 0))
+        if (colour == PlayerColour.None)
         {
-            return false;
+            return Result.Failure(PlayerErrors.InvalidPlayerColour);
         }
 
-        return true;
+        if (!HousePointIsValid(point))
+        {
+            return Result.Failure(BoardErrors.InvalidSettlementPoint);
+        }
+
+        if (PointContainsHouse(point))
+        {
+            return Result.Failure(BoardErrors.SettlementAlreadyExists);
+        }
+
+        if (HousePointIsTooCloseToAnotherHouse(point))
+        {
+            return Result.Failure(BoardErrors.SettlementIsTooClose);
+        }
+
+        if (!isFirstTurn && GetOccupiedRoadsOfColourConnectedToPoint(point, colour).Count == 0)
+        {
+            return Result.Failure(BoardErrors.SettlementDoesNotConnect);
+        }
+
+        return Result.Success();
     }
 
-    public void PlaceHouse(Point point, PlayerColour colour, bool isFirstTurn = false)
+    public Result PlaceHouse(Point point, PlayerColour colour, bool isFirstTurn = false)
     {
-        if (!CanPlaceHouseAtPoint(point, colour, isFirstTurn))
+        var canPlaceResult = CanPlaceHouseAtPoint(point, colour, isFirstTurn);
+
+        if (canPlaceResult.IsFailure)
         {
-            throw new ArgumentException("Cannot place house at these point.");
+            return canPlaceResult;
         }
 
         houses[point.X, point.Y].SetColour(colour);
         houses[point.X, point.Y].SetTypeToHouse();
+
+        return Result.Success();
     }
 
-    public bool CanPlaceRoadBetweenPoints(Point point1, Point point2, PlayerColour colour)
+    public Result CanPlaceRoadBetweenPoints(Point point1, Point point2, PlayerColour colour)
     {
-        if (colour == PlayerColour.None
-            || !RoadPointsAreValid(point1, point2)
-            || RoadIsClaimed(point1, point2)
-            || RoadAtPointsIsBlockedByOpposingHouse(point1, point2, colour)
-            || !RoadIsConnectedToHouseOrRoadOfSameColour(point1, point2, colour))
+        if (colour == PlayerColour.None)
         {
-            return false;
+            return Result.Failure(PlayerErrors.InvalidPlayerColour);
         }
 
-        return true;
+        if (!RoadPointsAreValid(point1, point2))
+        {
+            return Result.Failure(BoardErrors.InvalidRoadPoints);
+        }
+
+        if (RoadIsClaimed(point1, point2))
+        {
+            return Result.Failure(BoardErrors.RoadAlreadyExists);
+        }
+
+        if (RoadAtPointsIsBlockedByOpposingHouse(point1, point2, colour))
+        {
+            return Result.Failure(BoardErrors.RoadIsBlocked);
+        }
+
+        if (!RoadIsConnectedToHouseOrRoadOfSameColour(point1, point2, colour))
+        {
+            return Result.Failure(BoardErrors.RoadDoesNotConnect);
+        }
+
+        return Result.Success();
     }
 
-    public bool CanPlaceTwoRoadsBetweenPoints(
+    public Result CanPlaceTwoRoadsBetweenPoints(
         Point point1,
         Point point2,
         Point point3,
         Point point4,
         PlayerColour colour)
     {
-        if (!CanPlaceRoadBetweenPoints(point1, point2, colour))
+        var canPlaceFirstResult = CanPlaceRoadBetweenPoints(point1, point2, colour);
+
+        if (canPlaceFirstResult.IsFailure)
         {
-            return false;
+            return canPlaceFirstResult;
         }
 
-        PlaceRoad(point1, point2, colour);
+        var placeFirstResult = PlaceRoad(point1, point2, colour);
 
-        if (!CanPlaceRoadBetweenPoints(point3, point4, colour))
+        if (placeFirstResult.IsFailure)
         {
-            RemoveRoad(point1, point2);
-            return false;
+            throw new Exception("Cannot place road.");
         }
 
-        RemoveRoad(point1, point2);
-        return true;
+        var canPlaceSecondResult = CanPlaceRoadBetweenPoints(point3, point4, colour);
+
+        var removeFirstResult = RemoveRoad(point1, point2);
+
+        if (removeFirstResult.IsFailure)
+        {
+            throw new Exception("Cannot remove road.");
+        }
+
+        return canPlaceSecondResult;
     }
 
-    public void PlaceRoad(Point point1, Point point2, PlayerColour colour)
+    public Result PlaceRoad(Point point1, Point point2, PlayerColour colour)
     {
-        if (!CanPlaceRoadBetweenPoints(point1, point2, colour))
+        var canPlaceResult = CanPlaceRoadBetweenPoints(point1, point2, colour);
+
+        if (canPlaceResult.IsFailure)
         {
-            throw new ArgumentException("Cannot place road between these point.");
+            return canPlaceResult;
         }
 
-        var roadInList = GetRoadAtPoints(point1, point2) ?? throw new ArgumentException("Cannot find road in list.");
+        var roadInList = GetRoadAtPoints(point1, point2) ?? throw new Exception("Road not found.");
 
         roadInList.SetColour(colour);
+
+        return Result.Success();
     }
 
     public List<Point> GetPointsOfTilesWithActivationNumber(int activationNumber)
@@ -397,18 +472,18 @@ public sealed class Board
         return true;
     }
 
-    private bool RemoveRoad(Point point1, Point point2)
+    private Result RemoveRoad(Point point1, Point point2)
     {
         var road = GetRoadAtPoints(point1, point2);
 
         if (road is null)
         {
-            return false;
+            return Result.Failure(BoardErrors.RoadNotFound);
         }
 
         road.SetColour(PlayerColour.None);
 
-        return true;
+        return Result.Success();
     }
 
     private bool TilePointIsValid(Point point)

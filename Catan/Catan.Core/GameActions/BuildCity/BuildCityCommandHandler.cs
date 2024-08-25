@@ -13,14 +13,14 @@ internal sealed class BuildCityCommandHandler(IActiveGameCache cache) :
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        var buildSuccess = game.BuildCity(request.BuildPoint);
+        var result = game.BuildCity(request.BuildPoint);
 
-        if (!buildSuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.InvalidBuildLocation);
+            return result;
         }
 
         await cache.UpsetAsync(

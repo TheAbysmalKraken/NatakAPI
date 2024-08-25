@@ -14,24 +14,24 @@ internal sealed class BuildRoadCommandHandler(IActiveGameCache cache) :
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        bool buildSuccess;
+        Result result;
 
         if (game.CurrentState == GameState.FirstRoad
         || game.CurrentState == GameState.SecondRoad)
         {
-            buildSuccess = game.BuildFreeRoad(request.FirstPoint, request.SecondPoint);
+            result = game.BuildRoad(request.FirstPoint, request.SecondPoint, true);
         }
         else
         {
-            buildSuccess = game.BuildRoad(request.FirstPoint, request.SecondPoint);
+            result = game.BuildRoad(request.FirstPoint, request.SecondPoint);
         }
 
-        if (!buildSuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.InvalidBuildLocation);
+            return result;
         }
 
         await cache.UpsetAsync(

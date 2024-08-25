@@ -14,10 +14,16 @@ internal sealed class RollDiceCommandHandler(IActiveGameCache cache) :
         if (game is null)
         {
             return Result.Failure<RollDiceResponse>(
-                Errors.GameNotFound);
+                GeneralErrors.GameNotFound);
         }
 
-        game.RollDiceAndDistributeResourcesToPlayers();
+        var result = game.RollDiceAndDistributeResourcesToPlayers();
+
+        if (result.IsFailure)
+        {
+            return Result.Failure<RollDiceResponse>(result.Error);
+        }
+
         await cache.UpsetAsync(
             game.Id,
             game,

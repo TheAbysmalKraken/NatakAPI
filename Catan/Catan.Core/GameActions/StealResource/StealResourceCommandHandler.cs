@@ -17,22 +17,15 @@ internal sealed class StealResourceCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        var victimColour = (PlayerColour)request.VictimColour;
+        var result = game.StealResourceCard(
+            (PlayerColour)request.VictimColour);
 
-        if (!game.ContainsPlayer(victimColour))
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.InvalidPlayerColour);
-        }
-
-        var stealSuccess = game.StealResourceCard(
-            victimColour);
-
-        if (!stealSuccess)
-        {
-            return Result.Failure(Errors.CannotStealResource);
+            return result;
         }
 
         await cache.UpsetAsync(

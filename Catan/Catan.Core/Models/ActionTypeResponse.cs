@@ -4,6 +4,7 @@ public enum ActionTypeResponse
 {
     BuildSettlement,
     BuildRoad,
+    BuildCity,
     RollDice,
     EndTurn,
     Build,

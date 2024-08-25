@@ -4,11 +4,11 @@ public enum ActionType
 {
     BuildSettlement,
     BuildRoad,
+    BuildCity,
     FirstSetupFinished,
     SecondSetupFinished,
     RollDice,
     EndTurn,
-    Build,
     Trade,
     PlayKnightCard,
     PlayRoadBuildingCard,

@@ -16,16 +16,16 @@ internal sealed class MakeTradeOfferCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        var tradeSuccess = game.MakeTradeOffer(
+        var result = game.MakeTradeOffer(
             request.Offer,
             request.Request);
 
-        if (!tradeSuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.CannotMakeTradeOffer);
+            return result;
         }
 
         await cache.UpsetAsync(
