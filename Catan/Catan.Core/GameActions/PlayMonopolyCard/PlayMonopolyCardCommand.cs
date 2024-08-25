@@ -1,4 +1,6 @@
-﻿namespace Catan.Core.GameActions.PlayMonopolyCard;
+﻿using Catan.Core.Abstractions;
+
+namespace Catan.Core.GameActions.PlayMonopolyCard;
 
 public sealed record PlayMonopolyCardCommand(
     string GameId,

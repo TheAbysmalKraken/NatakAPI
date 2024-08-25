@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Catan.Core.Models;
+namespace Catan.Domain;
 
 public class Result
 {

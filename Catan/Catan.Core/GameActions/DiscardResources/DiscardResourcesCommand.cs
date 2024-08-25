@@ -1,4 +1,5 @@
-﻿using Catan.Domain.Enums;
+﻿using Catan.Core.Abstractions;
+using Catan.Domain.Enums;
 
 namespace Catan.Core.GameActions.DiscardResources;
 

@@ -1,4 +1,5 @@
-﻿using Catan.Domain;
+﻿using Catan.Core.Abstractions;
+using Catan.Domain;
 
 namespace Catan.Core.GameActions.PlayKnightCard;
 
