@@ -434,11 +434,24 @@ public class Game
 
         foreach (var player in players)
         {
-            if (player.GetEmbargoedPlayers().Contains(CurrentPlayer.Colour))
+            if (player.GetEmbargoedPlayers().Contains(CurrentPlayer.Colour)
+            || CurrentPlayer.GetEmbargoedPlayers().Contains(player.Colour))
             {
                 tradeOffer.RejectedBy.Add(player.Colour);
             }
         }
+
+        return Result.Success();
+    }
+
+    public Result CancelTradeOffer()
+    {
+        if (!tradeOffer.IsActive)
+        {
+            return Result.Failure(GameErrors.TradeOfferNotActive);
+        }
+
+        tradeOffer = TradeOffer.Inactive();
 
         return Result.Success();
     }
@@ -507,6 +520,8 @@ public class Game
             throw new Exception("Failed to remove resource cards from trade player.");
         }
 
+        tradeOffer = TradeOffer.Inactive();
+
         return Result.Success();
     }
 
@@ -542,6 +557,10 @@ public class Game
         {
             CurrentPlayer.BuyRoad();
         }
+        else
+        {
+            CurrentPlayer.BuyFreeRoad();
+        }
 
         UpdateLargestRoadPlayer();
 
@@ -564,6 +583,8 @@ public class Game
             return canPlaceHouseResult;
         }
 
+        bool shouldGiveResources = CurrentState == GameState.SecondSettlement;
+
         var moveStateResult = gameStateManager.MoveState(ActionType.BuildSettlement);
 
         if (moveStateResult.IsFailure)
@@ -581,6 +602,11 @@ public class Game
         if (!isFree)
         {
             CurrentPlayer.BuySettlement();
+        }
+        else if (shouldGiveResources)
+        {
+            CurrentPlayer.BuyFreeSettlement();
+            GiveResourcesSurroundingHouse(point);
         }
 
         UpdateLargestRoadPlayer();
@@ -996,13 +1022,6 @@ public class Game
 
     private Result RollDice()
     {
-        var moveStateResult = gameStateManager.MoveState(ActionType.RollDice);
-
-        if (moveStateResult.IsFailure)
-        {
-            return moveStateResult;
-        }
-
         var newRoll = DiceRoller.RollDice(2, 6);
 
         if (newRoll.Count == 7)
@@ -1021,6 +1040,13 @@ public class Game
             {
                 return finishDiscardingResult;
             }
+        }
+
+        var moveStateResult = gameStateManager.MoveState(ActionType.RollDice);
+
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
         }
 
         rolledDice.Clear();

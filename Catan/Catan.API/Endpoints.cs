@@ -3,6 +3,7 @@ using Catan.Core.GameActions.BuildCity;
 using Catan.Core.GameActions.BuildRoad;
 using Catan.Core.GameActions.BuildSettlement;
 using Catan.Core.GameActions.BuyDevelopmentCard;
+using Catan.Core.GameActions.CancelTradeOffer;
 using Catan.Core.GameActions.CreateGame;
 using Catan.Core.GameActions.DiscardResources;
 using Catan.Core.GameActions.EmbargoPlayer;
@@ -17,6 +18,7 @@ using Catan.Core.GameActions.PlayKnightCard;
 using Catan.Core.GameActions.PlayMonopolyCard;
 using Catan.Core.GameActions.PlayRoadBuildingCard;
 using Catan.Core.GameActions.PlayYearOfPlentyCard;
+using Catan.Core.GameActions.RemoveEmbargo;
 using Catan.Core.GameActions.RespondToTradeOffer;
 using Catan.Core.GameActions.RollDice;
 using Catan.Core.GameActions.StealResource;
@@ -59,8 +61,10 @@ public static class Endpoints
         builder.MapPost("{gameId}/{playerColour}/discard-resources", DiscardResourcesAsync);
         builder.MapPost("{gameId}/trade/bank", TradeWithBankAsync);
         builder.MapPost("{gameId}/{playerColour}/embargo-player", EmbargoPlayerAsync);
+        builder.MapPost("{gameId}/{playerColour}/remove-embargo", RemoveEmbargoAsync);
         builder.MapPost("{gameId}/trade/player", MakeTradeOfferAsync);
         builder.MapPost("{gameId}/trade/player/{accept}", RespondToTradeOfferAsync);
+        builder.MapPost("{gameId}/trade/player/cancel", CancelTradeOfferAsync);
 
         return builder;
     }
@@ -496,6 +500,30 @@ public static class Endpoints
         }
     }
 
+    private static async Task<IResult> RemoveEmbargoAsync(
+        ISender sender,
+        string gameId,
+        int playerColour,
+        [FromBody] RemoveEmbargoRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new RemoveEmbargoCommand(
+                gameId,
+                playerColour,
+                request.PlayerColourToRemoveEmbargoOn);
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
     private static async Task<IResult> MakeTradeOfferAsync(
         ISender sender,
         string gameId,
@@ -532,6 +560,25 @@ public static class Endpoints
                 gameId,
                 playerColour,
                 accept);
+
+            var result = await sender.Send(command, cancellationToken);
+
+            return TypedResultFactory.NoContent(result);
+        }
+        catch
+        {
+            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> CancelTradeOfferAsync(
+        ISender sender,
+        string gameId,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var command = new CancelTradeOfferCommand(gameId);
 
             var result = await sender.Send(command, cancellationToken);
 

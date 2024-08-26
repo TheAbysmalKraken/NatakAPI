@@ -7,7 +7,6 @@ public enum ActionTypeResponse
     BuildCity,
     RollDice,
     EndTurn,
-    Build,
     Trade,
     PlayDevelopmentCard,
     MoveRobber
