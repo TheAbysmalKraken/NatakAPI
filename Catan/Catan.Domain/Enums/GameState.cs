@@ -4,8 +4,10 @@ public enum GameState
 {
     FirstSettlement,
     FirstRoad,
+    FirstSetupReadyForNextPlayer,
     SecondSettlement,
     SecondRoad,
+    SecondSetupReadyForNextPlayer,
     BeforeRoll,
     AfterRoll,
     DiscardResources,

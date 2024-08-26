@@ -32,44 +32,14 @@ public class GameTests
     }
 
     [Fact]
-    public void RollDice_IndividualDiceValuesWithinRange()
-    {
-        // Arrange
-        var game = new Game(defaultPlayerCount);
-
-        // Act
-        game.RollDice();
-        var rolledDice = game.GetRolledDice();
-
-        // Assert
-        foreach (var diceTotal in rolledDice)
-        {
-            Assert.InRange(diceTotal, 1, 6);
-        }
-    }
-
-    [Fact]
-    public void RollDice_DiceTotalCorrectlyCalculated()
-    {
-        // Arrange
-        var game = new Game(defaultPlayerCount);
-
-        // Act
-        game.RollDice();
-        var rolledDice = game.GetRolledDice();
-        var expectedTotal = rolledDice.Sum();
-        var actualTotal = game.DiceTotal;
-
-        // Assert
-        Assert.Equal(expectedTotal, actualTotal);
-    }
-
-    [Fact]
     public void NextPlayer_CurrentPlayerBecomesLastPlayerInList()
     {
         // Arrange
         var game = new Game(defaultPlayerCount);
         var currentPlayer = game.CurrentPlayer;
+
+        game.BuildSettlement(new Point(2, 3), true);
+        game.BuildRoad(new Point(2, 3), new Point(3, 3), true);
 
         // Act
         var result = game.NextPlayer();
@@ -89,6 +59,9 @@ public class GameTests
         // Act
         for (int i = 0; i < defaultPlayerCount; i++)
         {
+            game.BuildSettlement(new Point(2 + 2 * i, 3), true);
+            game.BuildRoad(new Point(2 + 2 * i, 3), new Point(3 + 2 * i, 3), true);
+
             var result = game.NextPlayer();
             Assert.True(result.IsSuccess);
         }
@@ -105,8 +78,20 @@ public class GameTests
         var game = new Game(defaultPlayerCount);
 
         // Act
-        for (int i = 0; i < defaultPlayerCount * 2; i++)
+        for (int i = 0; i < defaultPlayerCount; i++)
         {
+            game.BuildSettlement(new Point(2 + 2 * i, 3), true);
+            game.BuildRoad(new Point(2 + 2 * i, 3), new Point(3 + 2 * i, 3), true);
+
+            var result = game.NextPlayer();
+            Assert.True(result.IsSuccess);
+        }
+
+        for (int i = 0; i < defaultPlayerCount; i++)
+        {
+            game.BuildSettlement(new Point(2 + 2 * i, 1), true);
+            game.BuildRoad(new Point(2 + 2 * i, 1), new Point(3 + 2 * i, 1), true);
+
             var result = game.NextPlayer();
             Assert.True(result.IsSuccess);
         }

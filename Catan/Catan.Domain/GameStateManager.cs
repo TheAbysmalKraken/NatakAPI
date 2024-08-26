@@ -3,16 +3,18 @@ using Catan.Domain.Errors;
 
 namespace Catan.Domain;
 
-public sealed class GameStateManager()
+public sealed class GameStateManager(GameState initialState = GameState.FirstSettlement)
 {
     private readonly Dictionary<StateTransition, GameState> transitions = new()
     {
         { new StateTransition(GameState.FirstSettlement, ActionType.BuildSettlement), GameState.FirstRoad },
-        { new StateTransition(GameState.FirstSettlement, ActionType.FirstSetupFinished), GameState.SecondSettlement },
-        { new StateTransition(GameState.FirstRoad, ActionType.BuildRoad), GameState.FirstSettlement },
+        { new StateTransition(GameState.FirstRoad, ActionType.BuildRoad), GameState.FirstSetupReadyForNextPlayer },
+        { new StateTransition(GameState.FirstSetupReadyForNextPlayer, ActionType.EndTurn), GameState.FirstSettlement },
+        { new StateTransition(GameState.FirstSetupReadyForNextPlayer, ActionType.FirstSetupFinished), GameState.SecondSettlement },
         { new StateTransition(GameState.SecondSettlement, ActionType.BuildSettlement), GameState.SecondRoad },
-        { new StateTransition(GameState.SecondSettlement, ActionType.SecondSetupFinished), GameState.BeforeRoll },
-        { new StateTransition(GameState.SecondRoad, ActionType.BuildRoad), GameState.SecondSettlement },
+        { new StateTransition(GameState.SecondRoad, ActionType.BuildRoad), GameState.SecondSetupReadyForNextPlayer },
+        { new StateTransition(GameState.SecondSetupReadyForNextPlayer, ActionType.EndTurn), GameState.SecondSettlement },
+        { new StateTransition(GameState.SecondSetupReadyForNextPlayer, ActionType.SecondSetupFinished), GameState.BeforeRoll },
         { new StateTransition(GameState.BeforeRoll, ActionType.RollDice), GameState.AfterRoll },
         { new StateTransition(GameState.BeforeRoll, ActionType.RollSeven), GameState.DiscardResources },
         { new StateTransition(GameState.BeforeRoll, ActionType.PlayKnightCard), GameState.BeforeRoll },
@@ -33,7 +35,7 @@ public sealed class GameStateManager()
         { new StateTransition(GameState.MoveRobber, ActionType.MoveRobber), GameState.AfterRoll }
     };
 
-    public GameState CurrentState { get; private set; } = GameState.FirstSettlement;
+    public GameState CurrentState { get; private set; } = initialState;
 
     public List<ActionType> GetValidActions()
     {

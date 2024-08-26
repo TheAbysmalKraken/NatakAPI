@@ -36,7 +36,7 @@ public class Game
 
         Board = new Board(seed);
 
-        RollDice();
+        rolledDice = [4, 2];    // Just to have something there
         InitialisePlayers(numberOfPlayers);
         InitialiseResourceCards();
         InitialiseDevelopmentCards();
@@ -113,31 +113,20 @@ public class Game
         return handleNextPlayerStateResult;
     }
 
-    public void RollDice()
-    {
-        rolledDice.Clear();
-        rolledDice.AddRange(DiceRoller.RollDice(2, 6));
-    }
-
     public Result RollDiceAndDistributeResourcesToPlayers()
     {
-        RollDice();
+        var rollResult = RollDice();
+
+        if (rollResult.IsFailure)
+        {
+            return rollResult;
+        }
 
         var diceTotal = DiceTotal;
 
         if (diceTotal == 7)
         {
-            var moveRollSevenStateResult = gameStateManager.MoveState(
-                ActionType.RollSeven);
-
-            if (moveRollSevenStateResult.IsFailure)
-            {
-                return moveRollSevenStateResult;
-            }
-
-            var finishDiscardingResult = TryFinishDiscardingResources();
-
-            return finishDiscardingResult;
+            return Result.Success();
         }
 
         var tilePointsWithActivationNumber = Board.GetPointsOfTilesWithActivationNumber(diceTotal);
@@ -767,7 +756,7 @@ public class Game
 
     private Result HandleNextPlayerState()
     {
-        if (CurrentState == GameState.SecondSettlement)
+        if (CurrentState == GameState.SecondSetupReadyForNextPlayer)
         {
             if (currentPlayerIndex == 0)
             {
@@ -778,10 +767,19 @@ public class Game
             }
             else
             {
+                var endSecondTurnResult = gameStateManager.MoveState(ActionType.EndTurn);
+
+                if (endSecondTurnResult.IsFailure)
+                {
+                    return endSecondTurnResult;
+                }
+
                 currentPlayerIndex = (currentPlayerIndex - 1) % players.Count;
+
+                return Result.Success();
             }
         }
-        else if (CurrentState == GameState.FirstSettlement)
+        else if (CurrentState == GameState.FirstSetupReadyForNextPlayer)
         {
             if (currentPlayerIndex == players.Count - 1)
             {
@@ -790,18 +788,16 @@ public class Game
 
                 return firstSetupFinishedResult;
             }
-            else
-            {
-                currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
-            }
         }
-        else
-        {
-            currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
-            var endTurnResult = gameStateManager.MoveState(ActionType.EndTurn);
 
+        var endTurnResult = gameStateManager.MoveState(ActionType.EndTurn);
+
+        if (endTurnResult.IsFailure)
+        {
             return endTurnResult;
         }
+
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
 
         return Result.Success();
     }
@@ -996,5 +992,40 @@ public class Game
         }
 
         throw new InvalidOperationException($"Invalid development card type: '{type}'");
+    }
+
+    private Result RollDice()
+    {
+        var moveStateResult = gameStateManager.MoveState(ActionType.RollDice);
+
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
+        }
+
+        var newRoll = DiceRoller.RollDice(2, 6);
+
+        if (newRoll.Count == 7)
+        {
+            var moveRollSevenStateResult = gameStateManager.MoveState(
+                ActionType.RollSeven);
+
+            if (moveRollSevenStateResult.IsFailure)
+            {
+                return moveRollSevenStateResult;
+            }
+
+            var finishDiscardingResult = TryFinishDiscardingResources();
+
+            if (finishDiscardingResult.IsFailure)
+            {
+                return finishDiscardingResult;
+            }
+        }
+
+        rolledDice.Clear();
+        rolledDice.AddRange(newRoll);
+
+        return Result.Success();
     }
 }
