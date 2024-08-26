@@ -1,6 +1,6 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
-using Catan.Domain.Enums;
+using Catan.Domain;
 
 namespace Catan.Core.GameActions.RollDice;
 
@@ -14,17 +14,16 @@ internal sealed class RollDiceCommandHandler(IActiveGameCache cache) :
         if (game is null)
         {
             return Result.Failure<RollDiceResponse>(
-                Errors.GameNotFound);
+                GeneralErrors.GameNotFound);
         }
 
-        if (game.GamePhase != GamePhase.Main || (game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard
-            && game.GameSubPhase != GameSubPhase.Roll))
+        var result = game.RollDiceAndDistributeResourcesToPlayers();
+
+        if (result.IsFailure)
         {
-            return Result.Failure<RollDiceResponse>(
-                Errors.InvalidGamePhase);
+            return Result.Failure<RollDiceResponse>(result.Error);
         }
 
-        game.RollDiceAndDistributeResourcesToPlayers();
         await cache.UpsetAsync(
             game.Id,
             game,

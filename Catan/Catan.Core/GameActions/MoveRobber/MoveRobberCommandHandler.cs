@@ -1,6 +1,6 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
-using Catan.Domain.Enums;
+using Catan.Domain;
 
 namespace Catan.Core.GameActions.MoveRobber;
 
@@ -16,21 +16,14 @@ internal sealed class MoveRobberCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.MoveRobberSevenRoll
-        && game.GameSubPhase != GameSubPhase.MoveRobberKnightCardBeforeRoll
-        && game.GameSubPhase != GameSubPhase.MoveRobberKnightCardAfterRoll)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
+        var result = game.MoveRobber(request.MoveRobberTo);
 
-        var moveSuccess = game.MoveRobber(request.MoveRobberTo);
-
-        if (!moveSuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.CannotMoveRobberToLocation);
+            return Result.Failure(GeneralErrors.CannotMoveRobberToLocation);
         }
 
         await cache.UpsetAsync(

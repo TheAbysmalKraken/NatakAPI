@@ -1,4 +1,6 @@
-﻿namespace Catan.Core.GameActions.StealResource;
+﻿using Catan.Core.Abstractions;
+
+namespace Catan.Core.GameActions.StealResource;
 
 public sealed record StealResourceCommand(
     string GameId,

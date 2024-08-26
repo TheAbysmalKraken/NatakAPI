@@ -1,8 +1,8 @@
 ﻿using System.Net;
 
-namespace Catan.Core.Models;
+namespace Catan.Domain;
 
-public static class Errors
+public static class GeneralErrors
 {
     public static readonly Error InvalidPlayerColour = new(
         HttpStatusCode.BadRequest,

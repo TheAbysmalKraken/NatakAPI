@@ -1,4 +1,6 @@
-﻿namespace Catan.Core.GameActions.PlayYearOfPlentyCard;
+﻿using Catan.Core.Abstractions;
+
+namespace Catan.Core.GameActions.PlayYearOfPlentyCard;
 
 public sealed record PlayYearOfPlentyCardCommand(
     string GameId,

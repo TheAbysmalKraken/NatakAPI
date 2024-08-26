@@ -1,5 +1,6 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
+using Catan.Domain;
 using Catan.Domain.Enums;
 
 namespace Catan.Core.GameActions.BuildRoad;
@@ -13,31 +14,24 @@ internal sealed class BuildRoadCommandHandler(IActiveGameCache cache) :
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.BuildRoad
-        && game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
+        Result result;
+
+        if (game.CurrentState == GameState.FirstRoad
+        || game.CurrentState == GameState.SecondRoad)
         {
-            return Result.Failure(Errors.InvalidGamePhase);
+            result = game.BuildRoad(request.FirstPoint, request.SecondPoint, true);
+        }
+        else
+        {
+            result = game.BuildRoad(request.FirstPoint, request.SecondPoint);
         }
 
-        bool buildSuccess = false;
-
-        if (game.GamePhase == GamePhase.FirstRoundSetup
-        || game.GamePhase == GamePhase.SecondRoundSetup)
+        if (result.IsFailure)
         {
-            buildSuccess = game.BuildFreeRoad(request.FirstPoint, request.SecondPoint);
-        }
-        else if (game.GamePhase == GamePhase.Main)
-        {
-            buildSuccess = game.BuildRoad(request.FirstPoint, request.SecondPoint);
-        }
-
-        if (!buildSuccess)
-        {
-            return Result.Failure(Errors.InvalidBuildLocation);
+            return result;
         }
 
         await cache.UpsetAsync(

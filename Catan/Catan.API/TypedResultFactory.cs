@@ -1,5 +1,5 @@
 ﻿using Catan.API.Responses;
-using Catan.Core.Models;
+using Catan.Domain;
 
 namespace Catan.API;
 

@@ -1,5 +1,6 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
+using Catan.Domain;
 using Catan.Domain.Enums;
 
 namespace Catan.Core.GameActions.PlayKnightCard;
@@ -16,35 +17,14 @@ internal sealed class PlayKnightCardCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        var playerColourToStealFrom = (PlayerColour)request.PlayerColourToStealFrom;
+        var result = game.PlayKnightCard();
 
-        if (!game.ContainsPlayer(playerColourToStealFrom))
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.InvalidPlayerColour);
-        }
-
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild
-        && game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
-        if (game.HasPlayedDevelopmentCardThisTurn)
-        {
-            return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);
-        }
-
-        var playSuccess = game.PlayKnightCard(
-            request.MoveRobberTo,
-            playerColourToStealFrom);
-
-        if (!playSuccess)
-        {
-            return Result.Failure(Errors.CannotPlayDevelopmentCard);
+            return result;
         }
 
         await cache.UpsetAsync(

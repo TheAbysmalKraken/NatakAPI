@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Catan.Core.Models;
+namespace Catan.Domain;
 
 public sealed record Error(HttpStatusCode StatusCode, string Type, string Message)
 {

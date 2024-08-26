@@ -1,4 +1,5 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
+using Catan.Core.Models;
 
 namespace Catan.Core.GameActions.GetGame;
 

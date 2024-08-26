@@ -1,9 +1,6 @@
-﻿using Catan.Domain;
+﻿using Catan.Core.Abstractions;
+using Catan.Domain;
 
 namespace Catan.Core.GameActions.PlayKnightCard;
 
-public sealed record PlayKnightCardCommand(
-    string GameId,
-    Point MoveRobberTo,
-    int PlayerColourToStealFrom)
-    : ICommand;
+public sealed record PlayKnightCardCommand(string GameId) : ICommand;

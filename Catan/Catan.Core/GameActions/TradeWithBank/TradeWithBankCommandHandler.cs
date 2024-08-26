@@ -1,5 +1,6 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
+using Catan.Domain;
 using Catan.Domain.Enums;
 
 namespace Catan.Core.GameActions.TradeWithBank;
@@ -16,56 +17,54 @@ internal sealed class TradeWithBankCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
-        }
-
-        if (game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
         var resourceToGive = (ResourceType)request.ResourceToGive;
         var resourceToGet = (ResourceType)request.ResourceToGet;
 
-        var tradeTwoToOneSuccess = game.TradeTwoToOne(
+        var result = game.TradeTwoToOne(
             resourceToGive,
             resourceToGet);
 
-        if (tradeTwoToOneSuccess)
+        if (result.IsSuccess)
         {
             await cache.UpsetAsync(
                 request.GameId,
                 game,
                 cancellationToken: cancellationToken);
+
             return Result.Success();
         }
 
-        var tradeThreeToOneSuccess = game.TradeThreeToOne(
+        var tradeThreeToOneResult = game.TradeThreeToOne(
             resourceToGive,
             resourceToGet);
 
-        if (tradeThreeToOneSuccess)
+        if (tradeThreeToOneResult.IsSuccess)
         {
             await cache.UpsetAsync(
                 request.GameId,
                 game,
                 cancellationToken: cancellationToken);
+
             return Result.Success();
         }
 
-        var tradeFourToOneSuccess = game.TradeFourToOne(
+        var tradeFourToOneResult = game.TradeFourToOne(
             resourceToGive,
             resourceToGet);
 
-        if (tradeFourToOneSuccess)
+        if (tradeFourToOneResult.IsSuccess)
         {
             await cache.UpsetAsync(
                 request.GameId,
                 game,
                 cancellationToken: cancellationToken);
+
             return Result.Success();
         }
 
-        return Result.Failure(Errors.CannotTradeWithBank);
+        return tradeFourToOneResult;
     }
 }

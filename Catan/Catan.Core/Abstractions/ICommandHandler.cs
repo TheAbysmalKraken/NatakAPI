@@ -1,7 +1,7 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Domain;
 using MediatR;
 
-namespace Catan.Core;
+namespace Catan.Core.Abstractions;
 
 public interface ICommandHandler<in TCommand> : IRequestHandler<TCommand, Result>
     where TCommand : ICommand

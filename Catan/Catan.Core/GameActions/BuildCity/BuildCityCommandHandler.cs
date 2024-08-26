@@ -1,6 +1,6 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
-using Catan.Domain.Enums;
+using Catan.Domain;
 
 namespace Catan.Core.GameActions.BuildCity;
 
@@ -13,20 +13,14 @@ internal sealed class BuildCityCommandHandler(IActiveGameCache cache) :
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
+        var result = game.BuildCity(request.BuildPoint);
 
-        var buildSuccess = game.BuildCity(request.BuildPoint);
-
-        if (!buildSuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.InvalidBuildLocation);
+            return result;
         }
 
         await cache.UpsetAsync(

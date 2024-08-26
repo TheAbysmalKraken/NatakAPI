@@ -1,6 +1,7 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Domain;
 using Catan.Core.Services;
 using Catan.Domain.Enums;
+using Catan.Core.Abstractions;
 
 namespace Catan.Core.GameActions.BuildSettlement;
 
@@ -13,31 +14,24 @@ internal sealed class BuildSettlementCommandHandler(IActiveGameCache cache) :
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.BuildSettlement
-        && game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
+        Result result;
+
+        if (game.CurrentState == GameState.FirstSettlement
+        || game.CurrentState == GameState.SecondSettlement)
         {
-            return Result.Failure(Errors.InvalidGamePhase);
+            result = game.BuildSettlement(request.BuildPoint, true);
+        }
+        else
+        {
+            result = game.BuildSettlement(request.BuildPoint);
         }
 
-        bool buildSuccess = false;
-
-        if (game.GamePhase == GamePhase.FirstRoundSetup
-        || game.GamePhase == GamePhase.SecondRoundSetup)
+        if (result.IsFailure)
         {
-            buildSuccess = game.BuildFreeSettlement(request.BuildPoint);
-        }
-        else if (game.GamePhase == GamePhase.Main)
-        {
-            buildSuccess = game.BuildSettlement(request.BuildPoint);
-        }
-
-        if (!buildSuccess)
-        {
-            return Result.Failure(Errors.InvalidBuildLocation);
+            return result;
         }
 
         await cache.UpsetAsync(

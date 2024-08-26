@@ -1,5 +1,6 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
+using Catan.Domain;
 using Catan.Domain.Enums;
 
 namespace Catan.Core.GameActions.StealResource;
@@ -16,29 +17,15 @@ internal sealed class StealResourceCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        var victimColour = (PlayerColour)request.VictimColour;
+        var result = game.StealResourceCard(
+            (PlayerColour)request.VictimColour);
 
-        if (!game.ContainsPlayer(victimColour))
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.InvalidPlayerColour);
-        }
-
-        if (game.GameSubPhase != GameSubPhase.StealResourceSevenRoll
-        && game.GameSubPhase != GameSubPhase.StealResourceKnightCardBeforeRoll
-        && game.GameSubPhase != GameSubPhase.StealResourceKnightCardAfterRoll)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
-        var stealSuccess = game.StealResourceCard(
-            victimColour);
-
-        if (!stealSuccess)
-        {
-            return Result.Failure(Errors.CannotStealResource);
+            return result;
         }
 
         await cache.UpsetAsync(

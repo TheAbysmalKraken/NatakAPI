@@ -1,4 +1,5 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
+using Catan.Core.Models;
 using Catan.Core.Services;
 using Catan.Domain;
 using Catan.Domain.Enums;
@@ -17,13 +18,13 @@ internal sealed class GetAvailableRoadLocationsQueryHandler(
 
         if (game is null)
         {
-            return Result.Failure<List<RoadResponse>>(Errors.GameNotFound);
+            return Result.Failure<List<RoadResponse>>(GeneralErrors.GameNotFound);
         }
 
         var playerColour = (PlayerColour)request.PlayerColour;
         if (!game.ContainsPlayer(playerColour))
         {
-            return Result.Failure<List<RoadResponse>>(Errors.InvalidPlayerColour);
+            return Result.Failure<List<RoadResponse>>(GeneralErrors.InvalidPlayerColour);
         }
 
         var board = game.Board;
@@ -47,10 +48,12 @@ internal sealed class GetAvailableRoadLocationsQueryHandler(
 
         foreach (var road in roads)
         {
-            if (board.CanPlaceRoadBetweenPoints(
+            var canPlaceRoadResult = board.CanPlaceRoadBetweenPoints(
                 road.FirstPoint,
                 road.SecondPoint,
-                playerColour))
+                playerColour);
+
+            if (canPlaceRoadResult.IsSuccess)
             {
                 availableRoadPoints.Add(road);
             }

@@ -1,6 +1,6 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
-using Catan.Domain.Enums;
+using Catan.Domain;
 
 namespace Catan.Core.GameActions.MakeTradeOffer;
 
@@ -16,21 +16,16 @@ internal sealed class MakeTradeOfferCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
-        var tradeSuccess = game.MakeTradeOffer(
+        var result = game.MakeTradeOffer(
             request.Offer,
             request.Request);
 
-        if (!tradeSuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.CannotMakeTradeOffer);
+            return result;
         }
 
         await cache.UpsetAsync(

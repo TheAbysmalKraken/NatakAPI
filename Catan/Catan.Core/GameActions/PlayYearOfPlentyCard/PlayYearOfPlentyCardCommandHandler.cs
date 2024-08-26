@@ -1,5 +1,6 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
+using Catan.Domain;
 using Catan.Domain.Enums;
 
 namespace Catan.Core.GameActions.PlayYearOfPlentyCard;
@@ -16,28 +17,16 @@ internal sealed class PlayYearOfPlentyCardCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild
-        && game.GameSubPhase != GameSubPhase.RollOrPlayDevelopmentCard)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
-
-        if (game.HasPlayedDevelopmentCardThisTurn)
-        {
-            return Result.Failure(Errors.AlreadyPlayedDevelopmentCard);
-        }
-
-        var playSuccess = game.PlayYearOfPlentyCard(
+        var result = game.PlayYearOfPlentyCard(
             (ResourceType)request.FirstResource,
             (ResourceType)request.SecondResource);
 
-        if (!playSuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.CannotPlayDevelopmentCard);
+            return result;
         }
 
         await cache.UpsetAsync(

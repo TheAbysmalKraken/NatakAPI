@@ -1,6 +1,6 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
-using Catan.Domain.Enums;
+using Catan.Domain;
 
 namespace Catan.Core.GameActions.BuyDevelopmentCard;
 
@@ -16,20 +16,14 @@ internal sealed class BuyDevelopmentCardCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
-        }
+        var result = game.BuyDevelopmentCard();
 
-        var buySuccess = game.BuyDevelopmentCard();
-
-        if (!buySuccess)
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.CannotBuyDevelopmentCard);
+            return result;
         }
 
         await cache.UpsetAsync(

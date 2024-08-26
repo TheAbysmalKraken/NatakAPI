@@ -1,6 +1,6 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
-using Catan.Domain.Enums;
+using Catan.Domain;
 
 namespace Catan.Core.GameActions.EndTurn;
 
@@ -13,16 +13,16 @@ internal sealed class EndTurnCommandHandler(IActiveGameCache cache) :
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
-        if (game.GameSubPhase != GameSubPhase.PlayTurn
-        && game.GameSubPhase != GameSubPhase.TradeOrBuild)
+        var result = game.NextPlayer();
+
+        if (result.IsFailure)
         {
-            return Result.Failure(Errors.InvalidGamePhase);
+            return result;
         }
 
-        game.NextPlayer();
         await cache.UpsetAsync(
             request.GameId,
             game,

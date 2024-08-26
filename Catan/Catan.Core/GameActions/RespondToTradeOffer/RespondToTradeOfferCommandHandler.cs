@@ -1,5 +1,6 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
+using Catan.Domain;
 using Catan.Domain.Enums;
 
 namespace Catan.Core.GameActions.RespondToTradeOffer;
@@ -16,37 +17,27 @@ internal sealed class RespondToTradeOfferCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(Errors.GameNotFound);
-        }
-
-        if (!game.TradeOffer.IsActive)
-        {
-            return Result.Failure(Errors.NoTradeOfferToRespondTo);
-        }
-
-        if (game.GameSubPhase != GameSubPhase.TradeOrBuild)
-        {
-            return Result.Failure(Errors.InvalidGamePhase);
+            return Result.Failure(GeneralErrors.GameNotFound);
         }
 
         var playerColour = (PlayerColour)request.PlayerColour;
 
         if (request.Accept)
         {
-            var acceptSuccess = game.AcceptTradeOffer(playerColour);
+            var acceptResult = game.AcceptTradeOffer(playerColour);
 
-            if (!acceptSuccess)
+            if (acceptResult.IsFailure)
             {
-                return Result.Failure(Errors.CannotRespondToTradeOffer);
+                return acceptResult;
             }
         }
         else
         {
-            var rejectSuccess = game.RejectTradeOffer(playerColour);
+            var rejectResult = game.RejectTradeOffer(playerColour);
 
-            if (!rejectSuccess)
+            if (rejectResult.IsFailure)
             {
-                return Result.Failure(Errors.CannotRespondToTradeOffer);
+                return rejectResult;
             }
         }
 

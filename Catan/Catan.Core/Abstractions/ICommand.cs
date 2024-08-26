@@ -1,7 +1,7 @@
-﻿using Catan.Core.Models;
+﻿using Catan.Domain;
 using MediatR;
 
-namespace Catan.Core;
+namespace Catan.Core.Abstractions;
 
 public interface ICommand : IRequest<Result>;
 public interface ICommand<TResponse> : IRequest<Result<TResponse>>;

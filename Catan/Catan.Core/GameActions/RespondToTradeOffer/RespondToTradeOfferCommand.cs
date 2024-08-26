@@ -1,4 +1,6 @@
-﻿namespace Catan.Core.GameActions.RespondToTradeOffer;
+﻿using Catan.Core.Abstractions;
+
+namespace Catan.Core.GameActions.RespondToTradeOffer;
 
 public sealed record RespondToTradeOfferCommand(
     string GameId,
