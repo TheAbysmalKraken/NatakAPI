@@ -1,12 +1,13 @@
 ﻿using Catan.Core.GameActions.GetAvailableCityLocations;
 using Catan.Core.Services;
 using Catan.Core.UnitTests.GameActions.Shared;
+using Catan.Domain.Enums;
 
 namespace Catan.Core.UnitTests.GameActions;
 
 public sealed class GetAvailableCityLocationsTests
 {
-    private static readonly GetAvailableCityLocationsQuery query = new("testId", 0);
+    private static readonly GetAvailableCityLocationsQuery query = new("testId", (int)PlayerColour.Red);
 
     private readonly GetAvailableCityLocationsQueryHandler handler;
     private readonly IActiveGameCache cacheMock = Substitute.For<IActiveGameCache>();
@@ -47,7 +48,7 @@ public sealed class GetAvailableCityLocationsTests
     public async Task Handle_Should_ReturnFailure_WhenPlayerColourIsInvalid()
     {
         // Arrange
-        var invalidQuery = new GetAvailableCityLocationsQuery(query.GameId, -1);
+        var invalidQuery = new GetAvailableCityLocationsQuery(query.GameId, (int)PlayerColour.None);
 
         // Act
         var result = await handler.Handle(invalidQuery, default);

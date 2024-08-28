@@ -7,12 +7,12 @@ public static class DomainConstants
     public static Dictionary<ResourceType, int> GetTileResourceTypeTotals()
         => new()
         {
+            { ResourceType.Desert, 1 },
             { ResourceType.Wood, 4 },
             { ResourceType.Brick, 3 },
             { ResourceType.Sheep, 4 },
             { ResourceType.Wheat, 4 },
-            { ResourceType.Ore, 3 },
-            { ResourceType.Desert, 1 }
+            { ResourceType.Ore, 3 }
         };
 
     public static Dictionary<int, int> GetTileActivationNumberTotals()
@@ -58,13 +58,12 @@ public static class DomainConstants
     public static Dictionary<PortType, int> GetPortTypeTotals()
         => new()
         {
-            { PortType.None, 0},
+            { PortType.ThreeToOne, 4 },
             { PortType.Wood, 1 },
             { PortType.Brick, 1 },
             { PortType.Sheep, 1 },
             { PortType.Wheat, 1 },
-            { PortType.Ore, 1 },
-            { PortType.ThreeToOne, 4 }
+            { PortType.Ore, 1 }
         };
 
     public static Dictionary<DevelopmentCardType, int> GetDevelopmentCardTypeTotals()
