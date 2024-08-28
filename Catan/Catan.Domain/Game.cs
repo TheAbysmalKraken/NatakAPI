@@ -96,7 +96,7 @@ public class Game
     public bool ContainsPlayer(PlayerColour playerColour)
     {
         var intPlayerColour = (int)playerColour;
-        return intPlayerColour >= 0 && intPlayerColour < PlayerCount;
+        return intPlayerColour > (int)PlayerColour.None && intPlayerColour < PlayerCount;
     }
 
     public Result NextPlayer()
@@ -154,8 +154,7 @@ public class Game
                 var tile = Board.GetTile(point);
 
                 if (tile is null
-                || tile.Type == ResourceType.Desert
-                || tile.Type == ResourceType.None)
+                || tile.Type == ResourceType.Desert)
                 {
                     continue;
                 }
@@ -187,7 +186,7 @@ public class Game
         {
             var resourceType = tile.Type;
 
-            if (resourceType == ResourceType.None || resourceType == ResourceType.Desert)
+            if (resourceType == ResourceType.Desert)
             {
                 continue;
             }
@@ -312,7 +311,7 @@ public class Game
 
     public Result PlayYearOfPlentyCard(ResourceType resourceType1, ResourceType resourceType2)
     {
-        if (resourceType1 == ResourceType.None || resourceType2 == ResourceType.None)
+        if (resourceType1 == ResourceType.Desert || resourceType2 == ResourceType.Desert)
         {
             return Result.Failure(GameErrors.InvalidResourceType);
         }
@@ -345,7 +344,7 @@ public class Game
 
     public Result PlayMonopolyCard(ResourceType resourceType)
     {
-        if (resourceType == ResourceType.None)
+        if (resourceType == ResourceType.Desert)
         {
             return Result.Failure(GameErrors.InvalidResourceType);
         }
@@ -870,7 +869,7 @@ public class Game
 
         for (var i = 0; i < numberOfPlayers; i++)
         {
-            PlayerColour playerColour = (PlayerColour)i;
+            PlayerColour playerColour = (PlayerColour)(i + 1);
             var newPlayer = new Player(playerColour);
 
             players.Add(newPlayer);

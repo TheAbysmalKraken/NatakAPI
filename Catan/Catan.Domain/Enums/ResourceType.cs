@@ -2,11 +2,10 @@
 
 public enum ResourceType
 {
-    None,
+    Desert,
     Wood,
     Brick,
     Sheep,
     Wheat,
-    Ore,
-    Desert
+    Ore
 }
