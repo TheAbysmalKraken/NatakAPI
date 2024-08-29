@@ -9,6 +9,11 @@ public static class GameErrors
         "Game.NotFound",
         "Game not found by specified identifier.");
 
+    public static Error InvalidPlayerCount => new(
+        HttpStatusCode.BadRequest,
+        "Game.InvalidPlayerCount",
+        "Player count must be between 3 and 4.");
+
     public static Error PlayerToStealFromDoesNotHaveHouseOnTile => new(
         HttpStatusCode.BadRequest,
         "Game.PlayerToStealFromDoesNotHaveHouseOnTile",

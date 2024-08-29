@@ -32,7 +32,7 @@ public static class PlayerErrors
     public static Error InvalidPlayerColour => new(
         HttpStatusCode.BadRequest,
         "Player.InvalidPlayerColour",
-        "Player colour must be between 0 and 3.");
+        "Player colour must be between 1 and 4.");
 
     public static Error NotFound => new(
         HttpStatusCode.NotFound,

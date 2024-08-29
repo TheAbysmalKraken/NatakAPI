@@ -3,6 +3,7 @@ using Catan.Core.Models;
 using Catan.Core.Services;
 using Catan.Domain;
 using Catan.Domain.Enums;
+using Catan.Domain.Errors;
 
 namespace Catan.Core.GameActions.GetAvailableSettlementLocations;
 
@@ -18,13 +19,13 @@ internal sealed class GetAvailableSettlementLocationsQueryHandler(
 
         if (game is null)
         {
-            return Result.Failure<List<PointResponse>>(GeneralErrors.GameNotFound);
+            return Result.Failure<List<PointResponse>>(GameErrors.GameNotFound);
         }
 
         var playerColour = (PlayerColour)request.PlayerColour;
         if (!game.ContainsPlayer(playerColour))
         {
-            return Result.Failure<List<PointResponse>>(GeneralErrors.InvalidPlayerColour);
+            return Result.Failure<List<PointResponse>>(PlayerErrors.InvalidPlayerColour);
         }
 
         var board = game.Board;

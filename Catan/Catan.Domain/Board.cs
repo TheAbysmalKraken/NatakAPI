@@ -253,6 +253,43 @@ public sealed class Board
         return Result.Success();
     }
 
+    public Result CanPlaceSetupRoadBetweenPoints(Point point1, Point point2, PlayerColour colour)
+    {
+        if (colour == PlayerColour.None)
+        {
+            return Result.Failure(PlayerErrors.InvalidPlayerColour);
+        }
+
+        if (!RoadPointsAreValid(point1, point2))
+        {
+            return Result.Failure(BoardErrors.InvalidRoadPoints);
+        }
+
+        if (RoadIsClaimed(point1, point2))
+        {
+            return Result.Failure(BoardErrors.RoadAlreadyExists);
+        }
+
+        var point1ContainsHouseOfSameColour = PointContainsHouseOfColour(point1, colour);
+        var point2ContainsHouseOfSameColour = PointContainsHouseOfColour(point2, colour);
+
+        if (!point1ContainsHouseOfSameColour && !point2ContainsHouseOfSameColour)
+        {
+            return Result.Failure(BoardErrors.RoadDoesNotConnect);
+        }
+
+        // If road is connected to a house AND a road at the same point, it is invalid for setup.
+        if ((GetOccupiedRoadsOfColourConnectedToPoint(point1, colour).Count > 0
+            && point1ContainsHouseOfSameColour)
+            || (GetOccupiedRoadsOfColourConnectedToPoint(point2, colour).Count > 0
+            && point2ContainsHouseOfSameColour))
+        {
+            return Result.Failure(BoardErrors.RoadAlreadyConnected);
+        }
+
+        return Result.Success();
+    }
+
     public Result CanPlaceRoadBetweenPoints(Point point1, Point point2, PlayerColour colour)
     {
         if (colour == PlayerColour.None)
@@ -316,9 +353,18 @@ public sealed class Board
         return canPlaceSecondResult;
     }
 
-    public Result PlaceRoad(Point point1, Point point2, PlayerColour colour)
+    public Result PlaceRoad(Point point1, Point point2, PlayerColour colour, bool isSetup = false)
     {
-        var canPlaceResult = CanPlaceRoadBetweenPoints(point1, point2, colour);
+        Result canPlaceResult;
+
+        if (isSetup)
+        {
+            canPlaceResult = CanPlaceSetupRoadBetweenPoints(point1, point2, colour);
+        }
+        else
+        {
+            canPlaceResult = CanPlaceRoadBetweenPoints(point1, point2, colour);
+        }
 
         if (canPlaceResult.IsFailure)
         {

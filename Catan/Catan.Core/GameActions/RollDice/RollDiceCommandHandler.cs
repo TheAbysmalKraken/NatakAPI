@@ -1,6 +1,7 @@
 ﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
 using Catan.Domain;
+using Catan.Domain.Errors;
 
 namespace Catan.Core.GameActions.RollDice;
 
@@ -14,7 +15,7 @@ internal sealed class RollDiceCommandHandler(IActiveGameCache cache) :
         if (game is null)
         {
             return Result.Failure<RollDiceResponse>(
-                GeneralErrors.GameNotFound);
+                GameErrors.GameNotFound);
         }
 
         var result = game.RollDiceAndDistributeResourcesToPlayers();

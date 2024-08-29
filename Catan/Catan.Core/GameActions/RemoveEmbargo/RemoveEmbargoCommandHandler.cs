@@ -2,6 +2,7 @@ using Catan.Core.Abstractions;
 using Catan.Core.Services;
 using Catan.Domain;
 using Catan.Domain.Enums;
+using Catan.Domain.Errors;
 
 namespace Catan.Core.GameActions.RemoveEmbargo;
 
@@ -16,7 +17,7 @@ public sealed class RemoveEmbargoCommandHandler(IActiveGameCache cache) :
 
         if (game is null)
         {
-            return Result.Failure(GeneralErrors.GameNotFound);
+            return Result.Failure(GameErrors.GameNotFound);
         }
 
         var playerColour = (PlayerColour)request.PlayerColour;

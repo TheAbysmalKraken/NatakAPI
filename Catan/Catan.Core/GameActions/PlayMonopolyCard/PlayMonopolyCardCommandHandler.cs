@@ -2,6 +2,7 @@
 using Catan.Core.Services;
 using Catan.Domain;
 using Catan.Domain.Enums;
+using Catan.Domain.Errors;
 
 namespace Catan.Core.GameActions.PlayMonopolyCard;
 
@@ -17,7 +18,7 @@ internal sealed class PlayMonopolyCardCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(GeneralErrors.GameNotFound);
+            return Result.Failure(GameErrors.GameNotFound);
         }
 
         var result = game.PlayMonopolyCard(

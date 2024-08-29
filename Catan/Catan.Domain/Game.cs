@@ -96,7 +96,7 @@ public class Game
     public bool ContainsPlayer(PlayerColour playerColour)
     {
         var intPlayerColour = (int)playerColour;
-        return intPlayerColour > (int)PlayerColour.None && intPlayerColour < PlayerCount;
+        return intPlayerColour > (int)PlayerColour.None && intPlayerColour < PlayerCount + 1;
     }
 
     public Result NextPlayer()
@@ -531,7 +531,11 @@ public class Game
             return Result.Failure(PlayerErrors.MissingResources);
         }
 
-        var canPlaceResult = Board.CanPlaceRoadBetweenPoints(point1, point2, CurrentPlayer.Colour);
+        bool isSetup = CurrentState == GameState.FirstRoad || CurrentState == GameState.SecondRoad;
+
+        var canPlaceResult = isSetup
+            ? Board.CanPlaceSetupRoadBetweenPoints(point1, point2, CurrentPlayer.Colour)
+            : Board.CanPlaceRoadBetweenPoints(point1, point2, CurrentPlayer.Colour);
 
         if (canPlaceResult.IsFailure)
         {
@@ -545,7 +549,7 @@ public class Game
             return moveStateResult;
         }
 
-        var result = Board.PlaceRoad(point1, point2, CurrentPlayer.Colour);
+        var result = Board.PlaceRoad(point1, point2, CurrentPlayer.Colour, isSetup);
 
         if (result.IsFailure)
         {

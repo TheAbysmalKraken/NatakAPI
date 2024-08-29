@@ -1,6 +1,7 @@
 ﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
 using Catan.Domain;
+using Catan.Domain.Errors;
 
 namespace Catan.Core.GameActions.MakeTradeOffer;
 
@@ -16,7 +17,7 @@ internal sealed class MakeTradeOfferCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(GeneralErrors.GameNotFound);
+            return Result.Failure(GameErrors.GameNotFound);
         }
 
         var result = game.MakeTradeOffer(
