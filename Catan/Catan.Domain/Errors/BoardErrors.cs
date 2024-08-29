@@ -68,4 +68,9 @@ public static class BoardErrors
         HttpStatusCode.BadRequest,
         "Board.SettlementAlreadyUpgraded",
         "Settlement is already upgraded to a city.");
+
+    public static Error RoadAlreadyConnected => new(
+        HttpStatusCode.BadRequest,
+        "Board.RoadAlreadyConnected",
+        "Road is already connected to the specified settlement.");
 }

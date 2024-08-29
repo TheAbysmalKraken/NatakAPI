@@ -31,6 +31,7 @@ internal sealed class GetAvailableRoadLocationsQueryHandler(
 
         var availableRoadPoints = SelectAvailableRoadPoints(
             board,
+            game.CurrentState,
             playerColour);
 
         var response = availableRoadPoints.Select(RoadResponse.FromDomain).ToList();
@@ -40,18 +41,26 @@ internal sealed class GetAvailableRoadLocationsQueryHandler(
 
     private static List<Road> SelectAvailableRoadPoints(
         Board board,
+        GameState gameState,
         PlayerColour playerColour)
     {
         var availableRoadPoints = new List<Road>();
+        bool isSetup = gameState == GameState.FirstRoad
+            || gameState == GameState.SecondRoad;
 
         var roads = board.GetRoads();
 
         foreach (var road in roads)
         {
-            var canPlaceRoadResult = board.CanPlaceRoadBetweenPoints(
-                road.FirstPoint,
-                road.SecondPoint,
-                playerColour);
+            var canPlaceRoadResult = isSetup
+                ? board.CanPlaceSetupRoadBetweenPoints(
+                    road.FirstPoint,
+                    road.SecondPoint,
+                    playerColour)
+                : board.CanPlaceRoadBetweenPoints(
+                    road.FirstPoint,
+                    road.SecondPoint,
+                    playerColour);
 
             if (canPlaceRoadResult.IsSuccess)
             {

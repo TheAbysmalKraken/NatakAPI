@@ -7,7 +7,7 @@ public static class GeneralErrors
     public static readonly Error InvalidPlayerColour = new(
         HttpStatusCode.BadRequest,
         "Catan.InvalidPlayerColour",
-        "Player colour must be between 0 and 3.");
+        "Player colour must be between 1 and 4.");
 
     public static readonly Error GameNotFound = new(
         HttpStatusCode.NotFound,
