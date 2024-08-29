@@ -3,6 +3,7 @@ using Catan.Core.Models;
 using Catan.Core.Services;
 using Catan.Domain;
 using Catan.Domain.Enums;
+using Catan.Domain.Errors;
 
 namespace Catan.Core.GameActions.GetGame;
 
@@ -15,11 +16,11 @@ internal sealed class GetGameQueryHandler(IActiveGameCache cache) :
 
         if (game is null)
         {
-            return Result.Failure<GameResponse>(GeneralErrors.GameNotFound);
+            return Result.Failure<GameResponse>(GameErrors.GameNotFound);
         }
         if (!game.ContainsPlayer((PlayerColour)request.PlayerColour))
         {
-            return Result.Failure<GameResponse>(GeneralErrors.InvalidPlayerColour);
+            return Result.Failure<GameResponse>(PlayerErrors.InvalidPlayerColour);
         }
 
         var response = GameResponse.FromDomain(game, request.PlayerColour);

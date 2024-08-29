@@ -2,6 +2,7 @@
 using Catan.Core.Services;
 using Catan.Domain.Enums;
 using Catan.Core.Abstractions;
+using Catan.Domain.Errors;
 
 namespace Catan.Core.GameActions.BuildSettlement;
 
@@ -14,7 +15,7 @@ internal sealed class BuildSettlementCommandHandler(IActiveGameCache cache) :
 
         if (game is null)
         {
-            return Result.Failure(GeneralErrors.GameNotFound);
+            return Result.Failure(GameErrors.GameNotFound);
         }
 
         Result result;

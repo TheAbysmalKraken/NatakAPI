@@ -1,6 +1,7 @@
 ﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
 using Catan.Domain;
+using Catan.Domain.Errors;
 
 namespace Catan.Core.GameActions.EndTurn;
 
@@ -13,7 +14,7 @@ internal sealed class EndTurnCommandHandler(IActiveGameCache cache) :
 
         if (game is null)
         {
-            return Result.Failure(GeneralErrors.GameNotFound);
+            return Result.Failure(GameErrors.GameNotFound);
         }
 
         var result = game.NextPlayer();

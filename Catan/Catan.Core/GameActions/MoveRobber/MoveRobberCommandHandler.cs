@@ -1,6 +1,7 @@
 ﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
 using Catan.Domain;
+using Catan.Domain.Errors;
 
 namespace Catan.Core.GameActions.MoveRobber;
 
@@ -16,14 +17,14 @@ internal sealed class MoveRobberCommandHandler(
 
         if (game is null)
         {
-            return Result.Failure(GeneralErrors.GameNotFound);
+            return Result.Failure(GameErrors.GameNotFound);
         }
 
         var result = game.MoveRobber(request.MoveRobberTo);
 
         if (result.IsFailure)
         {
-            return Result.Failure(GeneralErrors.CannotMoveRobberToLocation);
+            return result;
         }
 
         await cache.UpsetAsync(

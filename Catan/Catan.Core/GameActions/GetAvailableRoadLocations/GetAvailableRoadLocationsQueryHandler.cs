@@ -3,6 +3,7 @@ using Catan.Core.Models;
 using Catan.Core.Services;
 using Catan.Domain;
 using Catan.Domain.Enums;
+using Catan.Domain.Errors;
 
 namespace Catan.Core.GameActions.GetAvailableRoadLocations;
 
@@ -18,13 +19,13 @@ internal sealed class GetAvailableRoadLocationsQueryHandler(
 
         if (game is null)
         {
-            return Result.Failure<List<RoadResponse>>(GeneralErrors.GameNotFound);
+            return Result.Failure<List<RoadResponse>>(GameErrors.GameNotFound);
         }
 
         var playerColour = (PlayerColour)request.PlayerColour;
         if (!game.ContainsPlayer(playerColour))
         {
-            return Result.Failure<List<RoadResponse>>(GeneralErrors.InvalidPlayerColour);
+            return Result.Failure<List<RoadResponse>>(PlayerErrors.InvalidPlayerColour);
         }
 
         var board = game.Board;
