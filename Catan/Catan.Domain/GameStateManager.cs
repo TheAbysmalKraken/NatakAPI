@@ -5,37 +5,40 @@ namespace Catan.Domain;
 
 public sealed class GameStateManager(GameState initialState = GameState.FirstSettlement)
 {
-    private readonly Dictionary<StateTransition, GameState> transitions = new()
+    private readonly Dictionary<StateTransition, StateTransitionOutput> transitions = new()
     {
-        { new StateTransition(GameState.FirstSettlement, ActionType.BuildSettlement), GameState.FirstRoad },
-        { new StateTransition(GameState.FirstRoad, ActionType.BuildRoad), GameState.FirstSetupReadyForNextPlayer },
-        { new StateTransition(GameState.FirstSetupReadyForNextPlayer, ActionType.EndTurn), GameState.FirstSettlement },
-        { new StateTransition(GameState.FirstSetupReadyForNextPlayer, ActionType.FirstSetupFinished), GameState.SecondSettlement },
-        { new StateTransition(GameState.SecondSettlement, ActionType.BuildSettlement), GameState.SecondRoad },
-        { new StateTransition(GameState.SecondRoad, ActionType.BuildRoad), GameState.SecondSetupReadyForNextPlayer },
-        { new StateTransition(GameState.SecondSetupReadyForNextPlayer, ActionType.EndTurn), GameState.SecondSettlement },
-        { new StateTransition(GameState.SecondSetupReadyForNextPlayer, ActionType.SecondSetupFinished), GameState.BeforeRoll },
-        { new StateTransition(GameState.BeforeRoll, ActionType.RollDice), GameState.AfterRoll },
-        { new StateTransition(GameState.BeforeRoll, ActionType.RollSeven), GameState.DiscardResources },
-        { new StateTransition(GameState.BeforeRoll, ActionType.PlayKnightCard), GameState.MoveRobber },
-        { new StateTransition(GameState.BeforeRoll, ActionType.PlayRoadBuildingCard), GameState.BeforeRoll },
-        { new StateTransition(GameState.BeforeRoll, ActionType.PlayYearOfPlentyCard), GameState.BeforeRoll },
-        { new StateTransition(GameState.BeforeRoll, ActionType.PlayMonopolyCard), GameState.BeforeRoll },
-        { new StateTransition(GameState.AfterRoll, ActionType.EndTurn), GameState.BeforeRoll },
-        { new StateTransition(GameState.AfterRoll, ActionType.PlayerHasWon), GameState.GameOver },
-        { new StateTransition(GameState.AfterRoll, ActionType.BuildSettlement), GameState.AfterRoll },
-        { new StateTransition(GameState.AfterRoll, ActionType.BuildRoad), GameState.AfterRoll },
-        { new StateTransition(GameState.AfterRoll, ActionType.BuildCity), GameState.AfterRoll },
-        { new StateTransition(GameState.AfterRoll, ActionType.Trade), GameState.AfterRoll },
-        { new StateTransition(GameState.AfterRoll, ActionType.PlayKnightCard), GameState.MoveRobber },
-        { new StateTransition(GameState.AfterRoll, ActionType.PlayRoadBuildingCard), GameState.AfterRoll },
-        { new StateTransition(GameState.AfterRoll, ActionType.PlayYearOfPlentyCard), GameState.AfterRoll },
-        { new StateTransition(GameState.AfterRoll, ActionType.PlayMonopolyCard), GameState.AfterRoll },
-        { new StateTransition(GameState.DiscardResources, ActionType.AllResourcesDiscarded), GameState.MoveRobber },
-        { new StateTransition(GameState.MoveRobber, ActionType.MoveRobber), GameState.AfterRoll }
+        { new(GameState.FirstSettlement, ActionType.BuildSettlement), new(GameState.FirstRoad) },
+        { new(GameState.FirstRoad, ActionType.BuildRoad), new(GameState.FirstSetupReadyForNextPlayer) },
+        { new(GameState.FirstSetupReadyForNextPlayer, ActionType.EndTurn), new(GameState.FirstSettlement) },
+        { new(GameState.FirstSetupReadyForNextPlayer, ActionType.FirstSetupFinished), new(GameState.SecondSettlement) },
+        { new(GameState.SecondSettlement, ActionType.BuildSettlement), new(GameState.SecondRoad) },
+        { new(GameState.SecondRoad, ActionType.BuildRoad), new(GameState.SecondSetupReadyForNextPlayer) },
+        { new(GameState.SecondSetupReadyForNextPlayer, ActionType.EndTurn), new(GameState.SecondSettlement) },
+        { new(GameState.SecondSetupReadyForNextPlayer, ActionType.SecondSetupFinished), new(GameState.BeforeRoll) },
+        { new(GameState.BeforeRoll, ActionType.RollDice), new(GameState.AfterRoll) },
+        { new(GameState.BeforeRoll, ActionType.RollSeven), new(GameState.DiscardResources, StateTransitionType.Add) },
+        { new(GameState.BeforeRoll, ActionType.PlayKnightCard), new(GameState.MoveRobber, StateTransitionType.Add) },
+        { new(GameState.BeforeRoll, ActionType.PlayRoadBuildingCard), new(GameState.BeforeRoll) },
+        { new(GameState.BeforeRoll, ActionType.PlayYearOfPlentyCard), new(GameState.BeforeRoll) },
+        { new(GameState.BeforeRoll, ActionType.PlayMonopolyCard), new(GameState.BeforeRoll) },
+        { new(GameState.AfterRoll, ActionType.EndTurn), new(GameState.BeforeRoll) },
+        { new(GameState.AfterRoll, ActionType.PlayerHasWon), new(GameState.GameOver) },
+        { new(GameState.AfterRoll, ActionType.BuildSettlement), new(GameState.AfterRoll) },
+        { new(GameState.AfterRoll, ActionType.BuildRoad), new(GameState.AfterRoll) },
+        { new(GameState.AfterRoll, ActionType.BuildCity), new(GameState.AfterRoll) },
+        { new(GameState.AfterRoll, ActionType.Trade), new(GameState.AfterRoll) },
+        { new(GameState.AfterRoll, ActionType.PlayKnightCard), new(GameState.MoveRobber, StateTransitionType.Add) },
+        { new(GameState.AfterRoll, ActionType.PlayRoadBuildingCard), new(GameState.AfterRoll) },
+        { new(GameState.AfterRoll, ActionType.PlayYearOfPlentyCard), new(GameState.AfterRoll) },
+        { new(GameState.AfterRoll, ActionType.PlayMonopolyCard), new(GameState.AfterRoll) },
+        { new(GameState.DiscardResources, ActionType.AllResourcesDiscarded), new(GameState.MoveRobber) },
+        { new(GameState.MoveRobber, ActionType.MoveRobber), new(GameState.StealResource) },
+        { new(GameState.StealResource, ActionType.StealResource), new(GameState.StealResource, StateTransitionType.Remove)}
     };
 
-    public GameState CurrentState { get; private set; } = initialState;
+    private readonly Stack<GameState> stateStack = new([initialState]);
+
+    public GameState CurrentState => stateStack.First();
 
     public List<ActionType> GetValidActions()
     {
@@ -43,14 +46,6 @@ public sealed class GameStateManager(GameState initialState = GameState.FirstSet
             .Where(kvp => kvp.Key.CurrentState == CurrentState)
             .Select(kvp => kvp.Key.Action)
             .ToList();
-    }
-
-    public GameState? GetNextState(ActionType action)
-    {
-        var transition = new StateTransition(CurrentState, action);
-        return transitions.TryGetValue(transition, out var nextState)
-            ? nextState
-            : null;
     }
 
     public Result MoveState(ActionType action)
@@ -62,13 +57,52 @@ public sealed class GameStateManager(GameState initialState = GameState.FirstSet
             return Result.Failure(GameStateManagerErrors.InvalidAction);
         }
 
-        CurrentState = nextState.Value;
+        switch (nextState.Type)
+        {
+            case StateTransitionType.Add:
+                stateStack.Push(nextState.OutputState);
+                break;
+
+            case StateTransitionType.Remove:
+                stateStack.Pop();
+                break;
+
+            case StateTransitionType.Keep:
+            default:
+                stateStack.Pop();
+                stateStack.Push(nextState.OutputState);
+                break;
+        }
+
+        if (stateStack.Count == 0)
+        {
+            throw new Exception("Gamestate missing.");
+        }
 
         return Result.Success();
+    }
+
+    private StateTransitionOutput? GetNextState(ActionType action)
+    {
+        var transition = new StateTransition(CurrentState, action);
+        return transitions.TryGetValue(transition, out var nextState)
+            ? nextState
+            : null;
     }
 
     internal sealed record StateTransition(GameState CurrentState, ActionType Action)
     {
         public override int GetHashCode() => (CurrentState, Action).GetHashCode();
+    }
+
+    internal sealed record StateTransitionOutput(
+        GameState OutputState,
+        StateTransitionType Type = StateTransitionType.Keep);
+
+    internal enum StateTransitionType
+    {
+        Add,
+        Keep,
+        Remove
     }
 }
