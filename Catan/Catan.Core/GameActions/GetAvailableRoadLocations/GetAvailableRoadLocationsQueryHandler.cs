@@ -23,16 +23,16 @@ internal sealed class GetAvailableRoadLocationsQueryHandler(
         }
 
         var playerColour = (PlayerColour)request.PlayerColour;
-        if (!game.ContainsPlayer(playerColour))
+        if (game.GetPlayer(playerColour) is null)
         {
-            return Result.Failure<List<RoadResponse>>(PlayerErrors.InvalidPlayerColour);
+            return Result.Failure<List<RoadResponse>>(PlayerErrors.NotFound);
         }
 
         var board = game.Board;
 
         var availableRoadPoints = SelectAvailableRoadPoints(
             board,
-            game.CurrentState,
+            game.IsSetup,
             playerColour);
 
         var response = availableRoadPoints.Select(RoadResponse.FromDomain).ToList();
@@ -42,12 +42,10 @@ internal sealed class GetAvailableRoadLocationsQueryHandler(
 
     private static List<Road> SelectAvailableRoadPoints(
         Board board,
-        GameState gameState,
+        bool isSetup,
         PlayerColour playerColour)
     {
         var availableRoadPoints = new List<Road>();
-        bool isSetup = gameState == GameState.FirstRoad
-            || gameState == GameState.SecondRoad;
 
         var roads = board.GetRoads();
 

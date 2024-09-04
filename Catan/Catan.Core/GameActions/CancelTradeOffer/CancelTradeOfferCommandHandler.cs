@@ -19,12 +19,7 @@ public sealed class CancelTradeOfferCommandHandler(IActiveGameCache cache) :
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        var result = game.CancelTradeOffer();
-
-        if (result.IsFailure)
-        {
-            return result;
-        }
+        game.CancelTradeOffer();
 
         await cache.UpsetAsync(
             request.GameId,

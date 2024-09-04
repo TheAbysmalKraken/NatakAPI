@@ -1,12 +1,29 @@
 using Catan.Domain.Enums;
 
-namespace Catan.Domain;
+namespace Catan.Domain.Managers;
 
-public sealed class PlayerDevelopmentCardManager : CardManager<DevelopmentCardType>
+public sealed class PlayerDevelopmentCardManager : ItemManager<DevelopmentCardType>
 {
     private readonly Dictionary<DevelopmentCardType, int> onHoldCards = [];
 
+    public Dictionary<DevelopmentCardType, int> Cards => items;
+
     public Dictionary<DevelopmentCardType, int> OnHoldCards => onHoldCards;
+
+    public bool HasOnHold(DevelopmentCardType card)
+    {
+        return CountOnHold(card) > 0;
+    }
+
+    public int CountOnHold(DevelopmentCardType card)
+    {
+        return onHoldCards.TryGetValue(card, out int value) ? value : 0;
+    }
+
+    public int CountAllOnHold()
+    {
+        return onHoldCards.Values.Sum();
+    }
 
     public void Add(DevelopmentCardType card)
     {

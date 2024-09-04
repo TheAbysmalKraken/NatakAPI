@@ -20,11 +20,11 @@ internal sealed class BuyDevelopmentCardCommandHandler(
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        var result = game.BuyDevelopmentCard();
+        var purchaseResult = game.BuyDevelopmentCard();
 
-        if (result.IsFailure)
+        if (purchaseResult.IsFailure)
         {
-            return result;
+            return purchaseResult;
         }
 
         await cache.UpsetAsync(

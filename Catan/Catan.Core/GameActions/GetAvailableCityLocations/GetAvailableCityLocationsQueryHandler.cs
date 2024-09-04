@@ -23,9 +23,9 @@ internal sealed class GetAvailableCityLocationsQueryHandler(
         }
 
         var playerColour = (PlayerColour)request.PlayerColour;
-        if (!game.ContainsPlayer(playerColour))
+        if (game.GetPlayer(playerColour) is null)
         {
-            return Result.Failure<List<PointResponse>>(PlayerErrors.InvalidPlayerColour);
+            return Result.Failure<List<PointResponse>>(PlayerErrors.NotFound);
         }
 
         var board = game.Board;

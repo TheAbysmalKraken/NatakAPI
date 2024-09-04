@@ -1,6 +1,7 @@
 using Catan.Domain.Enums;
+using Catan.Domain.Managers;
 
-namespace Catan.Domain.UnitTests;
+namespace Catan.Domain.UnitTests.Managers;
 
 public sealed class PlayerResourceCardManagerTests
 {
@@ -16,23 +17,9 @@ public sealed class PlayerResourceCardManagerTests
         manager.Add(ResourceType.Ore, 1);
 
         // Act
-        var result = manager.RemoveRandom();
+        manager.RemoveRandom();
 
         // Assert
-        Assert.NotNull(result);
         Assert.True(manager.Cards.Values.Sum() == 7);
-    }
-
-    [Fact]
-    public void RemoveRandom_Should_ReturnNull_WhenNoCardsAvailable()
-    {
-        // Arrange
-        var manager = new PlayerResourceCardManager();
-
-        // Act
-        var result = manager.RemoveRandom();
-
-        // Assert
-        Assert.Null(result);
     }
 }

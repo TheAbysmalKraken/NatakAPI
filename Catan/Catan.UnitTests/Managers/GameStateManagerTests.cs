@@ -1,6 +1,7 @@
 using Catan.Domain.Enums;
+using Catan.Domain.Managers;
 
-namespace Catan.Domain.UnitTests;
+namespace Catan.Domain.UnitTests.Managers;
 
 public sealed class GameStateManagerTests
 {
@@ -8,7 +9,7 @@ public sealed class GameStateManagerTests
     public void MoveState_Should_TransitionToBeforeRoll_WhenStealingResourceBeforeRoll()
     {
         // Arrange
-        var stateManager = new GameStateManager(GameState.BeforeRoll);
+        var stateManager = new GameStateManager();
         stateManager.MoveState(ActionType.RollSeven);
         stateManager.MoveState(ActionType.AllResourcesDiscarded);
         stateManager.MoveState(ActionType.MoveRobber);
@@ -24,7 +25,8 @@ public sealed class GameStateManagerTests
     public void MoveState_Should_TransitionToAfterRoll_WhenStealingResourceAfterRoll()
     {
         // Arrange
-        var stateManager = new GameStateManager(GameState.AfterRoll);
+        var stateManager = new GameStateManager();
+        stateManager.MoveState(ActionType.RollDice);
         stateManager.MoveState(ActionType.PlayKnightCard);
         stateManager.MoveState(ActionType.MoveRobber);
 

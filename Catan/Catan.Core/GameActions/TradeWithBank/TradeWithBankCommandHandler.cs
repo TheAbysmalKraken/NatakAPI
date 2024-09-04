@@ -24,48 +24,20 @@ internal sealed class TradeWithBankCommandHandler(
         var resourceToGive = (ResourceType)request.ResourceToGive;
         var resourceToGet = (ResourceType)request.ResourceToGet;
 
-        var result = game.TradeTwoToOne(
+        var result = game.TradeWithBank(
             resourceToGive,
             resourceToGet);
 
-        if (result.IsSuccess)
+        if (result.IsFailure)
         {
-            await cache.UpsetAsync(
-                request.GameId,
-                game,
-                cancellationToken: cancellationToken);
-
-            return Result.Success();
+            return result;
         }
 
-        var tradeThreeToOneResult = game.TradeThreeToOne(
-            resourceToGive,
-            resourceToGet);
+        await cache.UpsetAsync(
+            request.GameId,
+            game,
+            cancellationToken: cancellationToken);
 
-        if (tradeThreeToOneResult.IsSuccess)
-        {
-            await cache.UpsetAsync(
-                request.GameId,
-                game,
-                cancellationToken: cancellationToken);
-
-            return Result.Success();
-        }
-
-        var tradeFourToOneResult = game.TradeFourToOne(
-            resourceToGive,
-            resourceToGet);
-
-        if (tradeFourToOneResult.IsSuccess)
-        {
-            await cache.UpsetAsync(
-                request.GameId,
-                game,
-                cancellationToken: cancellationToken);
-
-            return Result.Success();
-        }
-
-        return tradeFourToOneResult;
+        return Result.Success();
     }
 }

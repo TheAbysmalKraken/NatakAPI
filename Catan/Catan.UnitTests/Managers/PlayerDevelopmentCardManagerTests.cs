@@ -1,6 +1,7 @@
 using Catan.Domain.Enums;
+using Catan.Domain.Managers;
 
-namespace Catan.Domain.UnitTests;
+namespace Catan.Domain.UnitTests.Managers;
 
 public sealed class PlayerDevelopmentCardManagerTests
 {

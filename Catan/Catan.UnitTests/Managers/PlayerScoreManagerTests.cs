@@ -1,4 +1,6 @@
-namespace Catan.Domain.UnitTests;
+using Catan.Domain.Managers;
+
+namespace Catan.Domain.UnitTests.Managers;
 
 public sealed class PlayerScoreManagerTests
 {

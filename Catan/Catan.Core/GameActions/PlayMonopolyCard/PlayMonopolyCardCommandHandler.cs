@@ -21,12 +21,32 @@ internal sealed class PlayMonopolyCardCommandHandler(
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        var result = game.PlayMonopolyCard(
+        if (game.DevelopmentCardPlayed)
+        {
+            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+        }
+
+        var resourceType = (ResourceType)request.Resource;
+
+        if (resourceType == ResourceType.Desert)
+        {
+            return Result.Failure(GameErrors.InvalidResourceType);
+        }
+
+        var playCardResult = game.PlayMonopolyCard(
             (ResourceType)request.Resource);
 
-        if (result.IsFailure)
+        if (playCardResult.IsFailure)
         {
-            return result;
+            return playCardResult;
+        }
+
+        var removeCardResult = game.RemoveDevelopmentCardFromCurrentPlayer(
+            DevelopmentCardType.Monopoly);
+
+        if (removeCardResult.IsFailure)
+        {
+            return removeCardResult;
         }
 
         await cache.UpsetAsync(

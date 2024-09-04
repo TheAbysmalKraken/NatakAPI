@@ -208,7 +208,7 @@ public sealed class Board
         return Result.Success();
     }
 
-    public Result CanPlaceHouseAtPoint(Point point, PlayerColour colour, bool isFirstTurn = false)
+    public Result CanPlaceHouseAtPoint(Point point, PlayerColour colour, bool isSetup = false)
     {
         if (colour == PlayerColour.None)
         {
@@ -230,7 +230,7 @@ public sealed class Board
             return Result.Failure(BoardErrors.SettlementIsTooClose);
         }
 
-        if (!isFirstTurn && GetOccupiedRoadsOfColourConnectedToPoint(point, colour).Count == 0)
+        if (!isSetup && GetOccupiedRoadsOfColourConnectedToPoint(point, colour).Count == 0)
         {
             return Result.Failure(BoardErrors.SettlementDoesNotConnect);
         }
@@ -238,9 +238,9 @@ public sealed class Board
         return Result.Success();
     }
 
-    public Result PlaceHouse(Point point, PlayerColour colour, bool isFirstTurn = false)
+    public Result PlaceHouse(Point point, PlayerColour colour, bool isSetup = false)
     {
-        var canPlaceResult = CanPlaceHouseAtPoint(point, colour, isFirstTurn);
+        var canPlaceResult = CanPlaceHouseAtPoint(point, colour, isSetup);
 
         if (canPlaceResult.IsFailure)
         {

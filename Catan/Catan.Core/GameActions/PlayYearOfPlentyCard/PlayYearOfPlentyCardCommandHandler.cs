@@ -21,13 +21,26 @@ internal sealed class PlayYearOfPlentyCardCommandHandler(
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        var result = game.PlayYearOfPlentyCard(
+        if (game.DevelopmentCardPlayed)
+        {
+            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+        }
+
+        var playCardResult = game.PlayYearOfPlentyCard(
             (ResourceType)request.FirstResource,
             (ResourceType)request.SecondResource);
 
-        if (result.IsFailure)
+        if (playCardResult.IsFailure)
         {
-            return result;
+            return playCardResult;
+        }
+
+        var removeCardResult = game.RemoveDevelopmentCardFromCurrentPlayer(
+            DevelopmentCardType.YearOfPlenty);
+
+        if (removeCardResult.IsFailure)
+        {
+            return removeCardResult;
         }
 
         await cache.UpsetAsync(

@@ -73,4 +73,9 @@ public static class PlayerErrors
         HttpStatusCode.BadRequest,
         "Player.CannotStealFromSelf",
         "Player cannot steal from themselves.");
+
+    public static Error IncorrectDiscardCount => new(
+        HttpStatusCode.BadRequest,
+        "Player.IncorrectDiscardCount",
+        "Player has not discarded the correct number of resources.");
 }

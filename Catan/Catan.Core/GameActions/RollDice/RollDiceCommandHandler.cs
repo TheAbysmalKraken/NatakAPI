@@ -18,11 +18,18 @@ internal sealed class RollDiceCommandHandler(IActiveGameCache cache) :
                 GameErrors.GameNotFound);
         }
 
-        var result = game.RollDiceAndDistributeResourcesToPlayers();
+        var rollResult = game.RollDice();
 
-        if (result.IsFailure)
+        if (rollResult.IsFailure)
         {
-            return Result.Failure<RollDiceResponse>(result.Error);
+            return Result.Failure<RollDiceResponse>(rollResult.Error);
+        }
+
+        var distributeResourcesResult = game.DistributeResources();
+
+        if (distributeResourcesResult.IsFailure)
+        {
+            return Result.Failure<RollDiceResponse>(distributeResourcesResult.Error);
         }
 
         await cache.UpsetAsync(
@@ -32,7 +39,7 @@ internal sealed class RollDiceCommandHandler(IActiveGameCache cache) :
 
         return Result.Success(new RollDiceResponse()
         {
-            RolledDice = game.LastRoll
+            RolledDice = game.LastRoll.Outcome
         });
     }
 }

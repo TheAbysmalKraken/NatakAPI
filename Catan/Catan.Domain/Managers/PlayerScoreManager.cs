@@ -1,4 +1,4 @@
-namespace Catan.Domain;
+namespace Catan.Domain.Managers;
 
 public sealed class PlayerScoreManager
 {
@@ -53,21 +53,21 @@ public sealed class PlayerScoreManager
         }
     }
 
-    public void AddVisiblePoints(int points = 1)
+    public void AddVisiblePoints(int points)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(points, 0, nameof(points));
 
         visiblePoints += points;
     }
 
-    public void AddHiddenPoints(int points = 1)
+    public void AddHiddenPoints(int points)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(points, 0, nameof(points));
 
         hiddenPoints += points;
     }
 
-    public void RemoveVisiblePoints(int points = 1)
+    public void RemoveVisiblePoints(int points)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(points, 0, nameof(points));
 
@@ -79,7 +79,7 @@ public sealed class PlayerScoreManager
         visiblePoints -= points;
     }
 
-    public void RemoveHiddenPoints(int points = 1)
+    public void RemoveHiddenPoints(int points)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(points, 0, nameof(points));
 

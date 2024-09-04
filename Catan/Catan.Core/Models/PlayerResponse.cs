@@ -35,28 +35,28 @@ public class PlayerResponse
     [JsonPropertyName("remainingRoads")]
     public required int RemainingRoads { get; init; }
 
-    [JsonPropertyName("embargoedPlayerColours")]
-    public required List<int> EmbargoedPlayerColours { get; init; }
+    [JsonPropertyName("cardsToDiscard")]
+    public required int CardsToDiscard { get; init; }
 
     public static PlayerResponse FromDomain(Player player)
     {
-        var resourceCards = player.GetResourceCards();
-        var playableDevelopmentCards = player.GetPlayableDevelopmentCards();
-        var onHoldDevelopmentCards = player.GetDevelopmentCardsOnHold();
+        var resourceCards = player.ResourceCardManager.Cards;
+        var playableDevelopmentCards = player.DevelopmentCardManager.Cards;
+        var onHoldDevelopmentCards = player.DevelopmentCardManager.OnHoldCards;
 
         return new PlayerResponse
         {
             Colour = (int)player.Colour,
             KnightsPlayed = player.KnightsPlayed,
-            VisibleVictoryPoints = player.VictoryPoints - player.VictoryPointCards,
+            VisibleVictoryPoints = player.ScoreManager.VisiblePoints,
             TotalResourceCards = resourceCards.Sum(kvp => kvp.Value),
             TotalDevelopmentCards = playableDevelopmentCards.Sum(kvp => kvp.Value) + onHoldDevelopmentCards.Sum(kvp => kvp.Value),
-            HasLargestArmy = player.HasLargestArmy,
-            HasLongestRoad = player.HasLongestRoad,
-            RemainingSettlements = player.RemainingSettlements,
-            RemainingCities = player.RemainingCities,
-            RemainingRoads = player.RemainingRoads,
-            EmbargoedPlayerColours = player.GetEmbargoedPlayers().Select(p => (int)p).ToList()
+            HasLargestArmy = player.ScoreManager.HasLargestArmy,
+            HasLongestRoad = player.ScoreManager.HasLongestRoad,
+            RemainingSettlements = player.PieceManager.Settlements,
+            RemainingCities = player.PieceManager.Cities,
+            RemainingRoads = player.PieceManager.Roads,
+            CardsToDiscard = player.CardsToDiscard
         };
     }
 }

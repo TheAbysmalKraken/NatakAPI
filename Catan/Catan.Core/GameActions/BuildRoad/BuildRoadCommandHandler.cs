@@ -18,21 +18,23 @@ internal sealed class BuildRoadCommandHandler(IActiveGameCache cache) :
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        Result result;
+        if (!game.IsSetup)
+        {
+            var purchaseResult = game.BuyRoad();
 
-        if (game.CurrentState == GameState.FirstRoad
-        || game.CurrentState == GameState.SecondRoad)
-        {
-            result = game.BuildRoad(request.FirstPoint, request.SecondPoint, true);
-        }
-        else
-        {
-            result = game.BuildRoad(request.FirstPoint, request.SecondPoint);
+            if (purchaseResult.IsFailure)
+            {
+                return purchaseResult;
+            }
         }
 
-        if (result.IsFailure)
+        var buildRoadResult = game.PlaceRoad(
+            request.FirstPoint,
+            request.SecondPoint);
+
+        if (buildRoadResult.IsFailure)
         {
-            return result;
+            return buildRoadResult;
         }
 
         await cache.UpsetAsync(
