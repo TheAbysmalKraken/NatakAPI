@@ -5,6 +5,67 @@ namespace Catan.Domain.UnitTests.Managers;
 
 public sealed class PlayerDevelopmentCardManagerTests
 {
+    [Fact]
+    public void HasOnHold_Should_ReturnTrue_WhenCardIsOnHold()
+    {
+        // Arrange
+        var manager = new PlayerDevelopmentCardManager();
+        manager.Add(DevelopmentCardType.Knight);
+
+        // Act
+        var result = manager.HasOnHold(DevelopmentCardType.Knight);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void HasOnHold_Should_ReturnFalse_WhenCardIsNotOnHold()
+    {
+        // Arrange
+        var manager = new PlayerDevelopmentCardManager();
+        manager.Add(DevelopmentCardType.Knight);
+        manager.CycleOnHoldCards();
+
+        // Act
+        var result = manager.HasOnHold(DevelopmentCardType.Knight);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void CountOnHold_Should_ReturnCountOfCardOnHold()
+    {
+        // Arrange
+        var manager = new PlayerDevelopmentCardManager();
+        manager.Add(DevelopmentCardType.Knight);
+        manager.Add(DevelopmentCardType.Knight);
+
+        // Act
+        var result = manager.CountOnHold(DevelopmentCardType.Knight);
+
+        // Assert
+        Assert.Equal(2, result);
+    }
+
+    [Fact]
+    public void CountAllOnHold_Should_ReturnCountOfAllCardsOnHold()
+    {
+        // Arrange
+        var manager = new PlayerDevelopmentCardManager();
+        manager.Add(DevelopmentCardType.Knight);
+        manager.Add(DevelopmentCardType.Monopoly);
+        manager.Add(DevelopmentCardType.RoadBuilding);
+        manager.Add(DevelopmentCardType.YearOfPlenty);
+
+        // Act
+        var result = manager.CountAllOnHold();
+
+        // Assert
+        Assert.Equal(4, result);
+    }
+
     [Theory]
     [InlineData(DevelopmentCardType.Knight)]
     [InlineData(DevelopmentCardType.Monopoly)]
