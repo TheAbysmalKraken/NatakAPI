@@ -37,7 +37,8 @@ public sealed class BankTradeManager
         resourceCards.Add(resourceType, count);
     }
 
-    public Dictionary<ResourceType, int> RemoveResourceCards(Dictionary<ResourceType, int> resourceCards)
+    public Dictionary<ResourceType, int> RemoveResourceCards(
+        Dictionary<ResourceType, int> resourceCards)
     {
         var removedResources = new Dictionary<ResourceType, int>();
 
@@ -84,7 +85,7 @@ public sealed class BankTradeManager
             return twoToOneResult;
         }
 
-        var threeToOneResult = Trade(player, offeredResource, requestedResource, 3);
+        var threeToOneResult = TradeThreeToOne(player, offeredResource, requestedResource);
 
         if (threeToOneResult.IsSuccess)
         {
@@ -112,16 +113,19 @@ public sealed class BankTradeManager
         developmentCards.Add(DevelopmentCardType.YearOfPlenty, 2);
     }
 
-    private Result TradeTwoToOne(Player player, ResourceType offeredResource, ResourceType requestedResource)
+    private Result TradeTwoToOne(
+        Player player,
+        ResourceType offeredResource,
+        ResourceType requestedResource)
     {
-        var portTypeValid = Enum.TryParse<PortType>(requestedResource.ToString(), out var portType);
+        var portTypeValid = Enum.TryParse<PortType>(offeredResource.ToString(), out var portType);
 
         if (!portTypeValid)
         {
-            throw new InvalidOperationException($"Invalid port type: '{requestedResource}'");
+            throw new InvalidOperationException($"Invalid port type: '{offeredResource}'");
         }
 
-        var hasPort = player.Ports.Contains(portType);
+        var hasPort = player.HasPort(portType);
 
         if (!hasPort)
         {
@@ -129,6 +133,21 @@ public sealed class BankTradeManager
         }
 
         return Trade(player, offeredResource, requestedResource, 2);
+    }
+
+    private Result TradeThreeToOne(
+        Player player,
+        ResourceType offeredResource,
+        ResourceType requestedResource)
+    {
+        var hasPort = player.HasPort(PortType.ThreeToOne);
+
+        if (!hasPort)
+        {
+            return Result.Failure(PlayerErrors.DoesNotOwnPort);
+        }
+
+        return Trade(player, offeredResource, requestedResource, 3);
     }
 
     private Result Trade(
