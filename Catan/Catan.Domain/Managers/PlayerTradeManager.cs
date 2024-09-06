@@ -156,13 +156,30 @@ public sealed class PlayerTradeManager(int playerCount)
 
         foreach (var playerColour in embargoes.Keys)
         {
-            if (embargoes[playerColour].Contains(tradeOffer.OfferingPlayer.Value)
-                || embargoes[tradeOffer.OfferingPlayer.Value].Contains(playerColour))
+            if (playerColour == tradeOffer.OfferingPlayer)
+            {
+                continue;
+            }
+
+            if (embargoes[playerColour].Contains(tradeOffer.OfferingPlayer.Value))
             {
                 if (!tradeOffer.RejectedBy.Contains(playerColour))
                 {
                     tradeOffer.RejectedBy.Add(playerColour);
                 }
+            }
+        }
+
+        if (!embargoes.TryGetValue(tradeOffer.OfferingPlayer.Value, out var embargoedPlayers))
+        {
+            return;
+        }
+
+        foreach (var playerColour in embargoedPlayers)
+        {
+            if (!tradeOffer.RejectedBy.Contains(playerColour))
+            {
+                tradeOffer.RejectedBy.Add(playerColour);
             }
         }
     }
