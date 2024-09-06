@@ -296,4 +296,20 @@ public sealed class ItemManagerTests
         // Assert
         Assert.Throws<ArgumentOutOfRangeException>(action);
     }
+
+    [Fact]
+    public void RemoveRandom_Should_RemoveRandomItem_WhenItemsAvailable()
+    {
+        // Arrange
+        var itemManager = new ItemManager<TestItem>();
+        itemManager.Add(TestItem.Item1, 1);
+        itemManager.Add(TestItem.Item2, 2);
+        itemManager.Add(TestItem.Item3, 3);
+
+        // Act
+        itemManager.RemoveRandom();
+
+        // Assert
+        Assert.Equal(5, itemManager.Items.Values.Sum());
+    }
 }
