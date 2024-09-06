@@ -84,16 +84,14 @@ public sealed class ItemManagerTests
         Assert.Equal(2, itemManager.Items[TestItem.Item2]);
     }
 
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(0)]
-    public void Add_Should_ThrowException_WhenCountIsLessThanOrEqualToZero(int count)
+    [Fact]
+    public void Add_Should_ThrowException_WhenCountIsLessThanZero()
     {
         // Arrange
         var itemManager = new ItemManager<TestItem>();
 
         // Act
-        void action() => itemManager.Add(TestItem.Item1, count);
+        void action() => itemManager.Add(TestItem.Item1, -1);
 
         // Assert
         Assert.Throws<ArgumentOutOfRangeException>(action);
@@ -240,16 +238,14 @@ public sealed class ItemManagerTests
         Assert.True(result.IsFailure);
     }
 
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(0)]
-    public void Remove_Should_ThrowException_WhenCountIsLessThanOrEqualToZero(int count)
+    [Fact]
+    public void Remove_Should_ThrowException_WhenCountIsLessThanZero()
     {
         // Arrange
         var itemManager = new ItemManager<TestItem>();
 
         // Act
-        void action() => itemManager.Remove(TestItem.Item1, count);
+        void action() => itemManager.Remove(TestItem.Item1, -1);
 
         // Assert
         Assert.Throws<ArgumentOutOfRangeException>(action);
@@ -282,16 +278,14 @@ public sealed class ItemManagerTests
         Assert.Equal(3, itemManager.Count(TestItem.Item1));
     }
 
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(0)]
-    public void Set_Should_ThrowException_WhenCountIsLessThanOrEqualToZero(int count)
+    [Fact]
+    public void Set_Should_ThrowException_WhenCountIsLessThanZero()
     {
         // Arrange
         var itemManager = new ItemManager<TestItem>();
 
         // Act
-        void action() => itemManager.Set(TestItem.Item1, count);
+        void action() => itemManager.Set(TestItem.Item1, -1);
 
         // Assert
         Assert.Throws<ArgumentOutOfRangeException>(action);

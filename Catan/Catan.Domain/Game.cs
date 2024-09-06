@@ -167,11 +167,6 @@ public sealed class Game
         return PlayerManager.GetPlayer(playerColour);
     }
 
-    public bool PlayersNeedToDiscard()
-    {
-        return PlayerManager.PlayersNeedToDiscard();
-    }
-
     public Result DiscardResources(
         Player player,
         Dictionary<ResourceType, int> resources)
@@ -439,7 +434,7 @@ public sealed class Game
 
     private Result UpdateDiscardState()
     {
-        if (!PlayerManager.PlayersNeedToDiscard())
+        if (!PlayerManager.PlayersNeedToDiscard)
         {
             var moveStateResult = MoveState(ActionType.AllResourcesDiscarded);
 

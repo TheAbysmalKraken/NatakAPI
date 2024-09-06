@@ -55,21 +55,21 @@ public sealed class PlayerScoreManager
 
     public void AddVisiblePoints(int points)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(points, 0, nameof(points));
+        ArgumentOutOfRangeException.ThrowIfLessThan(points, 0, nameof(points));
 
         visiblePoints += points;
     }
 
     public void AddHiddenPoints(int points)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(points, 0, nameof(points));
+        ArgumentOutOfRangeException.ThrowIfLessThan(points, 0, nameof(points));
 
         hiddenPoints += points;
     }
 
     public void RemoveVisiblePoints(int points)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(points, 0, nameof(points));
+        ArgumentOutOfRangeException.ThrowIfLessThan(points, 0, nameof(points));
 
         if (visiblePoints < points)
         {
@@ -81,7 +81,7 @@ public sealed class PlayerScoreManager
 
     public void RemoveHiddenPoints(int points)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(points, 0, nameof(points));
+        ArgumentOutOfRangeException.ThrowIfLessThan(points, 0, nameof(points));
 
         if (hiddenPoints < points)
         {

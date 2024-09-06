@@ -156,31 +156,27 @@ public sealed class PlayerScoreManagerTests
         Assert.Throws<Exception>(() => scoreManager.SetHasLongestRoad(true));
     }
 
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(0)]
-    public void AddVisiblePoints_Should_ThrowException_WhenPointsIsLessThanOrEqualToZero(int points)
+    [Fact]
+    public void AddVisiblePoints_Should_ThrowException_WhenPointsIsLessThanZero()
     {
         // Arrange
         var scoreManager = new PlayerScoreManager();
 
         // Act
-        void action() => scoreManager.AddVisiblePoints(points);
+        void action() => scoreManager.AddVisiblePoints(-1);
 
         // Assert
         Assert.Throws<ArgumentOutOfRangeException>(action);
     }
 
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(0)]
-    public void AddHiddenPoints_Should_ThrowException_WhenPointsIsLessThanOrEqualToZero(int points)
+    [Fact]
+    public void AddHiddenPoints_Should_ThrowException_WhenPointsIsLessThanZero()
     {
         // Arrange
         var scoreManager = new PlayerScoreManager();
 
         // Act
-        void action() => scoreManager.AddHiddenPoints(points);
+        void action() => scoreManager.AddHiddenPoints(-1);
 
         // Assert
         Assert.Throws<ArgumentOutOfRangeException>(action);
@@ -200,16 +196,14 @@ public sealed class PlayerScoreManagerTests
         Assert.Equal(2, scoreManager.VisiblePoints);
     }
 
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(0)]
-    public void RemoveVisiblePoints_Should_ThrowException_WhenPointsIsLessThanOrEqualToZero(int points)
+    [Fact]
+    public void RemoveVisiblePoints_Should_ThrowException_WhenPointsIsLessThanZero()
     {
         // Arrange
         var scoreManager = new PlayerScoreManager();
 
         // Act
-        void action() => scoreManager.RemoveVisiblePoints(points);
+        void action() => scoreManager.RemoveVisiblePoints(-1);
 
         // Assert
         Assert.Throws<ArgumentOutOfRangeException>(action);
@@ -242,16 +236,14 @@ public sealed class PlayerScoreManagerTests
         Assert.Equal(2, scoreManager.HiddenPoints);
     }
 
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(0)]
-    public void RemoveHiddenPoints_Should_ThrowException_WhenPointsIsLessThanOrEqualToZero(int points)
+    [Fact]
+    public void RemoveHiddenPoints_Should_ThrowException_WhenPointsIsLessThanZero()
     {
         // Arrange
         var scoreManager = new PlayerScoreManager();
 
         // Act
-        void action() => scoreManager.RemoveHiddenPoints(points);
+        void action() => scoreManager.RemoveHiddenPoints(-1);
 
         // Assert
         Assert.Throws<ArgumentOutOfRangeException>(action);

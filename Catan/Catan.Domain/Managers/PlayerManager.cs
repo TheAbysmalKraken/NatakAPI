@@ -24,9 +24,11 @@ public sealed class PlayerManager
 
     public List<Player> Players => [.. players.Values];
 
-    public bool IsSetup { get; private set; } = true;
+    public bool IsSetup { get; set; } = true;
 
     public bool IsSecondRoundOfSetup => currentPlayerIndex >= playerOrder.Count;
+
+    public bool PlayersNeedToDiscard => DoPlayersNeedToDiscard();
 
     public Player? WinningPlayer => GetWinningPlayer();
 
@@ -51,25 +53,6 @@ public sealed class PlayerManager
         {
             player.CycleDevelopmentCards();
         }
-    }
-
-    public void CalculateDiscardRequirements()
-    {
-        foreach (var player in players.Values)
-        {
-            var resourceCount = player.ResourceCardManager.CountAll();
-
-            if (resourceCount > 7)
-            {
-                player.CardsToDiscard = resourceCount / 2;
-            }
-        }
-    }
-
-    public bool PlayersNeedToDiscard()
-    {
-        return players.Values
-            .Any(p => p.CardsToDiscard > 0);
     }
 
     public void GivePlayerMonopolyResource(Player player, ResourceType resourceType)
@@ -188,5 +171,26 @@ public sealed class PlayerManager
     {
         return players.Values
             .FirstOrDefault(p => p.ScoreManager.HasLongestRoad);
+    }
+
+    private bool DoPlayersNeedToDiscard()
+    {
+        CalculateDiscardRequirements();
+
+        return players.Values
+            .Any(p => p.CardsToDiscard > 0);
+    }
+
+    private void CalculateDiscardRequirements()
+    {
+        foreach (var player in players.Values)
+        {
+            var resourceCount = player.ResourceCardManager.CountAll();
+
+            if (resourceCount > 7)
+            {
+                player.CardsToDiscard = resourceCount / 2;
+            }
+        }
     }
 }

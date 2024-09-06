@@ -40,7 +40,7 @@ public class ItemManager<TItem> where TItem : Enum
 
     public void Add(TItem item, int count = 1)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(count, 0, nameof(count));
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
 
         if (items.TryGetValue(item, out int value))
         {
@@ -62,14 +62,14 @@ public class ItemManager<TItem> where TItem : Enum
 
     public void Set(TItem item, int count)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(count, 0, nameof(count));
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
 
         items[item] = count;
     }
 
     public Result Remove(TItem item, int count = 1)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(count, 0, nameof(count));
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
 
         if (items.TryGetValue(item, out int value))
         {
