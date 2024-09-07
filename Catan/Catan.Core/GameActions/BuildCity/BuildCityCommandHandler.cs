@@ -1,7 +1,6 @@
 ﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
 using Catan.Domain;
-using Catan.Domain.Enums;
 using Catan.Domain.Errors;
 
 namespace Catan.Core.GameActions.BuildCity;

@@ -16,18 +16,28 @@ public sealed class GetAvailableCityLocationsTests
     {
         handler = new GetAvailableCityLocationsQueryHandler(cacheMock);
 
-        var game = GameData.Create(4);
+        var game = GameFactory.Create();
         ActiveGameCacheMocker.SetupGetAsyncMock(cacheMock, game);
     }
 
     [Fact]
     public async Task Handle_Should_ReturnPoints_WhenPlayerHasSettlements()
     {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false
+        };
+
+        var game = GameFactory.Create(gameOptions);
+        ActiveGameCacheMocker.SetupGetAsyncMock(cacheMock, game);
+
         // Act
         var result = await handler.Handle(query, default);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
+        result.Value.Should().NotBeEmpty();
     }
 
     [Fact]

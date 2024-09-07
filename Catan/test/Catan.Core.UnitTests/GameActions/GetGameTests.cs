@@ -16,7 +16,7 @@ public sealed class GetGameTests
     {
         handler = new GetGameQueryHandler(cacheMock);
 
-        var game = GameData.Create(4);
+        var game = GameFactory.Create();
         ActiveGameCacheMocker.SetupGetAsyncMock(cacheMock, game);
     }
 
