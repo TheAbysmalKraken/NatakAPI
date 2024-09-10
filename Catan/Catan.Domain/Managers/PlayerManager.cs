@@ -96,6 +96,28 @@ public sealed class PlayerManager
         return Result.Success();
     }
 
+    public void UpdateLongestRoadPlayer(PlayerColour playerColour)
+    {
+        if (!players.TryGetValue(playerColour, out var player))
+        {
+            return;
+        }
+
+        if (player.ScoreManager.HasLongestRoad)
+        {
+            return;
+        }
+
+        var currentLongestRoadPlayer = Players.FirstOrDefault(p => p.ScoreManager.HasLongestRoad);
+
+        if (currentLongestRoadPlayer != null)
+        {
+            currentLongestRoadPlayer.RemoveLongestRoadCard();
+        }
+
+        player.AddLongestRoadCard();
+    }
+
     private void AddPlayers(int playerCount)
     {
         players.Clear();

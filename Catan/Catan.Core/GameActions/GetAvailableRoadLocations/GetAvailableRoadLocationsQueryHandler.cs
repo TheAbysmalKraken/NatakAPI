@@ -22,51 +22,19 @@ internal sealed class GetAvailableRoadLocationsQueryHandler(
             return Result.Failure<List<RoadResponse>>(GameErrors.GameNotFound);
         }
 
-        var playerColour = (PlayerColour)request.PlayerColour;
-        if (game.GetPlayer(playerColour) is null)
-        {
-            return Result.Failure<List<RoadResponse>>(PlayerErrors.NotFound);
-        }
-
         var board = game.Board;
 
-        var availableRoadPoints = SelectAvailableRoadPoints(
-            board,
-            game.IsSetup,
-            playerColour);
+        var result = game.GetAvailableRoadLocations();
+
+        if (result.IsFailure)
+        {
+            return Result.Failure<List<RoadResponse>>(result.Error);
+        }
+
+        var availableRoadPoints = result.Value;
 
         var response = availableRoadPoints.Select(RoadResponse.FromDomain).ToList();
 
         return Result.Success(response);
-    }
-
-    private static List<Road> SelectAvailableRoadPoints(
-        Board board,
-        bool isSetup,
-        PlayerColour playerColour)
-    {
-        var availableRoadPoints = new List<Road>();
-
-        var roads = board.GetRoads();
-
-        foreach (var road in roads)
-        {
-            var canPlaceRoadResult = isSetup
-                ? board.CanPlaceSetupRoadBetweenPoints(
-                    road.FirstPoint,
-                    road.SecondPoint,
-                    playerColour)
-                : board.CanPlaceRoadBetweenPoints(
-                    road.FirstPoint,
-                    road.SecondPoint,
-                    playerColour);
-
-            if (canPlaceRoadResult.IsSuccess)
-            {
-                availableRoadPoints.Add(road);
-            }
-        }
-
-        return availableRoadPoints;
     }
 }

@@ -45,6 +45,11 @@ public sealed class Game
         return StateManager.MoveState(actionType);
     }
 
+    public Result<List<Point>> GetAvailableCityLocations()
+    {
+        return Board.GetAvailableCityLocations(CurrentPlayerColour);
+    }
+
     public Result BuyCity()
     {
         return PurchaseHelper.BuyCity(CurrentPlayer, BankManager);
@@ -81,6 +86,11 @@ public sealed class Game
         return Result.Success();
     }
 
+    public Result<List<Road>> GetAvailableRoadLocations()
+    {
+        return Board.GetAvailableRoadLocations(CurrentPlayerColour, IsSetup);
+    }
+
     public Result BuyRoad()
     {
         return PurchaseHelper.BuyRoad(CurrentPlayer, BankManager);
@@ -109,9 +119,15 @@ public sealed class Game
             return placeResult;
         }
 
+        CheckForLongestRoad();
         CheckForWinner();
 
         return Result.Success();
+    }
+
+    public Result<List<Point>> GetAvailableSettlementLocations()
+    {
+        return Board.GetAvailableSettlementLocations(CurrentPlayerColour, IsSetup);
     }
 
     public Result BuySettlement()
@@ -297,6 +313,7 @@ public sealed class Game
 
         DevelopmentCardPlayed = true;
 
+        CheckForLongestRoad();
         CheckForWinner();
 
         return Result.Success();
@@ -532,5 +549,14 @@ public sealed class Game
         }
 
         return;
+    }
+
+    private void CheckForLongestRoad()
+    {
+        var longestRoadInfo = Board.LongestRoadInfo;
+
+        var playerColour = longestRoadInfo.Colour;
+
+        PlayerManager.UpdateLongestRoadPlayer(playerColour);
     }
 }

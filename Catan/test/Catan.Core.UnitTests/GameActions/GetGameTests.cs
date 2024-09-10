@@ -2,6 +2,7 @@
 using Catan.Core.Services;
 using Catan.Core.UnitTests.GameActions.Shared;
 using Catan.Domain.Enums;
+using Catan.Domain.Factories;
 
 namespace Catan.Core.UnitTests.GameActions;
 
