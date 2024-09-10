@@ -163,6 +163,7 @@ public sealed class Game
             return GivePlayerResourcesAroundSettlement(point);
         }
 
+        UpdatePlayerPorts(point);
         CheckForWinner();
 
         return Result.Success();
@@ -558,5 +559,17 @@ public sealed class Game
         var playerColour = longestRoadInfo.Colour;
 
         PlayerManager.UpdateLongestRoadPlayer(playerColour);
+    }
+
+    private void UpdatePlayerPorts(Point point)
+    {
+        var port = Board.GetPorts().Where(p => p.Point.Equals(point)).FirstOrDefault();
+
+        if (port is null)
+        {
+            return;
+        }
+
+        PlayerManager.GivePort(CurrentPlayerColour, port.Type);
     }
 }

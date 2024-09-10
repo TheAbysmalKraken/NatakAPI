@@ -17,4 +17,6 @@ internal sealed class GameFactoryOptions
     public int? PlayersHiddenPoints { get; init; }
 
     public bool PrepareLongestRoad { get; init; } = false;
+
+    public bool PrepareSettlementPlacement { get; init; } = false;
 }

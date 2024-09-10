@@ -25,6 +25,11 @@ internal static class GameFactory
             game.Board.PrepareLongestRoad(game.PlayerManager.CurrentPlayerColour);
         }
 
+        if (options.PrepareSettlementPlacement)
+        {
+            game.Board.PrepareSettlementPlacement(game.PlayerManager.CurrentPlayerColour);
+        }
+
         foreach (var player in game.PlayerManager.Players)
         {
             if (options.GivePlayersResources)
@@ -82,6 +87,11 @@ internal static class GameFactory
         {
             board.PlaceRoad(firstPoint, secondPoint, playerColour);
         }
+    }
+
+    private static void PrepareSettlementPlacement(this Board board, PlayerColour playerColour)
+    {
+        board.PlaceRoad(new(1, 2), new(2, 2), playerColour);
     }
 
     private static void GiveManyResources(this Player player)

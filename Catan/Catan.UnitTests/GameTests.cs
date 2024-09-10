@@ -248,4 +248,141 @@ public sealed class GameTests
         Assert.Equal(game.PlayerManager.WinningPlayer.Colour, game.CurrentPlayerColour);
         Assert.Equal(GameState.Finish, game.CurrentState);
     }
+
+    [Fact]
+    public void PlaceSettlement_Should_ReturnFailure_WhenInIncorrectState()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            PrepareSettlementPlacement = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var availableLocations = game.GetAvailableSettlementLocations().Value;
+
+        // Act
+        var result = game.PlaceSettlement(availableLocations.First());
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void PlaceSettlement_Should_ReturnFailure_WhenPlayerHasNoSettlementPieces()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            RemovePlayersPieces = true,
+            PrepareSettlementPlacement = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var availableLocations = game.GetAvailableSettlementLocations().Value;
+
+        // Act
+        var result = game.PlaceSettlement(availableLocations.First());
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void PlaceSettlement_Should_RemoveSettlementPiece_WhenSuccessful()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            HasRolled = true,
+            PrepareSettlementPlacement = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var availableLocations = game.GetAvailableSettlementLocations().Value;
+        var existingSettlements = game.CurrentPlayer.PieceManager.Settlements;
+
+        // Act
+        var result = game.PlaceSettlement(availableLocations.First());
+
+        // Assert
+        var newSettlements = game.CurrentPlayer.PieceManager.Settlements;
+        Assert.True(result.IsSuccess);
+        Assert.Equal(existingSettlements - 1, newSettlements);
+    }
+
+    [Fact]
+    public void PlaceSettlement_Should_PlaceSettlement()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            HasRolled = true,
+            PrepareSettlementPlacement = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var availableLocations = game.GetAvailableSettlementLocations().Value;
+        var point = availableLocations.First();
+
+        // Act
+        var result = game.PlaceSettlement(point);
+
+        // Assert
+        var settlement = game.Board.GetHouse(point);
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(settlement);
+        Assert.Equal(BuildingType.Settlement, settlement.Type);
+    }
+
+    [Fact]
+    public void PlaceSettlement_Should_SetWinner_IfPlayerNeedsOnePoint()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            HasRolled = true,
+            PlayersVisiblePoints = 9,
+            PlayersHiddenPoints = 0,
+            PrepareSettlementPlacement = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var availableLocations = game.GetAvailableSettlementLocations().Value;
+
+        // Act
+        var result = game.PlaceSettlement(availableLocations.First());
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(game.PlayerManager.WinningPlayer);
+        Assert.Equal(game.PlayerManager.WinningPlayer.Colour, game.CurrentPlayerColour);
+    }
+
+    [Fact]
+    public void PlaceSettlement_Should_GivePlayerPort_WhenPlacedOnPort()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            HasRolled = true,
+            PrepareSettlementPlacement = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var availableLocations = game.GetAvailableSettlementLocations().Value;
+
+        // Act
+        var result = game.PlaceSettlement(availableLocations.First());
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotEmpty(game.CurrentPlayer.Ports);
+    }
 }

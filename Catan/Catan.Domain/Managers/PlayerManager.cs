@@ -96,6 +96,16 @@ public sealed class PlayerManager
         return Result.Success();
     }
 
+    public void GivePort(PlayerColour playerColour, PortType portType)
+    {
+        if (!players.TryGetValue(playerColour, out var player))
+        {
+            return;
+        }
+
+        player.Ports.Add(portType);
+    }
+
     public void UpdateLongestRoadPlayer(PlayerColour playerColour)
     {
         if (!players.TryGetValue(playerColour, out var player))

@@ -130,6 +130,11 @@ public sealed class Player
 
     public void AddPort(PortType portType)
     {
+        if (HasPort(portType))
+        {
+            return;
+        }
+
         Ports.Add(portType);
     }
 
