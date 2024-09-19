@@ -188,6 +188,11 @@ public sealed class Game
         Player player,
         Dictionary<ResourceType, int> resources)
     {
+        if (resources.Values.Sum() != player.CardsToDiscard)
+        {
+            return Result.Failure(PlayerErrors.IncorrectDiscardCount);
+        }
+
         var discardResult = PurchaseHelper.DiscardResources(player, BankManager, resources);
 
         if (discardResult.IsFailure)
@@ -529,6 +534,8 @@ public sealed class Game
         {
             return moveRollSevenStateResult;
         }
+
+        PlayerManager.CalculateDiscardRequirements();
 
         return UpdateDiscardState();
     }

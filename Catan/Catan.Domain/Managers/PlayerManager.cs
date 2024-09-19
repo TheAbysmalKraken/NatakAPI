@@ -128,6 +128,19 @@ public sealed class PlayerManager
         player.AddLongestRoadCard();
     }
 
+    public void CalculateDiscardRequirements()
+    {
+        foreach (var player in players.Values)
+        {
+            var resourceCount = player.ResourceCardManager.CountAll();
+
+            if (resourceCount > 7)
+            {
+                player.CardsToDiscard = resourceCount / 2;
+            }
+        }
+    }
+
     private void AddPlayers(int playerCount)
     {
         players.Clear();
@@ -207,22 +220,7 @@ public sealed class PlayerManager
 
     private bool DoPlayersNeedToDiscard()
     {
-        CalculateDiscardRequirements();
-
         return players.Values
             .Any(p => p.CardsToDiscard > 0);
-    }
-
-    private void CalculateDiscardRequirements()
-    {
-        foreach (var player in players.Values)
-        {
-            var resourceCount = player.ResourceCardManager.CountAll();
-
-            if (resourceCount > 7)
-            {
-                player.CardsToDiscard = resourceCount / 2;
-            }
-        }
     }
 }

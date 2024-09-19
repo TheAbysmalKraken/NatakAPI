@@ -385,4 +385,146 @@ public sealed class GameTests
         Assert.True(result.IsSuccess);
         Assert.NotEmpty(game.CurrentPlayer.Ports);
     }
+
+    [Fact]
+    public void DiscardResources_Should_ReturnFailure_WhenPlayerDoesNotNeedToDiscard()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            HasRolled = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var resources = new Dictionary<ResourceType, int>
+        {
+            { ResourceType.Wood, 10 },
+            { ResourceType.Brick, 10 },
+            { ResourceType.Sheep, 5 }
+        };
+
+        // Act
+        var result = game.DiscardResources(game.CurrentPlayer, resources);
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void DiscardResources_Should_ReturnFailure_WhenDiscardingIncorrectNumberOfResources()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            HasRolledSeven = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var player = game.CurrentPlayer;
+        var playerResources = player.ResourceCardManager.Cards;
+
+        // Act
+        var result = game.DiscardResources(player, playerResources);
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void DiscardResources_Should_DiscardPlayerResourcesToBank()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            HasRolledSeven = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var player = game.CurrentPlayer;
+        var playerResources = player.ResourceCardManager.Cards.ToDictionary();
+        var bankResources = game.BankManager.ResourceCards.ToDictionary();
+        var resources = new Dictionary<ResourceType, int>
+        {
+            { ResourceType.Wood, 10 },
+            { ResourceType.Brick, 10 },
+            { ResourceType.Sheep, 5 }
+        };
+
+        // Act
+        var result = game.DiscardResources(player, resources);
+
+        // Assert
+        var newPlayerResources = player.ResourceCardManager.Cards;
+        var newBankResources = game.BankManager.ResourceCards;
+        Assert.True(result.IsSuccess);
+        Assert.Equal(0, game.CurrentPlayer.CardsToDiscard);
+        Assert.Equal(playerResources[ResourceType.Wood] - resources[ResourceType.Wood], newPlayerResources[ResourceType.Wood]);
+        Assert.Equal(playerResources[ResourceType.Brick] - resources[ResourceType.Brick], newPlayerResources[ResourceType.Brick]);
+        Assert.Equal(playerResources[ResourceType.Sheep] - resources[ResourceType.Sheep], newPlayerResources[ResourceType.Sheep]);
+        Assert.Equal(bankResources[ResourceType.Wood] + resources[ResourceType.Wood], newBankResources[ResourceType.Wood]);
+        Assert.Equal(bankResources[ResourceType.Brick] + resources[ResourceType.Brick], newBankResources[ResourceType.Brick]);
+        Assert.Equal(bankResources[ResourceType.Sheep] + resources[ResourceType.Sheep], newBankResources[ResourceType.Sheep]);
+    }
+
+    [Fact]
+    public void DiscardResources_Should_NotMoveState_WhenMorePlayersHaveToDiscard()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            HasRolledSeven = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var player = game.CurrentPlayer;
+        var resources = new Dictionary<ResourceType, int>
+        {
+            { ResourceType.Wood, 10 },
+            { ResourceType.Brick, 10 },
+            { ResourceType.Sheep, 5 }
+        };
+
+        // Act
+        var result = game.DiscardResources(player, resources);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.Equal(GameState.DiscardResources, game.CurrentState);
+        Assert.True(game.PlayerManager.PlayersNeedToDiscard);
+    }
+
+    [Fact]
+    public void DiscardResources_Should_MoveState_WhenAllPlayersHaveDiscarded()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            HasRolledSeven = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var resources = new Dictionary<ResourceType, int>
+        {
+            { ResourceType.Wood, 10 },
+            { ResourceType.Brick, 10 },
+            { ResourceType.Sheep, 5 }
+        };
+
+        // Act
+        var result = Result.Success();
+        foreach (var player in game.PlayerManager.Players)
+        {
+            result = game.DiscardResources(player, resources);
+        }
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotEqual(GameState.DiscardResources, game.CurrentState);
+        Assert.False(game.PlayerManager.PlayersNeedToDiscard);
+    }
 }

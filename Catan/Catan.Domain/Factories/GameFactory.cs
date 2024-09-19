@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Catan.Domain.Enums;
 
 namespace Catan.Domain.Factories;
@@ -13,21 +14,6 @@ internal static class GameFactory
         if (!options.IsSetup)
         {
             game.GetOutOfSetup(options.PlayerCount);
-        }
-
-        if (options.HasRolled)
-        {
-            game.MoveState(ActionType.RollDice);
-        }
-
-        if (options.PrepareLongestRoad)
-        {
-            game.Board.PrepareLongestRoad(game.PlayerManager.CurrentPlayerColour);
-        }
-
-        if (options.PrepareSettlementPlacement)
-        {
-            game.Board.PrepareSettlementPlacement(game.PlayerManager.CurrentPlayerColour);
         }
 
         foreach (var player in game.PlayerManager.Players)
@@ -53,6 +39,25 @@ internal static class GameFactory
             }
         }
 
+        if (options.HasRolledSeven)
+        {
+            game.HasRolledSeven();
+        }
+        else if (options.HasRolled)
+        {
+            game.HasRolledDice();
+        }
+
+        if (options.PrepareLongestRoad)
+        {
+            game.Board.PrepareLongestRoad(game.PlayerManager.CurrentPlayerColour);
+        }
+
+        if (options.PrepareSettlementPlacement)
+        {
+            game.Board.PrepareSettlementPlacement(game.PlayerManager.CurrentPlayerColour);
+        }
+
         return game;
     }
 
@@ -75,27 +80,14 @@ internal static class GameFactory
         }
     }
 
-    private static void PrepareLongestRoad(this Board board, PlayerColour playerColour)
-    {
-        var roadLocations = new List<(Point, Point)>
-        {
-            (new(2, 2), new(3, 2)),
-            (new(2, 3), new(1, 3))
-        };
-
-        foreach (var (firstPoint, secondPoint) in roadLocations)
-        {
-            board.PlaceRoad(firstPoint, secondPoint, playerColour);
-        }
-    }
-
-    private static void PrepareSettlementPlacement(this Board board, PlayerColour playerColour)
-    {
-        board.PlaceRoad(new(1, 2), new(2, 2), playerColour);
-    }
-
     private static void GiveManyResources(this Player player)
     {
+        do
+        {
+            player.RemoveRandomResourceCard();
+        }
+        while (player.ResourceCardManager.CountAll() > 0);
+
         var resources = new Dictionary<ResourceType, int>
         {
             { ResourceType.Wood, 10 },
@@ -139,5 +131,39 @@ internal static class GameFactory
         var scoreDifference = pointsToSet - player.ScoreManager.HiddenPoints;
 
         player.ScoreManager.AddHiddenPoints(scoreDifference);
+    }
+
+    private static void HasRolledSeven(this Game game)
+    {
+        game.MoveState(ActionType.RollSeven);
+        game.PlayerManager.CalculateDiscardRequirements();
+        if (!game.PlayerManager.PlayersNeedToDiscard)
+        {
+            game.MoveState(ActionType.AllResourcesDiscarded);
+        }
+    }
+
+    private static void HasRolledDice(this Game game)
+    {
+        game.MoveState(ActionType.RollDice);
+    }
+
+    private static void PrepareLongestRoad(this Board board, PlayerColour playerColour)
+    {
+        var roadLocations = new List<(Point, Point)>
+        {
+            (new(2, 2), new(3, 2)),
+            (new(2, 3), new(1, 3))
+        };
+
+        foreach (var (firstPoint, secondPoint) in roadLocations)
+        {
+            board.PlaceRoad(firstPoint, secondPoint, playerColour);
+        }
+    }
+
+    private static void PrepareSettlementPlacement(this Board board, PlayerColour playerColour)
+    {
+        board.PlaceRoad(new(1, 2), new(2, 2), playerColour);
     }
 }

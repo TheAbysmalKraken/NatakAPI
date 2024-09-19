@@ -19,4 +19,6 @@ internal sealed class GameFactoryOptions
     public bool PrepareLongestRoad { get; init; } = false;
 
     public bool PrepareSettlementPlacement { get; init; } = false;
+
+    public bool HasRolledSeven { get; init; } = false;
 }
