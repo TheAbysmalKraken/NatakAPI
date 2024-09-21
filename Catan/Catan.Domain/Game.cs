@@ -532,14 +532,35 @@ public sealed class Game
         Point secondRoadFirstPoint,
         Point secondRoadSecondPoint)
     {
-        var firstRoadResult = PlaceRoad(firstRoadFirstPoint, firstRoadSecondPoint);
+        var firstRoadResult = PlaceRoadBuildingRoad(firstRoadFirstPoint, firstRoadSecondPoint);
 
         if (firstRoadResult.IsFailure)
         {
             return firstRoadResult;
         }
 
-        return PlaceRoad(secondRoadFirstPoint, secondRoadSecondPoint);
+        return PlaceRoadBuildingRoad(secondRoadFirstPoint, secondRoadSecondPoint);
+    }
+
+    private Result PlaceRoadBuildingRoad(
+        Point firstPoint,
+        Point secondPoint)
+    {
+        var playerPieceResult = CurrentPlayer.RemovePiece(BuildingType.Road);
+
+        if (playerPieceResult.IsFailure)
+        {
+            return playerPieceResult;
+        }
+
+        var placeResult = Board.PlaceRoad(firstPoint, secondPoint, CurrentPlayerColour, IsSetup);
+
+        if (placeResult.IsFailure)
+        {
+            return placeResult;
+        }
+
+        return Result.Success();
     }
 
     private void DistributeResourcesOnTilePoint(Point tilePoint)

@@ -14,6 +14,7 @@ public sealed class GameStateManager : StateManager
         { new(GameState.BeforeRoll, ActionType.PlayRoadBuildingCard), new(GameState.BeforeRoll) },
         { new(GameState.BeforeRoll, ActionType.PlayYearOfPlentyCard), new(GameState.BeforeRoll) },
         { new(GameState.BeforeRoll, ActionType.PlayMonopolyCard), new(GameState.BeforeRoll) },
+        { new(GameState.BeforeRoll, ActionType.PlayerHasWon), new(GameState.Finish) },
         { new(GameState.AfterRoll, ActionType.EndTurn), new(GameState.BeforeRoll) },
         { new(GameState.AfterRoll, ActionType.PlayerHasWon), new(GameState.Finish) },
         { new(GameState.AfterRoll, ActionType.BuildSettlement), new(GameState.AfterRoll) },
