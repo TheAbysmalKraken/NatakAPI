@@ -21,24 +21,11 @@ internal sealed class PlayKnightCardCommandHandler(
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        if (game.DevelopmentCardPlayed)
-        {
-            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
-        }
-
         var playCardResult = game.PlayKnightCard();
 
         if (playCardResult.IsFailure)
         {
             return playCardResult;
-        }
-
-        var removeCardResult = game.RemoveDevelopmentCardFromCurrentPlayer(
-            DevelopmentCardType.Knight);
-
-        if (removeCardResult.IsFailure)
-        {
-            return removeCardResult;
         }
 
         await cache.UpsetAsync(

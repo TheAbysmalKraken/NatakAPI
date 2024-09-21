@@ -222,11 +222,12 @@ public sealed class Game
             return moveStateResult;
         }
 
-        var isSetup = PlayerManager.IsSetup;
+        var isSetupBeforeNextPlayer = PlayerManager.IsSetup;
 
         PlayerManager.NextPlayer();
 
-        if (isSetup != PlayerManager.IsSetup)
+        if (isSetupBeforeNextPlayer != PlayerManager.IsSetup
+            && !PlayerManager.IsSetup)
         {
             StateManager = new GameStateManager();
         }
@@ -262,6 +263,11 @@ public sealed class Game
 
     public Result PlayKnightCard()
     {
+        if (DevelopmentCardPlayed)
+        {
+            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+        }
+
         var moveStateResult = MoveState(ActionType.PlayKnightCard);
 
         if (moveStateResult.IsFailure)
@@ -269,8 +275,17 @@ public sealed class Game
             return moveStateResult;
         }
 
+        var removeCardResult = CurrentPlayer.RemoveDevelopmentCard(
+            DevelopmentCardType.Knight);
+
+        if (removeCardResult.IsFailure)
+        {
+            return removeCardResult;
+        }
+
         DevelopmentCardPlayed = true;
 
+        PlayerManager.UpdateLargestArmyPlayer();
         CheckForWinner();
 
         return Result.Success();
@@ -279,11 +294,29 @@ public sealed class Game
     public Result PlayMonopolyCard(
         ResourceType resource)
     {
+        if (DevelopmentCardPlayed)
+        {
+            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+        }
+
         var moveStateResult = MoveState(ActionType.PlayMonopolyCard);
 
         if (moveStateResult.IsFailure)
         {
             return moveStateResult;
+        }
+
+        var removeCardResult = CurrentPlayer.RemoveDevelopmentCard(
+            DevelopmentCardType.Monopoly);
+
+        if (removeCardResult.IsFailure)
+        {
+            return removeCardResult;
+        }
+
+        if (resource == ResourceType.Desert)
+        {
+            return Result.Failure(GameErrors.InvalidResourceType);
         }
 
         PlayerManager.GivePlayerMonopolyResource(CurrentPlayer, resource);
@@ -299,11 +332,24 @@ public sealed class Game
         Point secondRoadFirstPoint,
         Point secondRoadSecondPoint)
     {
+        if (DevelopmentCardPlayed)
+        {
+            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+        }
+
         var moveStateResult = MoveState(ActionType.PlayRoadBuildingCard);
 
         if (moveStateResult.IsFailure)
         {
             return moveStateResult;
+        }
+
+        var removeCardResult = CurrentPlayer.RemoveDevelopmentCard(
+            DevelopmentCardType.RoadBuilding);
+
+        if (removeCardResult.IsFailure)
+        {
+            return removeCardResult;
         }
 
         var buildResult = PlaceRoadBuildingRoads(
@@ -329,11 +375,24 @@ public sealed class Game
         ResourceType firstResource,
         ResourceType secondResource)
     {
+        if (DevelopmentCardPlayed)
+        {
+            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+        }
+
         var moveStateResult = MoveState(ActionType.PlayYearOfPlentyCard);
 
         if (moveStateResult.IsFailure)
         {
             return moveStateResult;
+        }
+
+        var removeCardResult = CurrentPlayer.RemoveDevelopmentCard(
+            DevelopmentCardType.YearOfPlenty);
+
+        if (removeCardResult.IsFailure)
+        {
+            return removeCardResult;
         }
 
         PurchaseHelper.GetFreeResources(

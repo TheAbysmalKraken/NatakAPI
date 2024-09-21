@@ -5,11 +5,15 @@ namespace Catan.Domain.Managers;
 
 public sealed class PlayerManager
 {
+    private const int MINIMUM_KNIGHTS_FOR_LARGEST_ARMY = 3;
+
     private static readonly Random random = new();
     private readonly Dictionary<PlayerColour, Player> players = [];
     private readonly List<PlayerColour> playerOrder = [];
     private readonly List<PlayerColour> setupPlayerOrder = [];
     private int currentPlayerIndex = 0;
+    private int largestArmySize = 0;
+    private PlayerColour largestArmyPlayerColour = PlayerColour.None;
 
     public PlayerManager(int playerCount)
     {
@@ -126,6 +130,32 @@ public sealed class PlayerManager
         }
 
         player.AddLongestRoadCard();
+    }
+
+    public void UpdateLargestArmyPlayer()
+    {
+        var newLargestArmyPlayer = players.Values
+            .FirstOrDefault(p => p.KnightsPlayed > largestArmySize);
+
+        if (newLargestArmyPlayer is null)
+        {
+            return;
+        }
+
+        if (newLargestArmyPlayer.KnightsPlayed < MINIMUM_KNIGHTS_FOR_LARGEST_ARMY)
+        {
+            return;
+        }
+
+        if (largestArmyPlayerColour != PlayerColour.None)
+        {
+            players[largestArmyPlayerColour].RemoveLargestArmyCard();
+        }
+
+        newLargestArmyPlayer.AddLargestArmyCard();
+
+        largestArmySize = newLargestArmyPlayer.KnightsPlayed;
+        largestArmyPlayerColour = newLargestArmyPlayer.Colour;
     }
 
     public void CalculateDiscardRequirements()

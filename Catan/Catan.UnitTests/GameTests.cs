@@ -1,5 +1,6 @@
 using Catan.Domain.Enums;
 using Catan.Domain.Factories;
+using Catan.Domain.Managers;
 
 namespace Catan.Domain.UnitTests;
 
@@ -526,5 +527,218 @@ public sealed class GameTests
         Assert.True(result.IsSuccess);
         Assert.NotEqual(GameState.DiscardResources, game.CurrentState);
         Assert.False(game.PlayerManager.PlayersNeedToDiscard);
+    }
+
+    [Fact]
+    public void EndTurn_Should_ReturnFailure_WhenInIncorrectState()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.EndTurn();
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void EndTurn_Should_MoveToNextPlayersTurn()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            HasRolled = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var currentPlayer = game.CurrentPlayer;
+
+        // Act
+        var result = game.EndTurn();
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotEqual(currentPlayer, game.CurrentPlayer);
+    }
+
+    [Fact]
+    public void EndTurn_Should_ResetDevelopmentCardPlayed()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            HasRolled = true,
+            GivePlayersDevelopmentCards = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        game.PlayMonopolyCard(ResourceType.Wood);
+
+        Assert.True(game.DevelopmentCardPlayed);
+
+        // Act
+        var result = game.EndTurn();
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.False(game.DevelopmentCardPlayed);
+    }
+
+    [Fact]
+    public void EndTurn_Should_EndTradeOffer()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            HasRolled = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        game.MakeTradeOffer(
+            new Dictionary<ResourceType, int>
+            {
+                { ResourceType.Wood, 1 }
+            },
+            new Dictionary<ResourceType, int>
+            {
+                { ResourceType.Wood, 1 }
+            });
+
+        Assert.True(game.TradeManager.TradeOffer.IsActive);
+
+        // Act
+        var result = game.EndTurn();
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.False(game.TradeManager.TradeOffer.IsActive);
+    }
+
+    [Fact]
+    public void EndTurn_Should_ChangeToMainGameState_WhenLeavingSetupState()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsEndOfSetup = true
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        Assert.IsAssignableFrom<SetupStateManager>(game.StateManager);
+        Assert.True(game.PlayerManager.IsSetup);
+
+        // Act
+        var result = game.EndTurn();
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.IsAssignableFrom<GameStateManager>(game.StateManager);
+        Assert.False(game.PlayerManager.IsSetup);
+    }
+
+    [Fact]
+    public void PlayKnightCard_Should_ReturnFailure_WhenInIncorrectState()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = true,
+            GivePlayersDevelopmentCards = true
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.PlayKnightCard();
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void PlayKnightCard_Should_ReturnFailure_WhenPlayerHasNoKnightCards()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersDevelopmentCards = false
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.PlayKnightCard();
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void PlayKnightCard_Should_ReturnFailure_WhenPlayerHasAlreadyPlayedDevelopmentCard()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersDevelopmentCards = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        game.PlayMonopolyCard(ResourceType.Wood);
+
+        // Act
+        var result = game.PlayKnightCard();
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void PlayKnightCard_Should_StopMoreDevelopmentCardsBeingPlayedThisTurn()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersDevelopmentCards = true
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.PlayKnightCard();
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.True(game.DevelopmentCardPlayed);
+    }
+
+    [Fact]
+    public void PlayKnightCard_Should_SetWinner_IfPlayerNeedsOnePoint_AndGetsLargestArmy()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersDevelopmentCards = true,
+            PlayersVisiblePoints = 9,
+            PlayersHiddenPoints = 0,
+            PrepareLargestArmy = true
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        Assert.Null(game.PlayerManager.WinningPlayer);
+
+        // Act
+        var result = game.PlayKnightCard();
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(game.PlayerManager.WinningPlayer);
+        Assert.Equal(game.PlayerManager.WinningPlayer.Colour, game.CurrentPlayerColour);
+        Assert.Equal(GameState.Finish, game.CurrentState);
     }
 }

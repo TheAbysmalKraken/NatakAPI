@@ -6,7 +6,11 @@ internal sealed class GameFactoryOptions
 
     public bool IsSetup { get; init; } = true;
 
+    public bool IsEndOfSetup { get; init; } = false;
+
     public bool GivePlayersResources { get; init; } = false;
+
+    public bool GivePlayersDevelopmentCards { get; init; } = false;
 
     public bool RemovePlayersPieces { get; init; } = false;
 
@@ -17,6 +21,8 @@ internal sealed class GameFactoryOptions
     public int? PlayersHiddenPoints { get; init; }
 
     public bool PrepareLongestRoad { get; init; } = false;
+
+    public bool PrepareLargestArmy { get; init; } = false;
 
     public bool PrepareSettlementPlacement { get; init; } = false;
 

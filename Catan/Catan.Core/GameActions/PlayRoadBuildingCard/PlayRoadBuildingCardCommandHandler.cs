@@ -21,11 +21,6 @@ internal sealed class PlayRoadBuildingCardCommandHandler(
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        if (game.DevelopmentCardPlayed)
-        {
-            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
-        }
-
         var playCardResult = game.PlayRoadBuildingCard(
             request.FirstRoadFirstPoint,
             request.FirstRoadSecondPoint,
@@ -35,14 +30,6 @@ internal sealed class PlayRoadBuildingCardCommandHandler(
         if (playCardResult.IsFailure)
         {
             return playCardResult;
-        }
-
-        var removeCardResult = game.RemoveDevelopmentCardFromCurrentPlayer(
-            DevelopmentCardType.RoadBuilding);
-
-        if (removeCardResult.IsFailure)
-        {
-            return removeCardResult;
         }
 
         await cache.UpsetAsync(

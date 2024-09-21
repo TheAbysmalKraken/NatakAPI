@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using Catan.Domain.Enums;
 
 namespace Catan.Domain.Factories;
@@ -11,7 +10,11 @@ internal static class GameFactory
 
         var game = new Game(options.PlayerCount);
 
-        if (!options.IsSetup)
+        if (options.IsEndOfSetup)
+        {
+            game.GetToEndOfSetup(options.PlayerCount);
+        }
+        else if (!options.IsSetup)
         {
             game.GetOutOfSetup(options.PlayerCount);
         }
@@ -21,6 +24,11 @@ internal static class GameFactory
             if (options.GivePlayersResources)
             {
                 player.GiveManyResources();
+            }
+
+            if (options.GivePlayersDevelopmentCards)
+            {
+                player.GiveDevelopmentCards();
             }
 
             if (options.RemovePlayersPieces)
@@ -58,10 +66,15 @@ internal static class GameFactory
             game.Board.PrepareSettlementPlacement(game.PlayerManager.CurrentPlayerColour);
         }
 
+        if (options.PrepareLargestArmy)
+        {
+            game.PrepareLargestArmy(game.PlayerManager.CurrentPlayerColour);
+        }
+
         return game;
     }
 
-    private static void GetOutOfSetup(this Game game, int playerCount)
+    private static void GetToEndOfSetup(this Game game, int playerCount)
     {
         for (var i = 0; i < playerCount; i++)
         {
@@ -76,8 +89,18 @@ internal static class GameFactory
             var x = 3 + 2 * i;
             game.PlaceSettlement(new(x, 1));
             game.PlaceRoad(new(x, 1), new(x, 2));
-            game.EndTurn();
+
+            if (i != playerCount - 1)
+            {
+                game.EndTurn();
+            }
         }
+    }
+
+    private static void GetOutOfSetup(this Game game, int playerCount)
+    {
+        GetToEndOfSetup(game, playerCount);
+        game.EndTurn();
     }
 
     private static void GiveManyResources(this Player player)
@@ -98,6 +121,15 @@ internal static class GameFactory
         };
 
         player.AddResourceCards(resources);
+    }
+
+    private static void GiveDevelopmentCards(this Player player)
+    {
+        player.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player.AddDevelopmentCard(DevelopmentCardType.RoadBuilding);
+        player.AddDevelopmentCard(DevelopmentCardType.YearOfPlenty);
+        player.AddDevelopmentCard(DevelopmentCardType.Monopoly);
+        player.CycleDevelopmentCards();
     }
 
     private static void RemoveAllPieces(this Player player)
@@ -165,5 +197,30 @@ internal static class GameFactory
     private static void PrepareSettlementPlacement(this Board board, PlayerColour playerColour)
     {
         board.PlaceRoad(new(1, 2), new(2, 2), playerColour);
+    }
+
+    private static void PrepareLargestArmy(this Game game, PlayerColour playerColour)
+    {
+        game.CurrentPlayer.AddDevelopmentCard(DevelopmentCardType.Knight);
+        game.CurrentPlayer.AddDevelopmentCard(DevelopmentCardType.Knight);
+        game.PlayKnightCard();
+        game.MoveState(ActionType.MoveRobber);
+        game.MoveState(ActionType.StealResource);
+        do
+        {
+            game.MoveState(ActionType.RollDice);
+            game.EndTurn();
+        }
+        while (game.CurrentPlayerColour != playerColour);
+
+        game.PlayKnightCard();
+        game.MoveState(ActionType.MoveRobber);
+        game.MoveState(ActionType.StealResource);
+        do
+        {
+            game.MoveState(ActionType.RollDice);
+            game.EndTurn();
+        }
+        while (game.CurrentPlayerColour != playerColour);
     }
 }

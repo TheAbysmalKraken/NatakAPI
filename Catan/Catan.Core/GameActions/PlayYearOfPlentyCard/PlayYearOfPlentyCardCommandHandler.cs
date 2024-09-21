@@ -21,11 +21,6 @@ internal sealed class PlayYearOfPlentyCardCommandHandler(
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        if (game.DevelopmentCardPlayed)
-        {
-            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
-        }
-
         var playCardResult = game.PlayYearOfPlentyCard(
             (ResourceType)request.FirstResource,
             (ResourceType)request.SecondResource);
@@ -33,14 +28,6 @@ internal sealed class PlayYearOfPlentyCardCommandHandler(
         if (playCardResult.IsFailure)
         {
             return playCardResult;
-        }
-
-        var removeCardResult = game.RemoveDevelopmentCardFromCurrentPlayer(
-            DevelopmentCardType.YearOfPlenty);
-
-        if (removeCardResult.IsFailure)
-        {
-            return removeCardResult;
         }
 
         await cache.UpsetAsync(
