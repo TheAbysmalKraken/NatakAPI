@@ -741,4 +741,105 @@ public sealed class GameTests
         Assert.Equal(game.PlayerManager.WinningPlayer.Colour, game.CurrentPlayerColour);
         Assert.Equal(GameState.Finish, game.CurrentState);
     }
+
+    [Fact]
+    public void PlayMonopolyCard_Should_ReturnFailure_WhenInIncorrectState()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = true,
+            GivePlayersDevelopmentCards = true
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.PlayMonopolyCard(ResourceType.Wood);
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void PlayMonopolyCard_Should_ReturnFailure_WhenPlayerHasNoMonopolyCards()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersDevelopmentCards = false
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.PlayMonopolyCard(ResourceType.Wood);
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void PlayMonopolyCard_Should_ReturnFailure_WhenPlayerHasAlreadyPlayedDevelopmentCard()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersDevelopmentCards = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        game.PlayMonopolyCard(ResourceType.Wood);
+
+        // Act
+        var result = game.PlayMonopolyCard(ResourceType.Wood);
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void PlayMonopolyCard_Should_StopMoreDevelopmentCardsBeingPlayedThisTurn()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersDevelopmentCards = true
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.PlayMonopolyCard(ResourceType.Wood);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.True(game.DevelopmentCardPlayed);
+    }
+
+    [Fact]
+    public void PlayMonopolyCard_Should_GivePlayerResources()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersDevelopmentCards = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var player = game.CurrentPlayer;
+        var initialPlayerWood = player.CountResourceCard(ResourceType.Wood);
+        var otherPlayer = game.PlayerManager.Players.First(p => p.Colour != player.Colour);
+        otherPlayer.AddResourceCard(ResourceType.Wood, 5);
+        var allOtherPlayersWood = game.PlayerManager.Players
+            .Where(p => p.Colour != player.Colour)
+            .Sum(p => p.CountResourceCard(ResourceType.Wood));
+
+        // Act
+        var result = game.PlayMonopolyCard(ResourceType.Wood);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.Equal(initialPlayerWood + allOtherPlayersWood, player.CountResourceCard(ResourceType.Wood));
+        Assert.Equal(0, otherPlayer.CountResourceCard(ResourceType.Wood));
+    }
 }
