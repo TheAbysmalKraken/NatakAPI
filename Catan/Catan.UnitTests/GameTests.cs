@@ -1060,4 +1060,187 @@ public sealed class GameTests
         Assert.Equal(initialPlayerWood + 1, player.CountResourceCard(ResourceType.Wood));
         Assert.Equal(initialPlayerBrick + 1, player.CountResourceCard(ResourceType.Brick));
     }
+
+    [Fact]
+    public void RollDice_Should_ReturnFailure_WhenInIncorrectState()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = true
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.RollDice();
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void RollDice_Should_SetLastRoll()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.RollDice();
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(game.LastRoll);
+    }
+
+    [Fact]
+    public void DistributeResources_Should_GiveResourcesToPlayers_WhoHaveHousesOnLastRolledNumber()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        game.RollDice();
+
+        var initialPlayerResources = game.PlayerManager.Players
+            .ToDictionary(
+                p => p.Colour,
+                p => p.ResourceCardManager.Cards.ToDictionary());
+
+        var lastRollTotal = game.LastRoll.Total;
+        var tilesWithNumber = game.Board.GetPointsOfTilesWithActivationNumber(lastRollTotal);
+
+        var playerResourcesGained = new Dictionary<PlayerColour, Dictionary<ResourceType, int>>();
+
+        foreach (var point in tilesWithNumber)
+        {
+            var housesActivated = game.Board.GetHousesOnTile(point);
+
+            foreach (var house in housesActivated)
+            {
+                var resource = game.Board.GetTile(point)!.Type;
+
+                var resourceCount = house.Type switch
+                {
+                    BuildingType.Settlement => 1,
+                    BuildingType.City => 2,
+                    _ => 0
+                };
+
+                if (!playerResourcesGained.ContainsKey(house.Colour))
+                {
+                    playerResourcesGained[house.Colour] = [];
+                }
+
+                if (playerResourcesGained[house.Colour].ContainsKey(resource))
+                {
+                    playerResourcesGained[house.Colour][resource] = resourceCount;
+                }
+            }
+        }
+
+        // Act
+        game.DistributeResources();
+
+        // Assert
+        foreach (var playerColour in playerResourcesGained.Keys)
+        {
+            var gainedResources = playerResourcesGained[playerColour];
+            var player = game.PlayerManager.GetPlayer(playerColour);
+
+            var newResources = player!.ResourceCardManager.Cards;
+
+            foreach (var gainedResource in gainedResources)
+            {
+                Assert.Equal(initialPlayerResources[player.Colour][gainedResource.Key] + gainedResource.Value, newResources[gainedResource.Key]);
+            }
+        }
+    }
+
+    [Fact]
+    public void DistributeResources_Should_NotGiveResources_ToHousesOnTileWithRobber()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        game.RollDice();
+
+        var initialPlayerResources = game.PlayerManager.Players
+            .ToDictionary(
+                p => p.Colour,
+                p => p.ResourceCardManager.Cards.ToDictionary());
+
+        var lastRollTotal = game.LastRoll.Total;
+        var tilesWithNumber = game.Board.GetPointsOfTilesWithActivationNumber(lastRollTotal);
+
+        if (tilesWithNumber.Count == 0)
+        {
+            return;
+        }
+
+        game.Board.MoveRobberToPoint(tilesWithNumber.First());
+
+        var robberPoint = game.Board.RobberPosition;
+
+        var playerResourcesGained = new Dictionary<PlayerColour, Dictionary<ResourceType, int>>();
+
+        foreach (var point in tilesWithNumber)
+        {
+            if (point == robberPoint)
+            {
+                continue;
+            }
+
+            var housesActivated = game.Board.GetHousesOnTile(point);
+
+            foreach (var house in housesActivated)
+            {
+                var resource = game.Board.GetTile(point)!.Type;
+
+                var resourceCount = house.Type switch
+                {
+                    BuildingType.Settlement => 1,
+                    BuildingType.City => 2,
+                    _ => 0
+                };
+
+                if (!playerResourcesGained.ContainsKey(house.Colour))
+                {
+                    playerResourcesGained[house.Colour] = [];
+                }
+
+                if (playerResourcesGained[house.Colour].ContainsKey(resource))
+                {
+                    playerResourcesGained[house.Colour][resource] = resourceCount;
+                }
+            }
+        }
+
+        // Act
+        game.DistributeResources();
+
+        // Assert
+        foreach (var playerColour in playerResourcesGained.Keys)
+        {
+            var gainedResources = playerResourcesGained[playerColour];
+            var player = game.PlayerManager.GetPlayer(playerColour);
+
+            var newResources = player!.ResourceCardManager.Cards;
+
+            foreach (var gainedResource in gainedResources)
+            {
+                Assert.Equal(initialPlayerResources[player.Colour][gainedResource.Key] + gainedResource.Value, newResources[gainedResource.Key]);
+            }
+        }
+    }
 }
