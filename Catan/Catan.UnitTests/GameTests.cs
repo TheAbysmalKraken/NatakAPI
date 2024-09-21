@@ -963,4 +963,101 @@ public sealed class GameTests
         Assert.Equal(game.PlayerManager.WinningPlayer.Colour, game.CurrentPlayerColour);
         Assert.Equal(GameState.Finish, game.CurrentState);
     }
+
+    [Fact]
+    public void PlayYearOfPlentyCard_Should_ReturnFailure_WhenInIncorrectState()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = true,
+            GivePlayersDevelopmentCards = true
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.PlayYearOfPlentyCard(ResourceType.Wood, ResourceType.Brick);
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void PlayYearOfPlentyCard_Should_ReturnFailure_WhenPlayerHasNoYearOfPlentyCards()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersDevelopmentCards = false
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.PlayYearOfPlentyCard(ResourceType.Wood, ResourceType.Brick);
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void PlayYearOfPlentyCard_Should_ReturnFailure_WhenPlayerHasAlreadyPlayedDevelopmentCard()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersDevelopmentCards = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        game.PlayYearOfPlentyCard(ResourceType.Wood, ResourceType.Brick);
+
+        // Act
+        var result = game.PlayYearOfPlentyCard(ResourceType.Wood, ResourceType.Brick);
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void PlayYearOfPlentyCard_Should_StopMoreDevelopmentCardsBeingPlayedThisTurn()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersDevelopmentCards = true
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.PlayYearOfPlentyCard(ResourceType.Wood, ResourceType.Brick);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.True(game.DevelopmentCardPlayed);
+    }
+
+    [Fact]
+    public void PlayYearOfPlentyCard_Should_GivePlayerResources()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersDevelopmentCards = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var player = game.CurrentPlayer;
+        var initialPlayerWood = player.CountResourceCard(ResourceType.Wood);
+        var initialPlayerBrick = player.CountResourceCard(ResourceType.Brick);
+
+        // Act
+        var result = game.PlayYearOfPlentyCard(ResourceType.Wood, ResourceType.Brick);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.Equal(initialPlayerWood + 1, player.CountResourceCard(ResourceType.Wood));
+        Assert.Equal(initialPlayerBrick + 1, player.CountResourceCard(ResourceType.Brick));
+    }
 }
