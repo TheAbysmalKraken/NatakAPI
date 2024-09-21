@@ -12,8 +12,6 @@ public sealed class PlayerManager
     private readonly List<PlayerColour> playerOrder = [];
     private readonly List<PlayerColour> setupPlayerOrder = [];
     private int currentPlayerIndex = 0;
-    private int largestArmySize = 0;
-    private PlayerColour largestArmyPlayerColour = PlayerColour.None;
 
     public PlayerManager(int playerCount)
     {
@@ -122,12 +120,9 @@ public sealed class PlayerManager
             return;
         }
 
-        var currentLongestRoadPlayer = Players.FirstOrDefault(p => p.ScoreManager.HasLongestRoad);
+        var currentLongestRoadPlayer = GetLongestRoadPlayer();
 
-        if (currentLongestRoadPlayer != null)
-        {
-            currentLongestRoadPlayer.RemoveLongestRoadCard();
-        }
+        currentLongestRoadPlayer?.RemoveLongestRoadCard();
 
         player.AddLongestRoadCard();
     }
@@ -135,27 +130,17 @@ public sealed class PlayerManager
     public void UpdateLargestArmyPlayer()
     {
         var newLargestArmyPlayer = players.Values
-            .FirstOrDefault(p => p.KnightsPlayed > largestArmySize);
+            .MaxBy(p => p.KnightsPlayed);
 
-        if (newLargestArmyPlayer is null)
+        if (newLargestArmyPlayer?.KnightsPlayed < MINIMUM_KNIGHTS_FOR_LARGEST_ARMY)
         {
             return;
         }
 
-        if (newLargestArmyPlayer.KnightsPlayed < MINIMUM_KNIGHTS_FOR_LARGEST_ARMY)
-        {
-            return;
-        }
+        var currentLargestArmyPlayer = GetLargestArmyPlayer();
+        currentLargestArmyPlayer?.RemoveLargestArmyCard();
 
-        if (largestArmyPlayerColour != PlayerColour.None)
-        {
-            players[largestArmyPlayerColour].RemoveLargestArmyCard();
-        }
-
-        newLargestArmyPlayer.AddLargestArmyCard();
-
-        largestArmySize = newLargestArmyPlayer.KnightsPlayed;
-        largestArmyPlayerColour = newLargestArmyPlayer.Colour;
+        newLargestArmyPlayer?.AddLargestArmyCard();
     }
 
     public void CalculateDiscardRequirements()

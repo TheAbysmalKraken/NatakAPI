@@ -222,4 +222,133 @@ public sealed class PlayerManagerTests
         Assert.Equal(0, playerWoodBefore);
         Assert.Equal(0, otherPlayerWoodBefore);
     }
+
+    [Fact]
+    public void GivePort_Should_GivePlayerPort()
+    {
+        // Arrange
+        var playerManager = new PlayerManager(4);
+        var player = playerManager.CurrentPlayer;
+
+        // Act
+        playerManager.GivePort(player.Colour, PortType.ThreeToOne);
+
+        // Assert
+        Assert.Contains(PortType.ThreeToOne, player.Ports);
+    }
+
+    [Fact]
+    public void UpdateLongestRoadPlayer_Should_UpdatePlayerLongestRoad()
+    {
+        // Arrange
+        var playerManager = new PlayerManager(4);
+        var player = playerManager.CurrentPlayer;
+
+        // Act
+        playerManager.UpdateLongestRoadPlayer(player.Colour);
+
+        // Assert
+        Assert.True(player.ScoreManager.HasLongestRoad);
+    }
+
+    [Fact]
+    public void UpdateLargestArmyPlayer_Should_GiveLargestArmyCard_ToPlayerWithLargestArmy()
+    {
+        // Arrange
+        var playerManager = new PlayerManager(4);
+        var player = playerManager.CurrentPlayer;
+        player.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player.CycleDevelopmentCards();
+        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+
+        Assert.False(player.ScoreManager.HasLargestArmy);
+
+        // Act
+        playerManager.UpdateLargestArmyPlayer();
+
+        // Assert
+        Assert.True(player.ScoreManager.HasLargestArmy);
+    }
+
+    [Fact]
+    public void UpdateLargestArmyPlayer_Should_NotGiveLargestArmyCard_WhenPlayerDoesNotHaveLargestArmy()
+    {
+        // Arrange
+        var playerManager = new PlayerManager(4);
+        var player = playerManager.CurrentPlayer;
+        player.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player.CycleDevelopmentCards();
+        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+
+        Assert.False(player.ScoreManager.HasLargestArmy);
+
+        // Act
+        playerManager.UpdateLargestArmyPlayer();
+
+        // Assert
+        Assert.False(player.ScoreManager.HasLargestArmy);
+        Assert.Null(playerManager.LargestArmyPlayer);
+    }
+
+    [Fact]
+    public void UpdateLargestArmyPlayer_Should_NotGiveLargestArmyCard_WhenPlayerDoesNotHaveMinimumKnights()
+    {
+        // Arrange
+        var playerManager = new PlayerManager(4);
+        var player = playerManager.CurrentPlayer;
+        player.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player.CycleDevelopmentCards();
+        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+
+        Assert.False(player.ScoreManager.HasLargestArmy);
+
+        // Act
+        playerManager.UpdateLargestArmyPlayer();
+
+        // Assert
+        Assert.False(player.ScoreManager.HasLargestArmy);
+        Assert.Null(playerManager.LargestArmyPlayer);
+    }
+
+    [Fact]
+    public void UpdateLargestArmyPlayer_Should_RemoveLargestArmyCard_WhenPlayerNoLongerHasLargestArmy()
+    {
+        // Arrange
+        var playerManager = new PlayerManager(4);
+        var player = playerManager.CurrentPlayer;
+        var player2 = playerManager.Players.First(p => p.Colour != player.Colour);
+        player.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player.CycleDevelopmentCards();
+        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+
+        playerManager.UpdateLargestArmyPlayer();
+
+        Assert.True(player.ScoreManager.HasLargestArmy);
+        Assert.False(player2.ScoreManager.HasLargestArmy);
+
+        player2.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player2.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player2.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player2.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player2.CycleDevelopmentCards();
+        player2.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+        player2.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+        player2.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+        player2.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+
+        // Act
+        playerManager.UpdateLargestArmyPlayer();
+
+        // Assert
+        Assert.False(player.ScoreManager.HasLargestArmy);
+        Assert.True(player2.ScoreManager.HasLargestArmy);
+    }
 }
