@@ -2,15 +2,13 @@
 
 public enum GameState
 {
-    FirstSettlement,
-    FirstRoad,
-    FirstSetupReadyForNextPlayer,
-    SecondSettlement,
-    SecondRoad,
-    SecondSetupReadyForNextPlayer,
+    InitialSettlement,
+    InitialRoad,
+    SetupFinished,
     BeforeRoll,
     AfterRoll,
     DiscardResources,
     MoveRobber,
-    GameOver
+    StealResource,
+    Finish
 }

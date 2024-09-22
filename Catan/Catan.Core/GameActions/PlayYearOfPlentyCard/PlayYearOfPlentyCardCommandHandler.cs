@@ -21,13 +21,13 @@ internal sealed class PlayYearOfPlentyCardCommandHandler(
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        var result = game.PlayYearOfPlentyCard(
+        var playCardResult = game.PlayYearOfPlentyCard(
             (ResourceType)request.FirstResource,
             (ResourceType)request.SecondResource);
 
-        if (result.IsFailure)
+        if (playCardResult.IsFailure)
         {
-            return result;
+            return playCardResult;
         }
 
         await cache.UpsetAsync(

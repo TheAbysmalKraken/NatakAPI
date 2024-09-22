@@ -24,6 +24,7 @@ public sealed class Board
         houses = new Building[11, 6];
         roads = [];
         RobberPosition = new Point(0, 0);
+        LongestRoadInfo = new(PlayerColour.None, 0);
 
         InitialiseTilesAndSetRobber();
         InitialiseHouses();
@@ -42,6 +43,8 @@ public sealed class Board
     public List<Road> GetRoads() => roads;
 
     public List<Port> GetPorts() => ports;
+
+    public LongestRoadInfo LongestRoadInfo { get; private set; }
 
     public Tile? GetTile(Point point)
     {
@@ -70,30 +73,104 @@ public sealed class Board
         return null;
     }
 
-    public LongestRoadInfo GetLongestRoadInfo()
+    public Result<List<Road>> GetAvailableRoadLocations(
+        PlayerColour colour,
+        bool isSetup = false)
     {
-        var longestRoadPlayer = PlayerColour.None;
-        var longestRoadLength = 0;
-
-        foreach (var colour in Enum.GetValues<PlayerColour>())
+        if (colour == PlayerColour.None)
         {
-            if (colour == PlayerColour.None) continue;
+            return Result.Failure<List<Road>>(PlayerErrors.InvalidPlayerColour);
+        }
 
-            var lengthOfLongestRoadForColour = GetLengthOfLongestRoadForColour(colour);
+        var availableRoadPoints = new List<Road>();
 
-            if (lengthOfLongestRoadForColour > longestRoadLength)
+        foreach (var road in roads)
+        {
+            var canPlaceRoadResult = isSetup
+                ? CanPlaceSetupRoadBetweenPoints(
+                    road.FirstPoint,
+                    road.SecondPoint,
+                    colour)
+                : CanPlaceRoadBetweenPoints(
+                    road.FirstPoint,
+                    road.SecondPoint,
+                    colour);
+
+            if (canPlaceRoadResult.IsSuccess)
             {
-                longestRoadLength = lengthOfLongestRoadForColour;
-                longestRoadPlayer = colour;
+                availableRoadPoints.Add(road);
             }
         }
 
-        if (longestRoadLength < 5)
+        return Result.Success(availableRoadPoints);
+    }
+
+    public Result<List<Point>> GetAvailableSettlementLocations(
+        PlayerColour colour,
+        bool isSetup = false)
+    {
+        if (colour == PlayerColour.None)
         {
-            return new LongestRoadInfo(PlayerColour.None, 0);
+            return Result.Failure<List<Point>>(PlayerErrors.InvalidPlayerColour);
         }
 
-        return new LongestRoadInfo(longestRoadPlayer, longestRoadLength);
+        var availableSettlementPoints = new List<Point>();
+
+        for (int x = 0; x < 11; x++)
+        {
+            for (int y = 0; y < 6; y++)
+            {
+                var point = new Point(x, y);
+
+                var canPlaceHouseResult = CanPlaceHouseAtPoint(
+                    point,
+                    colour,
+                    isSetup);
+
+                if (canPlaceHouseResult.IsSuccess)
+                {
+                    availableSettlementPoints.Add(point);
+                }
+            }
+        }
+
+        return Result.Success(availableSettlementPoints);
+    }
+
+    public Result<List<Point>> GetAvailableCityLocations(PlayerColour colour)
+    {
+        if (colour == PlayerColour.None)
+        {
+            return Result.Failure<List<Point>>(PlayerErrors.InvalidPlayerColour);
+        }
+
+        var availableCityPoints = new List<Point>();
+
+        for (int x = 0; x < 11; x++)
+        {
+            for (int y = 0; y < 6; y++)
+            {
+                var point = new Point(x, y);
+
+                var canUpgradeResult = CanUpgradeHouseAtPoint(point, colour);
+
+                if (canUpgradeResult.IsSuccess)
+                {
+                    availableCityPoints.Add(point);
+                }
+            }
+        }
+
+        return Result.Success(availableCityPoints);
+    }
+
+    public Road? GetRoadAtPoints(Point point1, Point point2)
+    {
+        var roadInList = roads.FirstOrDefault(r => r.FirstPoint.Equals(point1) && r.SecondPoint.Equals(point2));
+
+        roadInList ??= roads.FirstOrDefault(r => r.FirstPoint.Equals(point2) && r.SecondPoint.Equals(point1));
+
+        return roadInList;
     }
 
     public int GetLengthOfLongestRoadForColour(PlayerColour colour)
@@ -208,7 +285,7 @@ public sealed class Board
         return Result.Success();
     }
 
-    public Result CanPlaceHouseAtPoint(Point point, PlayerColour colour, bool isFirstTurn = false)
+    public Result CanPlaceHouseAtPoint(Point point, PlayerColour colour, bool isSetup = false)
     {
         if (colour == PlayerColour.None)
         {
@@ -230,7 +307,7 @@ public sealed class Board
             return Result.Failure(BoardErrors.SettlementIsTooClose);
         }
 
-        if (!isFirstTurn && GetOccupiedRoadsOfColourConnectedToPoint(point, colour).Count == 0)
+        if (!isSetup && GetOccupiedRoadsOfColourConnectedToPoint(point, colour).Count == 0)
         {
             return Result.Failure(BoardErrors.SettlementDoesNotConnect);
         }
@@ -238,9 +315,9 @@ public sealed class Board
         return Result.Success();
     }
 
-    public Result PlaceHouse(Point point, PlayerColour colour, bool isFirstTurn = false)
+    public Result PlaceHouse(Point point, PlayerColour colour, bool isSetup = false)
     {
-        var canPlaceResult = CanPlaceHouseAtPoint(point, colour, isFirstTurn);
+        var canPlaceResult = CanPlaceHouseAtPoint(point, colour, isSetup);
 
         if (canPlaceResult.IsFailure)
         {
@@ -249,6 +326,8 @@ public sealed class Board
 
         houses[point.X, point.Y].SetColour(colour);
         houses[point.X, point.Y].SetTypeToHouse();
+
+        UpdateLongestRoadInfo();
 
         return Result.Success();
     }
@@ -374,6 +453,8 @@ public sealed class Board
         var roadInList = GetRoadAtPoints(point1, point2) ?? throw new Exception("Road not found.");
 
         roadInList.SetColour(colour);
+
+        UpdateLongestRoadInfo();
 
         return Result.Success();
     }
@@ -603,15 +684,6 @@ public sealed class Board
         return houses[point.X, point.Y]?.Type != BuildingType.None;
     }
 
-    private Road? GetRoadAtPoints(Point point1, Point point2)
-    {
-        var roadInList = roads.FirstOrDefault(r => r.FirstPoint.Equals(point1) && r.SecondPoint.Equals(point2));
-
-        roadInList ??= roads.FirstOrDefault(r => r.FirstPoint.Equals(point2) && r.SecondPoint.Equals(point1));
-
-        return roadInList;
-    }
-
     private List<Road> GetOccupiedRoadsOfColourConnectedToPoint(Point point, PlayerColour colour)
     {
         var roadsConnectedToPoint = GetRoadsPositionsConnectedToPoint(point);
@@ -657,6 +729,31 @@ public sealed class Board
         }
 
         return roadsConnectedToPoint;
+    }
+
+    private void UpdateLongestRoadInfo()
+    {
+        var longestRoadPlayer = PlayerColour.None;
+        var longestRoadLength = 0;
+
+        foreach (var colour in Enum.GetValues<PlayerColour>())
+        {
+            if (colour == PlayerColour.None) continue;
+
+            var lengthOfLongestRoadForColour = GetLengthOfLongestRoadForColour(colour);
+
+            if (lengthOfLongestRoadForColour > longestRoadLength)
+            {
+                longestRoadLength = lengthOfLongestRoadForColour;
+                longestRoadPlayer = colour;
+            }
+        }
+
+        if (longestRoadLength >= 5
+            && longestRoadLength > LongestRoadInfo.Length)
+        {
+            LongestRoadInfo = new LongestRoadInfo(longestRoadPlayer, longestRoadLength);
+        }
     }
 
     private int GetFurthestDistanceFromPointAlongRoads(

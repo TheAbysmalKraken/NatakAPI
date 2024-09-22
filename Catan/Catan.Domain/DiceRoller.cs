@@ -4,7 +4,7 @@ public static class DiceRoller
 {
     private static readonly Random random = new();
 
-    public static List<int> RollDice(int numberOfDice, int diceSides)
+    public static DiceRoll RollDice(int numberOfDice, int diceSides)
     {
         List<int> rolledDice = [];
 
@@ -14,6 +14,6 @@ public static class DiceRoller
             rolledDice.Add(numberRolled);
         }
 
-        return rolledDice;
+        return new(rolledDice);
     }
 }

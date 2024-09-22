@@ -17,11 +17,19 @@ internal sealed class BuildCityCommandHandler(IActiveGameCache cache) :
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        var result = game.BuildCity(request.BuildPoint);
+        var purchaseResult = game.BuyCity();
 
-        if (result.IsFailure)
+        if (purchaseResult.IsFailure)
         {
-            return result;
+            return purchaseResult;
+        }
+
+        var buildCityResult = game.PlaceCity(
+            request.BuildPoint);
+
+        if (buildCityResult.IsFailure)
+        {
+            return buildCityResult;
         }
 
         await cache.UpsetAsync(

@@ -17,7 +17,7 @@ internal sealed class EndTurnCommandHandler(IActiveGameCache cache) :
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        var result = game.NextPlayer();
+        var result = game.EndTurn();
 
         if (result.IsFailure)
         {

@@ -21,7 +21,7 @@ internal sealed class StealResourceCommandHandler(
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        var result = game.StealResourceCard(
+        var result = game.StealResourceFromPlayer(
             (PlayerColour)request.VictimColour);
 
         if (result.IsFailure)

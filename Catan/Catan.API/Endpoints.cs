@@ -92,16 +92,11 @@ public static class Endpoints
     private static async Task<IResult> GetAvailableSettlementLocationsAsync(
         ISender sender,
         string gameId,
-        int playerColour,
-        [FromQuery] bool isSetup = false,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var query = new GetAvailableSettlementLocationsQuery(
-                gameId,
-                playerColour,
-                isSetup);
+            var query = new GetAvailableSettlementLocationsQuery(gameId);
 
             var result = await sender.Send(query, cancellationToken);
 
@@ -116,12 +111,11 @@ public static class Endpoints
     private static async Task<IResult> GetAvailableRoadLocationsAsync(
         ISender sender,
         string gameId,
-        int playerColour,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var query = new GetAvailableRoadLocationsQuery(gameId, playerColour);
+            var query = new GetAvailableRoadLocationsQuery(gameId);
 
             var result = await sender.Send(query, cancellationToken);
 
@@ -136,12 +130,11 @@ public static class Endpoints
     private static async Task<IResult> GetAvailableCityLocationsAsync(
         ISender sender,
         string gameId,
-        int playerColour,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var query = new GetAvailableCityLocationsQuery(gameId, playerColour);
+            var query = new GetAvailableCityLocationsQuery(gameId);
 
             var result = await sender.Send(query, cancellationToken);
 

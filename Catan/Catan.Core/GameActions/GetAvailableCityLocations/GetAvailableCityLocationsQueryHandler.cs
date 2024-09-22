@@ -22,44 +22,17 @@ internal sealed class GetAvailableCityLocationsQueryHandler(
             return Result.Failure<List<PointResponse>>(GameErrors.GameNotFound);
         }
 
-        var playerColour = (PlayerColour)request.PlayerColour;
-        if (!game.ContainsPlayer(playerColour))
+        var result = game.GetAvailableCityLocations();
+
+        if (result.IsFailure)
         {
-            return Result.Failure<List<PointResponse>>(PlayerErrors.InvalidPlayerColour);
+            return Result.Failure<List<PointResponse>>(result.Error);
         }
 
-        var board = game.Board;
-
-        var availableCityPoints = SelectCityPoints(
-            board,
-            playerColour);
+        var availableCityPoints = result.Value;
 
         var response = availableCityPoints.Select(PointResponse.FromPoint).ToList();
 
         return Result.Success(response);
-    }
-
-    private static List<Point> SelectCityPoints(
-        Board board,
-        PlayerColour playerColour)
-    {
-        var availableCityPoints = new List<Point>();
-
-        for (int x = 0; x < 11; x++)
-        {
-            for (int y = 0; y < 6; y++)
-            {
-                var point = new Point(x, y);
-
-                var canUpgradeResult = board.CanUpgradeHouseAtPoint(point, playerColour);
-
-                if (canUpgradeResult.IsSuccess)
-                {
-                    availableCityPoints.Add(point);
-                }
-            }
-        }
-
-        return availableCityPoints;
     }
 }

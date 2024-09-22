@@ -21,11 +21,11 @@ internal sealed class PlayKnightCardCommandHandler(
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        var result = game.PlayKnightCard();
+        var playCardResult = game.PlayKnightCard();
 
-        if (result.IsFailure)
+        if (playCardResult.IsFailure)
         {
-            return result;
+            return playCardResult;
         }
 
         await cache.UpsetAsync(

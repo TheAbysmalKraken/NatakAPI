@@ -55,7 +55,7 @@ public sealed class GameResponse
     {
         ArgumentNullException.ThrowIfNull(game);
 
-        var allPlayers = game.GetPlayers();
+        var allPlayers = game.PlayerManager.Players;
         var chosenPlayer = allPlayers.FirstOrDefault(p => (int)p.Colour == playerColour);
 
         ArgumentNullException.ThrowIfNull(chosenPlayer);
@@ -63,10 +63,10 @@ public sealed class GameResponse
         return new GameResponse
         {
             Id = game.Id,
-            PlayerCount = game.PlayerCount,
-            CurrentPlayerColour = (int)game.CurrentPlayer.Colour,
-            GameState = (int)game.CurrentState,
-            Actions = game.Actions
+            PlayerCount = game.PlayerManager.Players.Count,
+            CurrentPlayerColour = (int)game.PlayerManager.CurrentPlayerColour,
+            GameState = (int)game.StateManager.CurrentState,
+            Actions = game.StateManager.GetValidActions()
                 .Select(ActionTypeResponseMapper.FromDomain)
                 .Where(action => action is not null)
                 .Select(action => (int)action!)
@@ -77,21 +77,15 @@ public sealed class GameResponse
                 .Select(PlayerResponse.FromDomain)
                 .ToList(),
             Board = BoardResponse.FromDomain(game.Board),
-            Winner = game.WinnerIndex != null
-                ? (int)allPlayers[game.WinnerIndex.Value].Colour
-                : null,
-            LastRoll = game.LastRoll,
-            LargestArmyPlayer = game.LargestArmyPlayerIndex != null
-                ? (int)allPlayers[game.LargestArmyPlayerIndex.Value].Colour
-                : null,
-            LongestRoadPlayer = game.LongestRoadPlayerIndex != null
-                ? (int)allPlayers[game.LongestRoadPlayerIndex.Value].Colour
-                : null,
-            RemainingResourceCards = game.GetRemainingResourceCards()
+            Winner = (int?)game.PlayerManager.WinningPlayer?.Colour,
+            LastRoll = game.LastRoll.Outcome,
+            LargestArmyPlayer = (int?)game.PlayerManager.LargestArmyPlayer?.Colour,
+            LongestRoadPlayer = (int?)game.PlayerManager.LongestRoadPlayer?.Colour,
+            RemainingResourceCards = game.BankManager.ResourceCards
                 .Select(kvp => new KeyValuePair<int, int>((int)kvp.Key, kvp.Value))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
-            RemainingDevelopmentCards = game.GetRemainingDevelopmentCards().Count,
-            TradeOffer = TradeOfferResponse.FromDomain(game.TradeOffer)
+            RemainingDevelopmentCards = game.BankManager.DevelopmentCards.Values.Sum(),
+            TradeOffer = TradeOfferResponse.FromDomain(game.TradeManager.TradeOffer)
         };
     }
 }

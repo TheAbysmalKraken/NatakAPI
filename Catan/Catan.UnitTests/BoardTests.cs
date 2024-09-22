@@ -856,7 +856,7 @@ public sealed class BoardTests
         }
 
         // Act
-        var longestRoadInfo = board.GetLongestRoadInfo();
+        var longestRoadInfo = board.LongestRoadInfo;
 
         // Assert
         Assert.Equal(PlayerColour.None, longestRoadInfo.Colour);
@@ -892,7 +892,7 @@ public sealed class BoardTests
         }
 
         // Act
-        var longestRoadInfo = board.GetLongestRoadInfo();
+        var longestRoadInfo = board.LongestRoadInfo;
 
         // Assert
         Assert.Equal(playerColour2, longestRoadInfo.Colour);

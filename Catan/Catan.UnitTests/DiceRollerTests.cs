@@ -14,7 +14,7 @@ public class DiceRollerTests
         var rolledDice = DiceRoller.RollDice(numberOfDice, diceSides);
 
         // Assert
-        int rolledDiceCount = rolledDice.Count;
+        int rolledDiceCount = rolledDice.Outcome.Count;
         Assert.Equal(rolledDiceCount, numberOfDice);
     }
 
@@ -29,7 +29,7 @@ public class DiceRollerTests
         var rolledDice = DiceRoller.RollDice(numberOfDice, diceSides);
 
         // Assert
-        foreach (var dice in rolledDice)
+        foreach (var dice in rolledDice.Outcome)
         {
             Assert.InRange(dice, 1, diceSides);
         }

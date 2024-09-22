@@ -15,7 +15,7 @@ internal sealed class CreateGameCommandHandler(IActiveGameCache cache) :
             return Result.Failure<CreateGameResponse>(GameErrors.InvalidPlayerCount);
         }
 
-        var newGame = new Game(request.PlayerCount, request.Seed);
+        var newGame = new Game(request.PlayerCount);
 
         await cache.UpsetAsync(
             newGame.Id,

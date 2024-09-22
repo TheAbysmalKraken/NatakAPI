@@ -2,6 +2,7 @@
 using Catan.Core.Services;
 using Catan.Core.UnitTests.GameActions.Shared;
 using Catan.Domain.Enums;
+using Catan.Domain.Factories;
 
 namespace Catan.Core.UnitTests.GameActions;
 
@@ -16,7 +17,7 @@ public sealed class GetGameTests
     {
         handler = new GetGameQueryHandler(cacheMock);
 
-        var game = GameData.Create(4);
+        var game = GameFactory.Create();
         ActiveGameCacheMocker.SetupGetAsyncMock(cacheMock, game);
     }
 

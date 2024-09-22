@@ -18,9 +18,10 @@ internal sealed class GetGameQueryHandler(IActiveGameCache cache) :
         {
             return Result.Failure<GameResponse>(GameErrors.GameNotFound);
         }
-        if (!game.ContainsPlayer((PlayerColour)request.PlayerColour))
+
+        if (game.GetPlayer((PlayerColour)request.PlayerColour) is null)
         {
-            return Result.Failure<GameResponse>(PlayerErrors.InvalidPlayerColour);
+            return Result.Failure<GameResponse>(PlayerErrors.NotFound);
         }
 
         var response = GameResponse.FromDomain(game, request.PlayerColour);

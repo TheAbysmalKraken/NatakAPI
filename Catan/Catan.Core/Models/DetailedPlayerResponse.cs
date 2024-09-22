@@ -20,13 +20,13 @@ public sealed class DetailedPlayerResponse : PlayerResponse
     new public static DetailedPlayerResponse FromDomain(Player player)
     {
         var baseResponse = PlayerResponse.FromDomain(player);
-        var resourceCards = player.GetResourceCards();
-        var playableDevelopmentCards = player.GetPlayableDevelopmentCards();
-        var onHoldDevelopmentCards = player.GetDevelopmentCardsOnHold();
+        var resourceCards = player.ResourceCardManager.Cards;
+        var playableDevelopmentCards = player.DevelopmentCardManager.Cards;
+        var onHoldDevelopmentCards = player.DevelopmentCardManager.OnHoldCards;
 
         return new()
         {
-            VictoryPoints = player.VictoryPoints,
+            VictoryPoints = player.ScoreManager.TotalPoints,
             ResourceCards = resourceCards
                 .Select(kvp => new KeyValuePair<int, int>((int)kvp.Key, kvp.Value))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
@@ -46,7 +46,7 @@ public sealed class DetailedPlayerResponse : PlayerResponse
             RemainingCities = baseResponse.RemainingCities,
             RemainingRoads = baseResponse.RemainingRoads,
             RemainingSettlements = baseResponse.RemainingSettlements,
-            EmbargoedPlayerColours = baseResponse.EmbargoedPlayerColours
+            CardsToDiscard = baseResponse.CardsToDiscard
         };
     }
 }

@@ -18,21 +18,21 @@ internal sealed class BuildSettlementCommandHandler(IActiveGameCache cache) :
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        Result result;
+        if (!game.IsSetup)
+        {
+            var purchaseResult = game.BuySettlement();
 
-        if (game.CurrentState == GameState.FirstSettlement
-        || game.CurrentState == GameState.SecondSettlement)
-        {
-            result = game.BuildSettlement(request.BuildPoint, true);
-        }
-        else
-        {
-            result = game.BuildSettlement(request.BuildPoint);
+            if (purchaseResult.IsFailure)
+            {
+                return purchaseResult;
+            }
         }
 
-        if (result.IsFailure)
+        var buildSettlementResult = game.PlaceSettlement(request.BuildPoint);
+
+        if (buildSettlementResult.IsFailure)
         {
-            return result;
+            return buildSettlementResult;
         }
 
         await cache.UpsetAsync(

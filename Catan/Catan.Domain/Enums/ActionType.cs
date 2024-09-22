@@ -15,8 +15,8 @@ public enum ActionType
     PlayYearOfPlentyCard,
     PlayMonopolyCard,
     RollSeven,
-    DiscardResources,
     AllResourcesDiscarded,
     MoveRobber,
+    StealResource,
     PlayerHasWon
 }

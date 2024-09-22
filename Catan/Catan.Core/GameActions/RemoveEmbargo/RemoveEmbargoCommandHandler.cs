@@ -23,7 +23,7 @@ public sealed class RemoveEmbargoCommandHandler(IActiveGameCache cache) :
         var playerColour = (PlayerColour)request.PlayerColour;
         var playerColourToRemoveEmbargoOn = (PlayerColour)request.PlayerColourToRemoveEmbargoOn;
 
-        var result = game.RemovePlayerEmbargo(
+        var result = game.RemoveEmbargo(
             playerColour,
             playerColourToRemoveEmbargoOn);
 

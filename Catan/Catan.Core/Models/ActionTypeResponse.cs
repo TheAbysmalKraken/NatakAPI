@@ -9,5 +9,7 @@ public enum ActionTypeResponse
     EndTurn,
     Trade,
     PlayDevelopmentCard,
-    MoveRobber
+    DiscardResources,
+    MoveRobber,
+    StealResource
 }

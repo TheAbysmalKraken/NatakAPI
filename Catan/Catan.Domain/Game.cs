@@ -1,184 +1,498 @@
-﻿using Catan.Domain.Enums;
+using Catan.Domain.Enums;
 using Catan.Domain.Errors;
+using Catan.Domain.Managers;
 
 namespace Catan.Domain;
 
-public class Game
+public sealed class Game
 {
-    private const int MIN_PLAYERS = 3;
-    private const int MAX_PLAYERS = 4;
+    private readonly Stack<DiceRoll> diceRolls = [];
 
-    private readonly List<Player> players = [];
-    private readonly List<int> rolledDice = [];
-    private readonly Dictionary<ResourceType, int> remainingResourceCards = [];
-    private readonly Dictionary<DevelopmentCardType, int> remainingDevelopmentCardTotals = [];
-    private readonly List<DevelopmentCardType> remainingDevelopmentCards = [];
-    private int currentPlayerIndex = 0;
-    private int knightsRequiredForLargestArmy;
-    private bool developmentCardPlayedThisTurn;
-    private TradeOffer tradeOffer;
-    private readonly Random random = new();
-    private readonly GameStateManager gameStateManager;
-
-    public Game(int numberOfPlayers, int? seed = null)
+    public Game(int playerCount)
     {
-        if (numberOfPlayers < MIN_PLAYERS || numberOfPlayers > MAX_PLAYERS)
-        {
-            throw new ArgumentException($"Invalid number of players: '{numberOfPlayers}'");
-        }
+        TradeManager = new PlayerTradeManager(playerCount);
+        PlayerManager = new PlayerManager(playerCount);
 
-        if (seed.HasValue)
-        {
-            random = new(seed.Value);
-        }
-
-        Id = Guid.NewGuid().ToString();
-
-        Board = new Board(seed);
-
-        rolledDice = [4, 2];    // Just to have something there
-        InitialisePlayers(numberOfPlayers);
-        InitialiseResourceCards();
-        InitialiseDevelopmentCards();
-
-        knightsRequiredForLargestArmy = 3;
-        developmentCardPlayedThisTurn = false;
-        gameStateManager = new GameStateManager();
-        PlayerCount = numberOfPlayers;
-        tradeOffer = TradeOffer.Inactive();
+        diceRolls.Push(DiceRoller.RollDice(2, 6));
     }
 
-    public string Id { get; init; }
+    public string Id { get; init; } = Guid.NewGuid().ToString();
 
-    public int PlayerCount { get; private set; }
+    public Board Board { get; init; } = new();
 
-    public int? WinnerIndex { get; private set; }
+    public StateManager StateManager { get; private set; } = new SetupStateManager();
 
-    public List<int> LastRoll => rolledDice;
+    public PlayerTradeManager TradeManager { get; init; }
 
-    public Board Board { get; private set; } = new();
+    public BankTradeManager BankManager { get; init; } = new();
 
-    public Player? LongestRoadPlayer { get; private set; } = null;
+    public PlayerManager PlayerManager { get; init; }
 
-    public int? LongestRoadPlayerIndex => SetLongestRoadPlayerIndex();
+    public bool DevelopmentCardPlayed { get; private set; }
 
-    public Player? LargestArmyPlayer => players.FirstOrDefault(p => p.HasLargestArmy);
+    public DiceRoll LastRoll => diceRolls.First();
 
-    public int? LargestArmyPlayerIndex => SetLargestArmyPlayerIndex();
+    public Player CurrentPlayer => PlayerManager.CurrentPlayer;
 
-    public int DiceTotal => rolledDice.Sum();
+    public PlayerColour CurrentPlayerColour => PlayerManager.CurrentPlayerColour;
 
-    public Player CurrentPlayer => players[currentPlayerIndex];
+    public GameState CurrentState => StateManager.CurrentState;
 
-    public int CurrentPlayerIndex => currentPlayerIndex;
+    public bool IsSetup => PlayerManager.IsSetup;
 
-    public bool HasPlayedDevelopmentCardThisTurn => developmentCardPlayedThisTurn;
-
-    public TradeOffer TradeOffer => tradeOffer;
-
-    public GameState CurrentState => gameStateManager.CurrentState;
-
-    public List<ActionType> Actions => gameStateManager.GetValidActions();
-
-    public List<Player> GetPlayers() => players;
-
-    public List<int> GetRolledDice() => rolledDice;
-
-    public Dictionary<ResourceType, int> GetRemainingResourceCards()
-        => remainingResourceCards;
-
-    public Dictionary<DevelopmentCardType, int> GetRemainingDevelopmentCardTotals()
-        => remainingDevelopmentCardTotals;
-
-    public List<DevelopmentCardType> GetRemainingDevelopmentCards()
-        => remainingDevelopmentCards;
-
-    public bool ContainsPlayer(PlayerColour playerColour)
+    public Result MoveState(ActionType actionType)
     {
-        var intPlayerColour = (int)playerColour;
-        return intPlayerColour > (int)PlayerColour.None && intPlayerColour < PlayerCount + 1;
+        return StateManager.MoveState(actionType);
     }
 
-    public Result NextPlayer()
+    public Result<List<Point>> GetAvailableCityLocations()
     {
-        UpdateLargestArmyPlayer();
-
-        developmentCardPlayedThisTurn = false;
-        tradeOffer = TradeOffer.Inactive();
-
-        CurrentPlayer.MoveOnHoldDevelopmentCardsToPlayable();
-
-        var handleNextPlayerStateResult = HandleNextPlayerState();
-
-        return handleNextPlayerStateResult;
+        return Board.GetAvailableCityLocations(CurrentPlayerColour);
     }
 
-    public Result RollDiceAndDistributeResourcesToPlayers()
+    public Result BuyCity()
     {
-        var rollResult = RollDice();
+        return PurchaseHelper.BuyCity(CurrentPlayer, BankManager);
+    }
 
-        if (rollResult.IsFailure)
+    public Result PlaceCity(
+        Point point)
+    {
+        var moveStateResult = MoveState(ActionType.BuildCity);
+
+        if (moveStateResult.IsFailure)
         {
-            return rollResult;
+            return moveStateResult;
         }
 
-        var diceTotal = DiceTotal;
+        var playerPieceResult = CurrentPlayer.RemovePiece(BuildingType.City);
 
-        if (diceTotal == 7)
+        if (playerPieceResult.IsFailure)
         {
-            return Result.Success();
+            return playerPieceResult;
         }
 
-        var tilePointsWithActivationNumber = Board.GetPointsOfTilesWithActivationNumber(diceTotal);
+        CurrentPlayer.AddPiece(BuildingType.Settlement);
 
-        foreach (var point in tilePointsWithActivationNumber)
+        var placeResult = Board.UpgradeHouse(point, CurrentPlayerColour);
+
+        if (placeResult.IsFailure)
         {
-            if (point.Equals(Board.RobberPosition))
-            {
-                continue;
-            }
+            return placeResult;
+        }
 
-            var houses = Board.GetHousesOnTile(point);
+        CheckForWinner();
 
-            foreach (var house in houses)
-            {
-                var player = GetPlayerByColour(house.Colour);
+        return Result.Success();
+    }
 
-                if (player == null)
-                {
-                    continue;
-                }
+    public Result<List<Road>> GetAvailableRoadLocations()
+    {
+        return Board.GetAvailableRoadLocations(CurrentPlayerColour, IsSetup);
+    }
 
-                var isCity = house.Type == BuildingType.City;
+    public Result BuyRoad()
+    {
+        return PurchaseHelper.BuyRoad(CurrentPlayer, BankManager);
+    }
 
-                var tile = Board.GetTile(point);
+    public Result PlaceRoad(Point firstPoint, Point secondPoint)
+    {
+        var moveStateResult = MoveState(ActionType.BuildRoad);
 
-                if (tile is null
-                || tile.Type == ResourceType.Desert)
-                {
-                    continue;
-                }
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
+        }
 
-                var resourceType = tile.Type;
+        var playerPieceResult = CurrentPlayer.RemovePiece(BuildingType.Road);
 
-                if (remainingResourceCards[resourceType] > 0)
-                {
-                    player.AddResourceCard(resourceType);
-                    remainingResourceCards[resourceType]--;
+        if (playerPieceResult.IsFailure)
+        {
+            return playerPieceResult;
+        }
 
-                    if (isCity && remainingResourceCards[resourceType] > 0)
-                    {
-                        player.AddResourceCard(resourceType);
-                        remainingResourceCards[resourceType]--;
-                    }
-                }
-            }
+        var placeResult = Board.PlaceRoad(firstPoint, secondPoint, CurrentPlayerColour, IsSetup);
+
+        if (placeResult.IsFailure)
+        {
+            return placeResult;
+        }
+
+        CheckForLongestRoad();
+        CheckForWinner();
+
+        return Result.Success();
+    }
+
+    public Result<List<Point>> GetAvailableSettlementLocations()
+    {
+        return Board.GetAvailableSettlementLocations(CurrentPlayerColour, IsSetup);
+    }
+
+    public Result BuySettlement()
+    {
+        return PurchaseHelper.BuySettlement(CurrentPlayer, BankManager);
+    }
+
+    public Result PlaceSettlement(Point point)
+    {
+        var moveStateResult = MoveState(ActionType.BuildSettlement);
+
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
+        }
+
+        var playerPieceResult = CurrentPlayer.RemovePiece(BuildingType.Settlement);
+
+        if (playerPieceResult.IsFailure)
+        {
+            return playerPieceResult;
+        }
+
+        var placeHouseResult = Board.PlaceHouse(point, CurrentPlayerColour, IsSetup);
+
+        if (placeHouseResult.IsFailure)
+        {
+            return placeHouseResult;
+        }
+
+        if (PlayerManager.IsSecondRoundOfSetup)
+        {
+            return GivePlayerResourcesAroundSettlement(point);
+        }
+
+        UpdatePlayerPorts(point);
+        CheckForWinner();
+
+        return Result.Success();
+    }
+
+    public Result BuyDevelopmentCard()
+    {
+        return PurchaseHelper.BuyDevelopmentCard(CurrentPlayer, BankManager);
+    }
+
+    public void CancelTradeOffer()
+    {
+        TradeManager.CancelOffer();
+    }
+
+    public Player? GetPlayer(PlayerColour playerColour)
+    {
+        return PlayerManager.GetPlayer(playerColour);
+    }
+
+    public Result DiscardResources(
+        Player player,
+        Dictionary<ResourceType, int> resources)
+    {
+        if (resources.Values.Sum() != player.CardsToDiscard)
+        {
+            return Result.Failure(PlayerErrors.IncorrectDiscardCount);
+        }
+
+        var discardResult = PurchaseHelper.DiscardResources(player, BankManager, resources);
+
+        if (discardResult.IsFailure)
+        {
+            return discardResult;
+        }
+
+        return UpdateDiscardState();
+    }
+
+    public Result EmbargoPlayer(
+        PlayerColour embargoingPlayer,
+        PlayerColour embargoedPlayer)
+    {
+        return TradeManager.AddEmbargo(embargoingPlayer, embargoedPlayer);
+    }
+
+    public Result EndTurn()
+    {
+        DevelopmentCardPlayed = false;
+        TradeManager.Inactive();
+
+        var moveStateResult = MoveState(ActionType.EndTurn);
+
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
+        }
+
+        var isSetupBeforeNextPlayer = PlayerManager.IsSetup;
+
+        PlayerManager.NextPlayer();
+
+        if (isSetupBeforeNextPlayer != PlayerManager.IsSetup
+            && !PlayerManager.IsSetup)
+        {
+            StateManager = new GameStateManager();
         }
 
         return Result.Success();
     }
 
-    public void GiveResourcesSurroundingHouse(Point point)
+    public Result MakeTradeOffer(
+        Dictionary<ResourceType, int> offer,
+        Dictionary<ResourceType, int> request)
+    {
+        return TradeManager.CreateOffer(CurrentPlayer, offer, request);
+    }
+
+    public Result MoveRobber(
+        Point point)
+    {
+        var moveStateResult = MoveState(ActionType.MoveRobber);
+
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
+        }
+
+        return Board.MoveRobberToPoint(point);
+    }
+
+    public Result RemoveDevelopmentCardFromCurrentPlayer(
+        DevelopmentCardType developmentCardType)
+    {
+        return CurrentPlayer.RemoveDevelopmentCard(developmentCardType);
+    }
+
+    public Result PlayKnightCard()
+    {
+        if (DevelopmentCardPlayed)
+        {
+            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+        }
+
+        var moveStateResult = MoveState(ActionType.PlayKnightCard);
+
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
+        }
+
+        var removeCardResult = CurrentPlayer.RemoveDevelopmentCard(
+            DevelopmentCardType.Knight);
+
+        if (removeCardResult.IsFailure)
+        {
+            return removeCardResult;
+        }
+
+        DevelopmentCardPlayed = true;
+
+        PlayerManager.UpdateLargestArmyPlayer();
+        CheckForWinner();
+
+        return Result.Success();
+    }
+
+    public Result PlayMonopolyCard(
+        ResourceType resource)
+    {
+        if (DevelopmentCardPlayed)
+        {
+            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+        }
+
+        var moveStateResult = MoveState(ActionType.PlayMonopolyCard);
+
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
+        }
+
+        var removeCardResult = CurrentPlayer.RemoveDevelopmentCard(
+            DevelopmentCardType.Monopoly);
+
+        if (removeCardResult.IsFailure)
+        {
+            return removeCardResult;
+        }
+
+        if (resource == ResourceType.Desert)
+        {
+            return Result.Failure(GameErrors.InvalidResourceType);
+        }
+
+        PlayerManager.GivePlayerMonopolyResource(CurrentPlayer, resource);
+
+        DevelopmentCardPlayed = true;
+
+        return Result.Success();
+    }
+
+    public Result PlayRoadBuildingCard(
+        Point firstRoadFirstPoint,
+        Point firstRoadSecondPoint,
+        Point secondRoadFirstPoint,
+        Point secondRoadSecondPoint)
+    {
+        if (DevelopmentCardPlayed)
+        {
+            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+        }
+
+        var moveStateResult = MoveState(ActionType.PlayRoadBuildingCard);
+
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
+        }
+
+        var removeCardResult = CurrentPlayer.RemoveDevelopmentCard(
+            DevelopmentCardType.RoadBuilding);
+
+        if (removeCardResult.IsFailure)
+        {
+            return removeCardResult;
+        }
+
+        var buildResult = PlaceRoadBuildingRoads(
+            firstRoadFirstPoint,
+            firstRoadSecondPoint,
+            secondRoadFirstPoint,
+            secondRoadSecondPoint);
+
+        if (buildResult.IsFailure)
+        {
+            return buildResult;
+        }
+
+        DevelopmentCardPlayed = true;
+
+        CheckForLongestRoad();
+        CheckForWinner();
+
+        return Result.Success();
+    }
+
+    public Result PlayYearOfPlentyCard(
+        ResourceType firstResource,
+        ResourceType secondResource)
+    {
+        if (DevelopmentCardPlayed)
+        {
+            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+        }
+
+        var moveStateResult = MoveState(ActionType.PlayYearOfPlentyCard);
+
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
+        }
+
+        var removeCardResult = CurrentPlayer.RemoveDevelopmentCard(
+            DevelopmentCardType.YearOfPlenty);
+
+        if (removeCardResult.IsFailure)
+        {
+            return removeCardResult;
+        }
+
+        PurchaseHelper.GetFreeResources(
+            CurrentPlayer,
+            BankManager, new()
+            {
+                { firstResource, 1 },
+                { secondResource, 1 }
+            });
+
+        DevelopmentCardPlayed = true;
+
+        return Result.Success();
+    }
+
+    public Result RemoveEmbargo(
+        PlayerColour embargoingPlayer,
+        PlayerColour embargoedPlayer)
+    {
+        return TradeManager.RemoveEmbargo(embargoingPlayer, embargoedPlayer);
+    }
+
+    public Result AcceptTradeOffer(PlayerColour playerAcceptingColour)
+    {
+        var acceptingPlayer = GetPlayer(playerAcceptingColour);
+
+        if (acceptingPlayer is null)
+        {
+            return Result.Failure(PlayerErrors.NotFound);
+        }
+
+        return TradeManager.AcceptOffer(CurrentPlayer, acceptingPlayer);
+    }
+
+    public Result RejectTradeOffer(PlayerColour playerRejectingColour)
+    {
+        return TradeManager.RejectOffer(playerRejectingColour);
+    }
+
+    public Result RollDice()
+    {
+        var newRoll = DiceRoller.RollDice(2, 6);
+
+        if (newRoll.Total == 7)
+        {
+            var rollSevenResult = RollSeven();
+
+            if (rollSevenResult.IsFailure)
+            {
+                return rollSevenResult;
+            }
+        }
+        else
+        {
+            var moveStateResult = MoveState(ActionType.RollDice);
+
+            if (moveStateResult.IsFailure)
+            {
+                return moveStateResult;
+            }
+        }
+
+        diceRolls.Push(newRoll);
+
+        return Result.Success();
+    }
+
+    public Result DistributeResources()
+    {
+        var activationNumber = LastRoll.Total;
+        var tilePointsWithActivationNumber = Board.GetPointsOfTilesWithActivationNumber(activationNumber);
+
+        foreach (var tilePoint in tilePointsWithActivationNumber)
+        {
+            DistributeResourcesOnTilePoint(tilePoint);
+        }
+
+        return Result.Success();
+    }
+
+    public Result StealResourceFromPlayer(PlayerColour player)
+    {
+        var moveStateResult = MoveState(ActionType.StealResource);
+
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
+        }
+
+        return PlayerManager.StealFromPlayer(CurrentPlayerColour, player);
+    }
+
+    public Result TradeWithBank(
+        ResourceType offeredResource,
+        ResourceType requestedResource)
+    {
+        return BankManager.Trade(CurrentPlayer, offeredResource, requestedResource);
+    }
+
+    private Result GivePlayerResourcesAroundSettlement(Point point)
     {
         var tiles = Board.GetTilesSurroundingHouse(point);
 
@@ -191,870 +505,158 @@ public class Game
                 continue;
             }
 
-            if (remainingResourceCards[resourceType] > 0)
-            {
-                CurrentPlayer.AddResourceCard(resourceType);
-                remainingResourceCards[resourceType]--;
-            }
-        }
-    }
-
-    public Result TradeTwoToOne(ResourceType resourceTypeToGive, ResourceType resourceTypeToReceive)
-    {
-        var tradeStateResult = gameStateManager.MoveState(ActionType.Trade);
-
-        if (tradeStateResult.IsFailure)
-        {
-            return tradeStateResult;
-        }
-
-        var portTypeValid = Enum.TryParse<PortType>(resourceTypeToReceive.ToString(), out var portType);
-
-        if (!portTypeValid)
-        {
-            throw new InvalidOperationException($"Invalid port type: '{resourceTypeToReceive}'");
-        }
-
-        if (!Board.ColourHasPortOfType(CurrentPlayer.Colour, portType))
-        {
-            return Result.Failure(PlayerErrors.DoesNotOwnPort);
-        }
-
-        var tradeResult = CurrentPlayer.TradeTwoToOne(resourceTypeToGive, resourceTypeToReceive);
-
-        return tradeResult;
-    }
-
-    public Result TradeThreeToOne(ResourceType resourceTypeToGive, ResourceType resourceTypeToReceive)
-    {
-        var tradeStateResult = gameStateManager.MoveState(ActionType.Trade);
-
-        if (tradeStateResult.IsFailure)
-        {
-            return tradeStateResult;
-        }
-
-        if (!Board.ColourHasPortOfType(CurrentPlayer.Colour, PortType.ThreeToOne))
-        {
-            return Result.Failure(PlayerErrors.DoesNotOwnPort);
-        }
-
-        var tradeResult = CurrentPlayer.TradeThreeToOne(resourceTypeToGive, resourceTypeToReceive);
-
-        return tradeResult;
-    }
-
-    public Result TradeFourToOne(ResourceType resourceTypeToGive, ResourceType resourceTypeToReceive)
-    {
-        var tradeStateResult = gameStateManager.MoveState(ActionType.Trade);
-
-        if (tradeStateResult.IsFailure)
-        {
-            return tradeStateResult;
-        }
-
-        var tradeResult = CurrentPlayer.TradeFourToOne(resourceTypeToGive, resourceTypeToReceive);
-
-        return tradeResult;
-    }
-
-    public Result EmbargoPlayer(PlayerColour colourEmbargoedBy, PlayerColour colourToEmbargo)
-    {
-        var playerEmbargoedBy = GetPlayerByColour(colourEmbargoedBy);
-
-        if (playerEmbargoedBy == null)
-        {
-            return Result.Failure(PlayerErrors.NotFound);
-        }
-
-        var playerToEmbargo = GetPlayerByColour(colourToEmbargo);
-
-        if (playerToEmbargo == null)
-        {
-            return Result.Failure(PlayerErrors.NotFound);
-        }
-
-        var embargoResult = playerEmbargoedBy.EmbargoPlayer(colourToEmbargo);
-
-        return embargoResult;
-    }
-
-    public Result RemovePlayerEmbargo(PlayerColour colourEmbargoedBy, PlayerColour colourToRemoveEmbargoOn)
-    {
-        var playerEmbargoedBy = GetPlayerByColour(colourEmbargoedBy);
-
-        if (playerEmbargoedBy == null)
-        {
-            return Result.Failure(PlayerErrors.NotFound);
-        }
-
-        var removeEmbargoResult = playerEmbargoedBy.RemoveEmbargo(colourToRemoveEmbargoOn);
-
-        return removeEmbargoResult;
-    }
-
-    public Result PlayKnightCard()
-    {
-        var result = PlayDevelopmentCard(DevelopmentCardType.Knight);
-
-        if (result.IsFailure)
-        {
-            return result;
-        }
-
-        UpdateLargestArmyPlayer();
-
-        SetWinnerIndex();
-
-        return Result.Success();
-    }
-
-    public Result PlayYearOfPlentyCard(ResourceType resourceType1, ResourceType resourceType2)
-    {
-        if (resourceType1 == ResourceType.Desert || resourceType2 == ResourceType.Desert)
-        {
-            return Result.Failure(GameErrors.InvalidResourceType);
-        }
-
-        var resourceTotal1 = remainingResourceCards[resourceType1];
-        var resourceTotal2 = remainingResourceCards[resourceType2];
-
-        if (resourceTotal1 == 0 || resourceTotal2 == 0)
-        {
-            return Result.Failure(GameErrors.InsufficientResources);
-        }
-
-        if (resourceType1 == resourceType2 && resourceTotal1 < 2)
-        {
-            return Result.Failure(GameErrors.InsufficientResources);
-        }
-
-        var result = PlayDevelopmentCard(DevelopmentCardType.YearOfPlenty);
-
-        if (result.IsFailure)
-        {
-            return result;
-        }
-
-        CurrentPlayer.AddResourceCard(resourceType1);
-        CurrentPlayer.AddResourceCard(resourceType2);
-
-        return Result.Success();
-    }
-
-    public Result PlayMonopolyCard(ResourceType resourceType)
-    {
-        if (resourceType == ResourceType.Desert)
-        {
-            return Result.Failure(GameErrors.InvalidResourceType);
-        }
-
-        var result = PlayDevelopmentCard(DevelopmentCardType.Monopoly);
-
-        if (result.IsFailure)
-        {
-            return result;
-        }
-
-        var playersToStealFrom = players.Where(p => p.Colour != CurrentPlayer.Colour);
-
-        foreach (var player in playersToStealFrom)
-        {
-            var resourceCount = player.GetResourceCards()[resourceType];
-
-            if (resourceCount > 0)
-            {
-                player.RemoveResourceCard(resourceType, resourceCount);
-                CurrentPlayer.AddResourceCard(resourceType, resourceCount);
-            }
+            PurchaseHelper.GetFreeResources(
+            CurrentPlayer,
+            BankManager,
+            new() { { resourceType, 1 } });
         }
 
         return Result.Success();
     }
 
-    public Result PlayRoadBuildingCard(
-        Point point1,
-        Point point2,
-        Point point3,
-        Point point4)
+    private Result UpdateDiscardState()
     {
-        var canPlaceRoadsResult = Board.CanPlaceRoadBetweenPoints(point1, point2, CurrentPlayer.Colour);
-
-        if (canPlaceRoadsResult.IsFailure)
+        if (!PlayerManager.PlayersNeedToDiscard)
         {
-            return canPlaceRoadsResult;
-        }
+            var moveStateResult = MoveState(ActionType.AllResourcesDiscarded);
 
-        var result = PlayDevelopmentCard(DevelopmentCardType.RoadBuilding);
-
-        if (result.IsFailure)
-        {
-            return result;
-        }
-
-        var placeFirstRoadResult = Board.PlaceRoad(point1, point2, CurrentPlayer.Colour);
-
-        if (placeFirstRoadResult.IsFailure)
-        {
-            throw new Exception("Failed to place first road.");
-        }
-
-        var placeSecondRoadResult = Board.PlaceRoad(point3, point4, CurrentPlayer.Colour);
-
-        if (placeSecondRoadResult.IsFailure)
-        {
-            throw new Exception("Failed to place second road.");
-        }
-
-        UpdateLargestRoadPlayer();
-
-        SetWinnerIndex();
-
-        return Result.Success();
-    }
-
-    public Result MakeTradeOffer(
-        Dictionary<ResourceType, int> offer,
-        Dictionary<ResourceType, int> request)
-    {
-        var canTradeResult = CurrentPlayer.CanMakeTradeOffer(offer);
-
-        if (canTradeResult.IsFailure)
-        {
-            return canTradeResult;
-        }
-
-        tradeOffer = new()
-        {
-            IsActive = true,
-            Offer = offer,
-            Request = request
-        };
-
-        foreach (var player in players)
-        {
-            if (player.GetEmbargoedPlayers().Contains(CurrentPlayer.Colour)
-            || CurrentPlayer.GetEmbargoedPlayers().Contains(player.Colour))
-            {
-                tradeOffer.RejectedBy.Add(player.Colour);
-            }
-        }
-
-        return Result.Success();
-    }
-
-    public Result CancelTradeOffer()
-    {
-        if (!tradeOffer.IsActive)
-        {
-            return Result.Failure(GameErrors.TradeOfferNotActive);
-        }
-
-        tradeOffer = TradeOffer.Inactive();
-
-        return Result.Success();
-    }
-
-    public Result RejectTradeOffer(PlayerColour playerColour)
-    {
-        if (playerColour == CurrentPlayer.Colour)
-        {
-            return Result.Failure(PlayerErrors.CannotTradeWithSelf);
-        }
-
-        if (!tradeOffer.IsActive)
-        {
-            return Result.Failure(GameErrors.TradeOfferNotActive);
-        }
-
-        if (tradeOffer.RejectedBy.Contains(playerColour))
-        {
-            return Result.Failure(PlayerErrors.AlreadyRejectedTrade);
-        }
-
-        tradeOffer.RejectedBy.Add(playerColour);
-
-        if (tradeOffer.RejectedBy.Count == PlayerCount - 1)
-        {
-            tradeOffer = TradeOffer.Inactive();
-        }
-
-        return Result.Success();
-    }
-
-    public Result AcceptTradeOffer(PlayerColour playerColour)
-    {
-        var playerToTradeWith = GetPlayerByColour(playerColour);
-
-        if (playerToTradeWith == null)
-        {
-            return Result.Failure(PlayerErrors.NotFound);
-        }
-
-        if (!CurrentPlayer.CanTradeWithPlayer(playerColour)
-        || !playerToTradeWith.CanTradeWithPlayer(CurrentPlayer.Colour))
-        {
-            return Result.Failure(PlayerErrors.Embargoed);
-        }
-
-        if (!CurrentPlayer.HasAdequateResourceCardsOfTypes(tradeOffer.Offer)
-        || !playerToTradeWith.HasAdequateResourceCardsOfTypes(tradeOffer.Request))
-        {
-            return Result.Failure(PlayerErrors.MissingResources);
-        }
-
-        CurrentPlayer.AddResourceCards(tradeOffer.Request);
-        var removeFromCurrentResult = CurrentPlayer.RemoveResourceCards(tradeOffer.Offer);
-
-        if (removeFromCurrentResult.IsFailure)
-        {
-            throw new Exception("Failed to remove resource cards from current player.");
-        }
-
-        playerToTradeWith.AddResourceCards(tradeOffer.Offer);
-        var removeFromTradePlayerResult = playerToTradeWith.RemoveResourceCards(tradeOffer.Request);
-
-        if (removeFromTradePlayerResult.IsFailure)
-        {
-            throw new Exception("Failed to remove resource cards from trade player.");
-        }
-
-        tradeOffer = TradeOffer.Inactive();
-
-        return Result.Success();
-    }
-
-    public Result BuildRoad(Point point1, Point point2, bool isFree = false)
-    {
-        if (!isFree && !CurrentPlayer.CanBuyRoad())
-        {
-            return Result.Failure(PlayerErrors.MissingResources);
-        }
-
-        bool isSetup = CurrentState == GameState.FirstRoad || CurrentState == GameState.SecondRoad;
-
-        var canPlaceResult = isSetup
-            ? Board.CanPlaceSetupRoadBetweenPoints(point1, point2, CurrentPlayer.Colour)
-            : Board.CanPlaceRoadBetweenPoints(point1, point2, CurrentPlayer.Colour);
-
-        if (canPlaceResult.IsFailure)
-        {
-            return canPlaceResult;
-        }
-
-        var moveStateResult = gameStateManager.MoveState(ActionType.BuildRoad);
-
-        if (moveStateResult.IsFailure)
-        {
             return moveStateResult;
         }
 
-        var result = Board.PlaceRoad(point1, point2, CurrentPlayer.Colour, isSetup);
-
-        if (result.IsFailure)
-        {
-            throw new Exception("Failed to place free road.");
-        }
-
-        if (!isFree)
-        {
-            CurrentPlayer.BuyRoad();
-        }
-        else
-        {
-            CurrentPlayer.BuyFreeRoad();
-        }
-
-        UpdateLargestRoadPlayer();
-
-        SetWinnerIndex();
-
         return Result.Success();
     }
 
-    public Result BuildSettlement(Point point, bool isFree = false)
+    private Result PlaceRoadBuildingRoads(
+        Point firstRoadFirstPoint,
+        Point firstRoadSecondPoint,
+        Point secondRoadFirstPoint,
+        Point secondRoadSecondPoint)
     {
-        if (!isFree && !CurrentPlayer.CanBuySettlement())
+        var firstRoadResult = PlaceRoadBuildingRoad(firstRoadFirstPoint, firstRoadSecondPoint);
+
+        if (firstRoadResult.IsFailure)
         {
-            return Result.Failure(PlayerErrors.MissingResources);
+            return firstRoadResult;
         }
 
-        var canPlaceHouseResult = Board.CanPlaceHouseAtPoint(point, CurrentPlayer.Colour, isFree);
-
-        if (canPlaceHouseResult.IsFailure)
-        {
-            return canPlaceHouseResult;
-        }
-
-        bool shouldGiveResources = CurrentState == GameState.SecondSettlement;
-
-        var moveStateResult = gameStateManager.MoveState(ActionType.BuildSettlement);
-
-        if (moveStateResult.IsFailure)
-        {
-            return moveStateResult;
-        }
-
-        var result = Board.PlaceHouse(point, CurrentPlayer.Colour, isFree);
-
-        if (result.IsFailure)
-        {
-            throw new Exception("Failed to place settlement.");
-        }
-
-        if (!isFree)
-        {
-            CurrentPlayer.BuySettlement();
-        }
-        else if (shouldGiveResources)
-        {
-            CurrentPlayer.BuyFreeSettlement();
-            GiveResourcesSurroundingHouse(point);
-        }
-
-        UpdateLargestRoadPlayer();
-
-        SetWinnerIndex();
-
-        return Result.Success();
+        return PlaceRoadBuildingRoad(secondRoadFirstPoint, secondRoadSecondPoint);
     }
 
-    public Result BuildCity(Point point)
+    private Result PlaceRoadBuildingRoad(
+        Point firstPoint,
+        Point secondPoint)
     {
-        if (!CurrentPlayer.CanBuyCity())
+        var playerPieceResult = CurrentPlayer.RemovePiece(BuildingType.Road);
+
+        if (playerPieceResult.IsFailure)
         {
-            return Result.Failure(PlayerErrors.MissingResources);
+            return playerPieceResult;
         }
 
-        var canUpgradeResult = Board.CanUpgradeHouseAtPoint(point, CurrentPlayer.Colour);
+        var placeResult = Board.PlaceRoad(firstPoint, secondPoint, CurrentPlayerColour, IsSetup);
 
-        if (canUpgradeResult.IsFailure)
+        if (placeResult.IsFailure)
         {
-            return canUpgradeResult;
-        }
-
-        var moveStateResult = gameStateManager.MoveState(ActionType.BuildCity);
-
-        if (moveStateResult.IsFailure)
-        {
-            return moveStateResult;
-        }
-
-        var result = Board.UpgradeHouse(point, CurrentPlayer.Colour);
-
-        if (result.IsFailure)
-        {
-            throw new Exception("Failed to upgrade house to city.");
-        }
-
-        CurrentPlayer.BuyCity();
-
-        SetWinnerIndex();
-
-        return Result.Success();
-    }
-
-    public Result MoveRobber(Point point)
-    {
-        var canMoveResult = Board.CanMoveRobberToPoint(point);
-
-        if (canMoveResult.IsFailure)
-        {
-            return canMoveResult;
-        }
-
-        var moveStateResult = gameStateManager.MoveState(ActionType.MoveRobber);
-
-        if (moveStateResult.IsFailure)
-        {
-            return moveStateResult;
-        }
-
-        var result = Board.MoveRobberToPoint(point);
-
-        if (result.IsFailure)
-        {
-            throw new Exception("Failed to move robber to point.");
+            return placeResult;
         }
 
         return Result.Success();
     }
 
-    public Result StealResourceCard(PlayerColour victimColour)
+    private void DistributeResourcesOnTilePoint(Point tilePoint)
     {
-        var victim = GetPlayerByColour(victimColour);
-
-        if (victim == null)
+        if (tilePoint.Equals(Board.RobberPosition))
         {
-            return Result.Failure(PlayerErrors.NotFound);
+            return;
         }
 
-        if (victim == CurrentPlayer)
+        var tile = Board.GetTile(tilePoint);
+
+        if (tile is null
+        || tile.Type == ResourceType.Desert)
         {
-            return Result.Failure(PlayerErrors.CannotStealFromSelf);
+            return;
         }
 
-        var stolenCard = victim.RemoveRandomResourceCard();
+        var resourceType = tile.Type;
 
-        if (stolenCard != null)
+        var houses = Board.GetHousesOnTile(tilePoint);
+
+        foreach (var house in houses)
         {
-            CurrentPlayer.AddResourceCard(stolenCard.Value);
-        }
-
-        return Result.Success();
-    }
-
-    public Result DiscardResources(PlayerColour playerColourDiscarding, Dictionary<ResourceType, int> resourcesToDiscard)
-    {
-        var player = GetPlayerByColour(playerColourDiscarding);
-
-        if (player == null)
-        {
-            return Result.Failure(PlayerErrors.NotFound);
-        }
-
-        var moveStateResult = gameStateManager.MoveState(ActionType.DiscardResources);
-
-        if (moveStateResult.IsFailure)
-        {
-            return moveStateResult;
-        }
-
-        var result = player.RemoveResourceCards(resourcesToDiscard);
-
-        if (result.IsFailure)
-        {
-            return result;
-        }
-
-        foreach (var type in resourcesToDiscard.Keys)
-        {
-            remainingResourceCards[type] += resourcesToDiscard[type];
-        }
-
-        var canFinishDiscardingResult = TryFinishDiscardingResources();
-
-        if (canFinishDiscardingResult.IsFailure)
-        {
-            throw new Exception("Failed to finish discarding resources.");
-        }
-
-        return Result.Success();
-    }
-
-    public Result TryFinishDiscardingResources()
-    {
-        if (!players.Any(p => p.GetResourceCards().Count > 7))
-        {
-            var allDiscardedResult = gameStateManager.MoveState(ActionType.AllResourcesDiscarded);
-
-            return allDiscardedResult;
-        }
-
-        return Result.Success();
-    }
-
-    public Result BuyDevelopmentCard()
-    {
-        if (remainingDevelopmentCards.Count == 0)
-        {
-            return Result.Failure(GameErrors.NoDevelopmentCardsLeft);
-        }
-
-        if (!CurrentPlayer.CanBuyDevelopmentCard())
-        {
-            return Result.Failure(PlayerErrors.MissingResources);
-        }
-
-        var card = remainingDevelopmentCards[0];
-
-        var result = CurrentPlayer.BuyDevelopmentCard(card);
-
-        if (result.IsFailure)
-        {
-            return result;
-        }
-
-        remainingDevelopmentCards.RemoveAt(0);
-        remainingDevelopmentCardTotals[card]--;
-
-        SetWinnerIndex();
-
-        return Result.Success();
-    }
-
-    private Result HandleNextPlayerState()
-    {
-        if (CurrentState == GameState.SecondSetupReadyForNextPlayer)
-        {
-            if (currentPlayerIndex == 0)
-            {
-                var secondSetupFinishedResult = gameStateManager.MoveState(
-                    ActionType.SecondSetupFinished);
-
-                return secondSetupFinishedResult;
-            }
-            else
-            {
-                var endSecondTurnResult = gameStateManager.MoveState(ActionType.EndTurn);
-
-                if (endSecondTurnResult.IsFailure)
-                {
-                    return endSecondTurnResult;
-                }
-
-                currentPlayerIndex = (currentPlayerIndex - 1) % players.Count;
-
-                return Result.Success();
-            }
-        }
-        else if (CurrentState == GameState.FirstSetupReadyForNextPlayer)
-        {
-            if (currentPlayerIndex == players.Count - 1)
-            {
-                var firstSetupFinishedResult = gameStateManager.MoveState(
-                    ActionType.FirstSetupFinished);
-
-                return firstSetupFinishedResult;
-            }
-        }
-
-        var endTurnResult = gameStateManager.MoveState(ActionType.EndTurn);
-
-        if (endTurnResult.IsFailure)
-        {
-            return endTurnResult;
-        }
-
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
-
-        return Result.Success();
-    }
-
-    private void SetWinnerIndex()
-    {
-        if (CurrentPlayer.VictoryPoints >= 10)
-        {
-            WinnerIndex = currentPlayerIndex;
-        }
-        else
-        {
-            WinnerIndex = null;
+            DistributeResourcesForHouse(house, resourceType);
         }
     }
 
-    private int? SetLargestArmyPlayerIndex()
+    private void DistributeResourcesForHouse(
+        Building house,
+        ResourceType resourceType)
     {
-        var playerIndex = players.FindIndex(p => p.HasLargestArmy);
+        var player = GetPlayer(house.Colour)
+                ?? throw new InvalidOperationException("Player not found");
 
-        if (playerIndex == -1)
-        {
-            return null;
-        }
+        var isCity = house.Type == BuildingType.City;
 
-        return playerIndex;
+        var resourceCount = isCity ? 2 : 1;
+
+        PurchaseHelper.GetFreeResources(
+            player,
+            BankManager,
+            new() { { resourceType, resourceCount } });
     }
 
-    private int? SetLongestRoadPlayerIndex()
+    private Result RollSeven()
     {
-        var playerIndex = players.FindIndex(p => p.HasLongestRoad);
-
-        if (playerIndex == -1)
-        {
-            return null;
-        }
-
-        return playerIndex;
-    }
-
-    private void InitialisePlayers(int numberOfPlayers)
-    {
-        players.Clear();
-
-        for (var i = 0; i < numberOfPlayers; i++)
-        {
-            PlayerColour playerColour = (PlayerColour)(i + 1);
-            var newPlayer = new Player(playerColour);
-
-            players.Add(newPlayer);
-        }
-
-        ShufflePlayers();
-    }
-
-    private void ShufflePlayers()
-    {
-        var totalPlayers = players.Count;
-
-        while (totalPlayers > 1)
-        {
-            var playerIndexToSwapWith = random.Next(totalPlayers);
-            totalPlayers--;
-            (players[totalPlayers], players[playerIndexToSwapWith]) = (players[playerIndexToSwapWith], players[totalPlayers]);
-        }
-    }
-
-    private void InitialiseDevelopmentCards()
-    {
-        remainingDevelopmentCardTotals.Clear();
-
-        var totals = DomainConstants.GetDevelopmentCardTypeTotals();
-
-        foreach (var type in totals.Keys)
-        {
-            remainingDevelopmentCardTotals.Add(type, totals[type]);
-            for (var i = 0; i < totals[type]; i++)
-            {
-                remainingDevelopmentCards.Add(type);
-            }
-        }
-
-        ShuffleDevelopmentCards();
-    }
-
-    private void ShuffleDevelopmentCards()
-    {
-        var totalDevelopmentCards = remainingDevelopmentCards.Count;
-
-        while (totalDevelopmentCards > 1)
-        {
-            var cardIndexToSwapWith = random.Next(totalDevelopmentCards);
-            totalDevelopmentCards--;
-            (remainingDevelopmentCards[totalDevelopmentCards], remainingDevelopmentCards[cardIndexToSwapWith]) = (remainingDevelopmentCards[cardIndexToSwapWith], remainingDevelopmentCards[totalDevelopmentCards]);
-        }
-    }
-
-    private Player? GetPlayerByColour(PlayerColour colour)
-    {
-        return players.FirstOrDefault(p => p.Colour == colour);
-    }
-
-    private void InitialiseResourceCards()
-    {
-        remainingResourceCards.Clear();
-
-        var totals = DomainConstants.GetBankResourceTotals();
-
-        foreach (var type in totals.Keys)
-        {
-            remainingResourceCards.Add(type, totals[type]);
-        }
-    }
-
-    private void UpdateLargestArmyPlayer()
-    {
-        var player = players.OrderByDescending(p => p.KnightsPlayed).FirstOrDefault();
-
-        if (player != null && LargestArmyPlayer != player && player.KnightsPlayed >= knightsRequiredForLargestArmy)
-        {
-            LargestArmyPlayer?.RemoveLargestArmyCard();
-
-            player.AddLargestArmyCard();
-            knightsRequiredForLargestArmy = player.KnightsPlayed + 1;
-        }
-    }
-
-    private void UpdateLargestRoadPlayer()
-    {
-        var longestRoadInfo = Board.GetLongestRoadInfo();
-
-        var player = players.FirstOrDefault(p => p.Colour == longestRoadInfo.Colour);
-
-        if (LongestRoadPlayer != player)
-        {
-            LongestRoadPlayer?.RemoveLongestRoadCard();
-
-            player?.AddLongestRoadCard();
-        }
-    }
-
-    private Result PlayDevelopmentCard(DevelopmentCardType type)
-    {
-        if (developmentCardPlayedThisTurn)
-        {
-            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
-        }
-
-        var canPlayCardResult = CurrentPlayer.CanRemoveDevelopmentCard(type);
-
-        if (canPlayCardResult.IsFailure)
-        {
-            return canPlayCardResult;
-        }
-
-        var handleStateResult = HandlePlayDevelopmentCardState(type);
-
-        if (handleStateResult.IsFailure)
-        {
-            return handleStateResult;
-        }
-
-        var result = CurrentPlayer.RemoveDevelopmentCard(type);
-
-        if (result.IsFailure)
-        {
-            throw new Exception("Failed to remove development card.");
-        }
-
-        developmentCardPlayedThisTurn = true;
-
-        return Result.Success();
-    }
-
-    private Result HandlePlayDevelopmentCardState(DevelopmentCardType type)
-    {
-        if (type == DevelopmentCardType.Knight)
-        {
-            return gameStateManager.MoveState(ActionType.PlayKnightCard);
-        }
-        else if (type == DevelopmentCardType.RoadBuilding)
-        {
-            return gameStateManager.MoveState(ActionType.PlayRoadBuildingCard);
-        }
-        else if (type == DevelopmentCardType.YearOfPlenty)
-        {
-            return gameStateManager.MoveState(ActionType.PlayYearOfPlentyCard);
-        }
-        else if (type == DevelopmentCardType.Monopoly)
-        {
-            return gameStateManager.MoveState(ActionType.PlayMonopolyCard);
-        }
-
-        throw new InvalidOperationException($"Invalid development card type: '{type}'");
-    }
-
-    private Result RollDice()
-    {
-        var newRoll = DiceRoller.RollDice(2, 6);
-
-        if (newRoll.Count == 7)
-        {
-            var moveRollSevenStateResult = gameStateManager.MoveState(
+        var moveRollSevenStateResult = MoveState(
                 ActionType.RollSeven);
 
-            if (moveRollSevenStateResult.IsFailure)
-            {
-                return moveRollSevenStateResult;
-            }
-
-            var finishDiscardingResult = TryFinishDiscardingResources();
-
-            if (finishDiscardingResult.IsFailure)
-            {
-                return finishDiscardingResult;
-            }
-        }
-
-        var moveStateResult = gameStateManager.MoveState(ActionType.RollDice);
-
-        if (moveStateResult.IsFailure)
+        if (moveRollSevenStateResult.IsFailure)
         {
-            return moveStateResult;
+            return moveRollSevenStateResult;
         }
 
-        rolledDice.Clear();
-        rolledDice.AddRange(newRoll);
+        PlayerManager.CalculateDiscardRequirements();
 
-        return Result.Success();
+        return UpdateDiscardState();
+    }
+
+    private void CheckForWinner()
+    {
+        var winner = PlayerManager.WinningPlayer;
+
+        if (winner is null)
+        {
+            return;
+        }
+
+        var moveState = MoveState(ActionType.PlayerHasWon);
+
+        if (moveState.IsFailure)
+        {
+            throw new InvalidOperationException("Failed to move to player has won state");
+        }
+
+        return;
+    }
+
+    private void CheckForLongestRoad()
+    {
+        var longestRoadInfo = Board.LongestRoadInfo;
+
+        var playerColour = longestRoadInfo.Colour;
+
+        PlayerManager.UpdateLongestRoadPlayer(playerColour);
+    }
+
+    private void UpdatePlayerPorts(Point point)
+    {
+        var port = Board.GetPorts().Where(p => p.Point.Equals(point)).FirstOrDefault();
+
+        if (port is null)
+        {
+            return;
+        }
+
+        PlayerManager.GivePort(CurrentPlayerColour, port.Type);
     }
 }
