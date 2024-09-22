@@ -42,9 +42,9 @@ public static class Endpoints
         this RouteGroupBuilder builder)
     {
         builder.MapGet("{gameId}/{playerColour}", GetGameStatusAsync);
-        builder.MapGet("{gameId}/{playerColour}/available-settlement-locations", GetAvailableSettlementLocationsAsync);
-        builder.MapGet("{gameId}/{playerColour}/available-city-locations", GetAvailableCityLocationsAsync);
-        builder.MapGet("{gameId}/{playerColour}/available-road-locations", GetAvailableRoadLocationsAsync);
+        builder.MapGet("{gameId}/available-settlement-locations", GetAvailableSettlementLocationsAsync);
+        builder.MapGet("{gameId}/available-city-locations", GetAvailableCityLocationsAsync);
+        builder.MapGet("{gameId}/available-road-locations", GetAvailableRoadLocationsAsync);
         builder.MapPost("", CreateGameAsync);
         builder.MapPost("{gameId}/roll", RollDiceAsync);
         builder.MapPost("{gameId}/end-turn", EndTurnAsync);
