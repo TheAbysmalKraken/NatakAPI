@@ -7,6 +7,7 @@ public enum GameState
     SetupFinished,
     BeforeRoll,
     AfterRoll,
+    RoadBuilding,
     DiscardResources,
     MoveRobber,
     StealResource,

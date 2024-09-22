@@ -226,6 +226,38 @@ public sealed class GameTests
     }
 
     [Fact]
+    public void PlaceRoad_Should_FinishRoadBuilding_WhenPlayerHasPlacedTwoRoads()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true,
+            GivePlayersDevelopmentCards = true,
+            HasRolled = false
+        };
+        var game = GameFactory.Create(gameOptions);
+        game.PlayRoadBuildingCard();
+
+        Assert.Equal(GameState.RoadBuilding, game.CurrentState);
+
+        var availableLocations = game.GetAvailableRoadLocations().Value;
+        var availableRoad = availableLocations.First();
+        var availableRoad2 = availableLocations.Last();
+
+        game.PlaceRoad(availableRoad.FirstPoint, availableRoad.SecondPoint);
+
+        Assert.Equal(GameState.RoadBuilding, game.CurrentState);
+
+        // Act
+        var result = game.PlaceRoad(availableRoad2.FirstPoint, availableRoad2.SecondPoint);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.Equal(GameState.BeforeRoll, game.CurrentState);
+    }
+
+    [Fact]
     public void PlaceRoad_Should_SetWinner_IfPlayerNeedsOnePoint_AndGetsLongestRoad()
     {
         // Arrange
@@ -855,7 +887,7 @@ public sealed class GameTests
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayRoadBuildingCard(new(2, 2), new(3, 2), new(2, 3), new(1, 3));
+        var result = game.PlayRoadBuildingCard();
 
         // Assert
         Assert.True(result.IsFailure);
@@ -873,7 +905,7 @@ public sealed class GameTests
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayRoadBuildingCard(new(2, 2), new(3, 2), new(2, 3), new(1, 3));
+        var result = game.PlayRoadBuildingCard();
 
         // Assert
         Assert.True(result.IsFailure);
@@ -892,7 +924,7 @@ public sealed class GameTests
         game.PlayMonopolyCard(ResourceType.Wood);
 
         // Act
-        var result = game.PlayRoadBuildingCard(new(2, 2), new(3, 2), new(2, 3), new(1, 3));
+        var result = game.PlayRoadBuildingCard();
 
         // Assert
         Assert.True(result.IsFailure);
@@ -910,58 +942,11 @@ public sealed class GameTests
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayRoadBuildingCard(new(2, 2), new(3, 2), new(2, 3), new(1, 3));
+        var result = game.PlayRoadBuildingCard();
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.True(game.DevelopmentCardPlayed);
-    }
-
-    [Fact]
-    public void PlayRoadBuildingCard_Should_PlaceRoads()
-    {
-        // Arrange
-        var gameOptions = new GameFactoryOptions
-        {
-            IsSetup = false,
-            GivePlayersDevelopmentCards = true
-        };
-        var game = GameFactory.Create(gameOptions);
-        var player = game.CurrentPlayer;
-        var initialRoads = player.PieceManager.Roads;
-
-        // Act
-        var result = game.PlayRoadBuildingCard(new(2, 2), new(3, 2), new(2, 3), new(1, 3));
-
-        // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Equal(initialRoads - 2, player.PieceManager.Roads);
-        Assert.NotNull(game.Board.GetRoadAtPoints(new(2, 2), new(3, 2)));
-        Assert.NotNull(game.Board.GetRoadAtPoints(new(2, 3), new(1, 3)));
-    }
-
-    [Fact]
-    public void PlayRoadBuildingCard_Should_SetWinner_IfPlayerNeedsOnePoint_AndGetsLongestRoad()
-    {
-        // Arrange
-        var gameOptions = new GameFactoryOptions
-        {
-            IsSetup = false,
-            GivePlayersDevelopmentCards = true,
-            PlayersVisiblePoints = 8,
-            PlayersHiddenPoints = 0,
-            PrepareLongestRoad = true
-        };
-        var game = GameFactory.Create(gameOptions);
-
-        // Act
-        var result = game.PlayRoadBuildingCard(new(1, 3), new(1, 4), new(1, 4), new(2, 4));
-
-        // Assert
-        Assert.True(result.IsSuccess);
-        Assert.NotNull(game.PlayerManager.WinningPlayer);
-        Assert.Equal(game.PlayerManager.WinningPlayer.Colour, game.CurrentPlayerColour);
-        Assert.Equal(GameState.Finish, game.CurrentState);
     }
 
     [Fact]

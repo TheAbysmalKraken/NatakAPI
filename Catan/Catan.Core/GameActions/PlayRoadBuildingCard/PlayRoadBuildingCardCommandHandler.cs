@@ -1,7 +1,6 @@
 ﻿using Catan.Core.Abstractions;
 using Catan.Core.Services;
 using Catan.Domain;
-using Catan.Domain.Enums;
 using Catan.Domain.Errors;
 
 namespace Catan.Core.GameActions.PlayRoadBuildingCard;
@@ -21,11 +20,7 @@ internal sealed class PlayRoadBuildingCardCommandHandler(
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        var playCardResult = game.PlayRoadBuildingCard(
-            request.FirstRoadFirstPoint,
-            request.FirstRoadSecondPoint,
-            request.SecondRoadFirstPoint,
-            request.SecondRoadSecondPoint);
+        var playCardResult = game.PlayRoadBuildingCard();
 
         if (playCardResult.IsFailure)
         {

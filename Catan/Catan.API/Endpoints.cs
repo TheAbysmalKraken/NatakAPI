@@ -311,17 +311,12 @@ public static class Endpoints
     private static async Task<IResult> PlayRoadBuildingCardAsync(
         ISender sender,
         string gameId,
-        [FromBody] PlayRoadBuildingCardRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var command = new PlayRoadBuildingCardCommand(
-                gameId,
-                request.FirstRoadFirstPoint.ToPoint(),
-                request.FirstRoadSecondPoint.ToPoint(),
-                request.SecondRoadFirstPoint.ToPoint(),
-                request.SecondRoadSecondPoint.ToPoint());
+                gameId);
 
             var result = await sender.Send(command, cancellationToken);
 
