@@ -1,4 +1,4 @@
-using Catan.Domain.Enums;
+﻿using Catan.Domain.Enums;
 using Catan.Domain.Errors;
 using Catan.Domain.Managers;
 
@@ -6,7 +6,10 @@ namespace Catan.Domain;
 
 public sealed class Game
 {
+    private const int MAX_ROAD_BUILDING_ROADS = 2;
+
     private readonly Stack<DiceRoll> diceRolls = [];
+    private int roadBuildingRoadsLeftToPlace = 0;
 
     public Game(int playerCount)
     {
@@ -119,6 +122,12 @@ public sealed class Game
             return placeResult;
         }
 
+        if (roadBuildingRoadsLeftToPlace > 0)
+        {
+            roadBuildingRoadsLeftToPlace--;
+        }
+
+        CheckFinishedRoadBuilding();
         CheckForLongestRoad();
         CheckForWinner();
 
@@ -326,11 +335,7 @@ public sealed class Game
         return Result.Success();
     }
 
-    public Result PlayRoadBuildingCard(
-        Point firstRoadFirstPoint,
-        Point firstRoadSecondPoint,
-        Point secondRoadFirstPoint,
-        Point secondRoadSecondPoint)
+    public Result PlayRoadBuildingCard()
     {
         if (DevelopmentCardPlayed)
         {
@@ -352,21 +357,8 @@ public sealed class Game
             return removeCardResult;
         }
 
-        var buildResult = PlaceRoadBuildingRoads(
-            firstRoadFirstPoint,
-            firstRoadSecondPoint,
-            secondRoadFirstPoint,
-            secondRoadSecondPoint);
-
-        if (buildResult.IsFailure)
-        {
-            return buildResult;
-        }
-
         DevelopmentCardPlayed = true;
-
-        CheckForLongestRoad();
-        CheckForWinner();
+        roadBuildingRoadsLeftToPlace = MAX_ROAD_BUILDING_ROADS;
 
         return Result.Success();
     }
@@ -637,6 +629,15 @@ public sealed class Game
         }
 
         return;
+    }
+
+    private void CheckFinishedRoadBuilding()
+    {
+        if (CurrentState == GameState.RoadBuilding
+            && roadBuildingRoadsLeftToPlace == 0)
+        {
+            MoveState(ActionType.FinishRoadBuilding);
+        }
     }
 
     private void CheckForLongestRoad()

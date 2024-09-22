@@ -12,6 +12,7 @@ public enum ActionType
     Trade,
     PlayKnightCard,
     PlayRoadBuildingCard,
+    FinishRoadBuilding,
     PlayYearOfPlentyCard,
     PlayMonopolyCard,
     RollSeven,
