@@ -17,13 +17,13 @@ public sealed class Player
 
     public PlayerResourceCardManager ResourceCardManager { get; init; } = new();
 
-    public PlayerDevelopmentCardManager DevelopmentCardManager { get; init; } = new();
+    public PlayerGrowthCardManager GrowthCardManager { get; init; } = new();
 
     public PlayerPieceManager PieceManager { get; init; } = new();
 
     public PlayerScoreManager ScoreManager { get; init; } = new();
 
-    public int KnightsPlayed { get; private set; } = 0;
+    public int SoldiersPlayed { get; private set; } = 0;
 
     public List<PortType> Ports { get; init; } = [];
 
@@ -65,32 +65,32 @@ public sealed class Player
     public int CountResourceCard(ResourceType resourceType)
         => ResourceCardManager.Count(resourceType);
 
-    public void AddDevelopmentCard(DevelopmentCardType cardType)
+    public void AddGrowthCard(GrowthCardType cardType)
     {
-        if (cardType == DevelopmentCardType.VictoryPoint)
+        if (cardType == GrowthCardType.VictoryPoint)
         {
             ScoreManager.AddHiddenPoints(1);
         }
 
-        DevelopmentCardManager.Add(cardType);
+        GrowthCardManager.Add(cardType);
     }
 
-    public Result RemoveDevelopmentCard(DevelopmentCardType cardType)
+    public Result RemoveGrowthCard(GrowthCardType cardType)
     {
-        if (cardType == DevelopmentCardType.VictoryPoint)
+        if (cardType == GrowthCardType.VictoryPoint)
         {
             ScoreManager.RemoveHiddenPoints(1);
         }
 
-        if (cardType == DevelopmentCardType.Knight)
+        if (cardType == GrowthCardType.Soldier)
         {
-            KnightsPlayed++;
+            SoldiersPlayed++;
         }
 
-        return DevelopmentCardManager.Remove(cardType);
+        return GrowthCardManager.Remove(cardType);
     }
 
-    public void CycleDevelopmentCards() => DevelopmentCardManager.CycleOnHoldCards();
+    public void CycleGrowthCards() => GrowthCardManager.CycleOnHoldCards();
 
     public void AddPiece(BuildingType buildingType)
     {
@@ -99,8 +99,8 @@ public sealed class Player
 
     public Result RemovePiece(BuildingType buildingType)
     {
-        if (buildingType == BuildingType.Settlement
-            || buildingType == BuildingType.City)
+        if (buildingType == BuildingType.Village
+            || buildingType == BuildingType.Town)
         {
             ScoreManager.AddVisiblePoints(1);
         }
@@ -146,7 +146,7 @@ public sealed class Player
     private void SetInitialPieces()
     {
         PieceManager.Set(BuildingType.Road, 15);
-        PieceManager.Set(BuildingType.Settlement, 5);
-        PieceManager.Set(BuildingType.City, 4);
+        PieceManager.Set(BuildingType.Village, 5);
+        PieceManager.Set(BuildingType.Town, 4);
     }
 }

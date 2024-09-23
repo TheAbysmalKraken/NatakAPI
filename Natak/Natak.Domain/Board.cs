@@ -23,16 +23,16 @@ public sealed class Board
         ports = [];
         houses = new Building[11, 6];
         roads = [];
-        RobberPosition = new Point(0, 0);
+        ThiefPosition = new Point(0, 0);
         LongestRoadInfo = new(PlayerColour.None, 0);
 
-        InitialiseTilesAndSetRobber();
+        InitialiseTilesAndSetThief();
         InitialiseHouses();
         InitialiseRoads();
         InitialisePorts();
     }
 
-    public Point RobberPosition { get; private set; }
+    public Point ThiefPosition { get; private set; }
 
     public int BoardLength { get; private set; } = 5;
 
@@ -62,7 +62,7 @@ public sealed class Board
         {
             var house = houses[point.X, point.Y];
 
-            if (house?.Type != BuildingType.Settlement && house?.Type != BuildingType.City)
+            if (house?.Type != BuildingType.Village && house?.Type != BuildingType.Town)
             {
                 return null;
             }
@@ -105,7 +105,7 @@ public sealed class Board
         return Result.Success(availableRoadPoints);
     }
 
-    public Result<List<Point>> GetAvailableSettlementLocations(
+    public Result<List<Point>> GetAvailableVillageLocations(
         PlayerColour colour,
         bool isSetup = false)
     {
@@ -114,7 +114,7 @@ public sealed class Board
             return Result.Failure<List<Point>>(PlayerErrors.InvalidPlayerColour);
         }
 
-        var availableSettlementPoints = new List<Point>();
+        var availableVillagePoints = new List<Point>();
 
         for (int x = 0; x < 11; x++)
         {
@@ -129,22 +129,22 @@ public sealed class Board
 
                 if (canPlaceHouseResult.IsSuccess)
                 {
-                    availableSettlementPoints.Add(point);
+                    availableVillagePoints.Add(point);
                 }
             }
         }
 
-        return Result.Success(availableSettlementPoints);
+        return Result.Success(availableVillagePoints);
     }
 
-    public Result<List<Point>> GetAvailableCityLocations(PlayerColour colour)
+    public Result<List<Point>> GetAvailableTownLocations(PlayerColour colour)
     {
         if (colour == PlayerColour.None)
         {
             return Result.Failure<List<Point>>(PlayerErrors.InvalidPlayerColour);
         }
 
-        var availableCityPoints = new List<Point>();
+        var availableTownPoints = new List<Point>();
 
         for (int x = 0; x < 11; x++)
         {
@@ -156,12 +156,12 @@ public sealed class Board
 
                 if (canUpgradeResult.IsSuccess)
                 {
-                    availableCityPoints.Add(point);
+                    availableTownPoints.Add(point);
                 }
             }
         }
 
-        return Result.Success(availableCityPoints);
+        return Result.Success(availableTownPoints);
     }
 
     public Road? GetRoadAtPoints(Point point1, Point point2)
@@ -217,31 +217,31 @@ public sealed class Board
         return ports.Any(p => p.Type == portType && houses[p.Point.X, p.Point.Y].Colour == colour);
     }
 
-    public Result CanMoveRobberToPoint(Point point)
+    public Result CanMoveThiefToPoint(Point point)
     {
-        if (!TilePointIsValid(point) || point.Equals(RobberPosition))
+        if (!TilePointIsValid(point) || point.Equals(ThiefPosition))
         {
             return Result.Failure(BoardErrors.InvalidTilePoint);
         }
 
-        if (point.Equals(RobberPosition))
+        if (point.Equals(ThiefPosition))
         {
-            return Result.Failure(BoardErrors.RobberAlreadyAtLocation);
+            return Result.Failure(BoardErrors.ThiefAlreadyAtLocation);
         }
 
         return Result.Success();
     }
 
-    public Result MoveRobberToPoint(Point point)
+    public Result MoveThiefToPoint(Point point)
     {
-        var result = CanMoveRobberToPoint(point);
+        var result = CanMoveThiefToPoint(point);
 
         if (result.IsFailure)
         {
             return result;
         }
 
-        RobberPosition = point;
+        ThiefPosition = point;
 
         return Result.Success();
     }
@@ -255,17 +255,17 @@ public sealed class Board
 
         if (!HousePointIsValid(point))
         {
-            return Result.Failure(BoardErrors.InvalidSettlementPoint);
+            return Result.Failure(BoardErrors.InvalidVillagePoint);
         }
 
         if (!PointContainsHouseOfColour(point, colour))
         {
-            return Result.Failure(BoardErrors.SettlementNotOwnedByPlayer);
+            return Result.Failure(BoardErrors.VillageNotOwnedByPlayer);
         }
 
-        if (houses[point.X, point.Y].Type != BuildingType.Settlement)
+        if (houses[point.X, point.Y].Type != BuildingType.Village)
         {
-            return Result.Failure(BoardErrors.SettlementAlreadyUpgraded);
+            return Result.Failure(BoardErrors.VillageAlreadyUpgraded);
         }
 
         return Result.Success();
@@ -280,7 +280,7 @@ public sealed class Board
             return canUpgradeResult;
         }
 
-        houses[point.X, point.Y].SetTypeToCity();
+        houses[point.X, point.Y].SetTypeToTown();
 
         return Result.Success();
     }
@@ -294,22 +294,22 @@ public sealed class Board
 
         if (!HousePointIsValid(point))
         {
-            return Result.Failure(BoardErrors.InvalidSettlementPoint);
+            return Result.Failure(BoardErrors.InvalidVillagePoint);
         }
 
         if (PointContainsHouse(point))
         {
-            return Result.Failure(BoardErrors.SettlementAlreadyExists);
+            return Result.Failure(BoardErrors.VillageAlreadyExists);
         }
 
         if (HousePointIsTooCloseToAnotherHouse(point))
         {
-            return Result.Failure(BoardErrors.SettlementIsTooClose);
+            return Result.Failure(BoardErrors.VillageIsTooClose);
         }
 
         if (!isSetup && GetOccupiedRoadsOfColourConnectedToPoint(point, colour).Count == 0)
         {
-            return Result.Failure(BoardErrors.SettlementDoesNotConnect);
+            return Result.Failure(BoardErrors.VillageDoesNotConnect);
         }
 
         return Result.Success();
@@ -799,7 +799,7 @@ public sealed class Board
         return furthestDistanceFromPoint;
     }
 
-    private void InitialiseTilesAndSetRobber()
+    private void InitialiseTilesAndSetThief()
     {
         var remainingResourceTileTypes = DomainConstants.GetTileResourceTypeTotals();
         var remainingActivationNumbers = DomainConstants.GetTileActivationNumberTotals();
@@ -812,9 +812,9 @@ public sealed class Board
                 {
                     tiles[x, y] = CreateNewNatakTile(remainingResourceTileTypes, remainingActivationNumbers);
 
-                    if (tiles[x, y].Type == ResourceType.Desert)
+                    if (tiles[x, y].Type == ResourceType.None)
                     {
-                        RobberPosition = new Point(x, y);
+                        ThiefPosition = new Point(x, y);
                     }
                 }
             }
@@ -923,7 +923,7 @@ public sealed class Board
 
         remainingResourceTileTypes[natakTileType]--;
 
-        if (natakTileType == ResourceType.Desert)
+        if (natakTileType == ResourceType.None)
         {
             return new Tile(natakTileType, 0);
         }

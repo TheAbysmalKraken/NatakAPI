@@ -8,7 +8,7 @@ public sealed class RoadPurchase : Purchase
     protected override Dictionary<ResourceType, int> Cost => new()
     {
         { ResourceType.Wood, 1 },
-        { ResourceType.Brick, 1 }
+        { ResourceType.Clay, 1 }
     };
 
     protected override Result MovePurchasedItem(Player player, BankTradeManager bankTradeManager)

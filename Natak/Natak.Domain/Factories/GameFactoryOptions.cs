@@ -10,7 +10,7 @@ internal sealed class GameFactoryOptions
 
     public bool GivePlayersResources { get; init; } = false;
 
-    public bool GivePlayersDevelopmentCards { get; init; } = false;
+    public bool GivePlayersGrowthCards { get; init; } = false;
 
     public bool RemovePlayersPieces { get; init; } = false;
 
@@ -24,7 +24,7 @@ internal sealed class GameFactoryOptions
 
     public bool PrepareLargestArmy { get; init; } = false;
 
-    public bool PrepareSettlementPlacement { get; init; } = false;
+    public bool PrepareVillagePlacement { get; init; } = false;
 
     public bool HasRolledSeven { get; init; } = false;
 }

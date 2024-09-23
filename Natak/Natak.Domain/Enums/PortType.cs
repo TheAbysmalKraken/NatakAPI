@@ -4,8 +4,8 @@ public enum PortType
 {
     ThreeToOne,
     Wood,
-    Brick,
-    Sheep,
-    Wheat,
-    Ore
+    Clay,
+    Animal,
+    Food,
+    Metal
 }

@@ -12,18 +12,18 @@ public class PlayerTests
     }
 
     [Fact]
-    public void AddDevelopmentCard_VictoryPointCardAdded_VictoryPointAddedToCount()
+    public void AddGrowthCard_VictoryPointCardAdded_VictoryPointAddedToCount()
     {
         // Arrange
         testPlayer.AddResourceCards(new Dictionary<ResourceType, int>
         {
-            { ResourceType.Ore, 1 },
-            { ResourceType.Sheep, 1 },
-            { ResourceType.Wheat, 1 }
+            { ResourceType.Metal, 1 },
+            { ResourceType.Animal, 1 },
+            { ResourceType.Food, 1 }
         });
 
         // Act
-        testPlayer.AddDevelopmentCard(DevelopmentCardType.VictoryPoint);
+        testPlayer.AddGrowthCard(GrowthCardType.VictoryPoint);
 
         // Assert
         Assert.Equal(1, testPlayer.ScoreManager.HiddenPoints);

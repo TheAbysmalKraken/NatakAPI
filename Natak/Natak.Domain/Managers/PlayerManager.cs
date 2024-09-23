@@ -5,7 +5,7 @@ namespace Natak.Domain.Managers;
 
 public sealed class PlayerManager
 {
-    private const int MINIMUM_KNIGHTS_FOR_LARGEST_ARMY = 3;
+    private const int MINIMUM_SOLDIERS_FOR_LARGEST_ARMY = 3;
 
     private static readonly Random random = new();
     private readonly Dictionary<PlayerColour, Player> players = [];
@@ -53,11 +53,11 @@ public sealed class PlayerManager
 
         foreach (var player in players.Values)
         {
-            player.CycleDevelopmentCards();
+            player.CycleGrowthCards();
         }
     }
 
-    public void GivePlayerMonopolyResource(Player player, ResourceType resourceType)
+    public void GivePlayerGathererResource(Player player, ResourceType resourceType)
     {
         foreach (var otherPlayer in players.Values)
         {
@@ -130,9 +130,9 @@ public sealed class PlayerManager
     public void UpdateLargestArmyPlayer()
     {
         var newLargestArmyPlayer = players.Values
-            .MaxBy(p => p.KnightsPlayed);
+            .MaxBy(p => p.SoldiersPlayed);
 
-        if (newLargestArmyPlayer?.KnightsPlayed < MINIMUM_KNIGHTS_FOR_LARGEST_ARMY)
+        if (newLargestArmyPlayer?.SoldiersPlayed < MINIMUM_SOLDIERS_FOR_LARGEST_ARMY)
         {
             return;
         }

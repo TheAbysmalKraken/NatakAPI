@@ -7,12 +7,12 @@ public static class DomainConstants
     public static Dictionary<ResourceType, int> GetTileResourceTypeTotals()
         => new()
         {
-            { ResourceType.Desert, 1 },
+            { ResourceType.None, 1 },
             { ResourceType.Wood, 4 },
-            { ResourceType.Brick, 3 },
-            { ResourceType.Sheep, 4 },
-            { ResourceType.Wheat, 4 },
-            { ResourceType.Ore, 3 }
+            { ResourceType.Clay, 3 },
+            { ResourceType.Animal, 4 },
+            { ResourceType.Food, 4 },
+            { ResourceType.Metal, 3 }
         };
 
     public static Dictionary<int, int> GetTileActivationNumberTotals()
@@ -60,29 +60,29 @@ public static class DomainConstants
         {
             { PortType.ThreeToOne, 4 },
             { PortType.Wood, 1 },
-            { PortType.Brick, 1 },
-            { PortType.Sheep, 1 },
-            { PortType.Wheat, 1 },
-            { PortType.Ore, 1 }
+            { PortType.Clay, 1 },
+            { PortType.Animal, 1 },
+            { PortType.Food, 1 },
+            { PortType.Metal, 1 }
         };
 
-    public static Dictionary<DevelopmentCardType, int> GetDevelopmentCardTypeTotals()
+    public static Dictionary<GrowthCardType, int> GetGrowthCardTypeTotals()
         => new()
         {
-            { DevelopmentCardType.Knight, 14 },
-            { DevelopmentCardType.RoadBuilding, 2 },
-            { DevelopmentCardType.YearOfPlenty, 2 },
-            { DevelopmentCardType.Monopoly, 2 },
-            { DevelopmentCardType.VictoryPoint, 5 }
+            { GrowthCardType.Soldier, 14 },
+            { GrowthCardType.Roaming, 2 },
+            { GrowthCardType.Wealth, 2 },
+            { GrowthCardType.Gatherer, 2 },
+            { GrowthCardType.VictoryPoint, 5 }
         };
 
     public static Dictionary<ResourceType, int> GetBankResourceTotals()
         => new()
         {
             { ResourceType.Wood, 19 },
-            { ResourceType.Brick, 19 },
-            { ResourceType.Sheep, 19 },
-            { ResourceType.Wheat, 19 },
-            { ResourceType.Ore, 19 }
+            { ResourceType.Clay, 19 },
+            { ResourceType.Animal, 19 },
+            { ResourceType.Food, 19 },
+            { ResourceType.Metal, 19 }
         };
 }

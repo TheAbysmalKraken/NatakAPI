@@ -2,14 +2,14 @@
 
 public enum GameState
 {
-    InitialSettlement,
+    InitialVillage,
     InitialRoad,
     SetupFinished,
     BeforeRoll,
     AfterRoll,
-    RoadBuilding,
+    Roaming,
     DiscardResources,
-    MoveRobber,
+    MoveThief,
     StealResource,
     Finish
 }

@@ -4,25 +4,25 @@ using Natak.Domain.Managers;
 
 namespace Natak.Domain.Purchases;
 
-public sealed class DevelopmentCardPurchase : Purchase
+public sealed class GrowthCardPurchase : Purchase
 {
     protected override Dictionary<ResourceType, int> Cost => new()
     {
-        { ResourceType.Sheep, 1 },
-        { ResourceType.Wheat, 1 },
-        { ResourceType.Ore, 1 }
+        { ResourceType.Animal, 1 },
+        { ResourceType.Food, 1 },
+        { ResourceType.Metal, 1 }
     };
 
     protected override Result MovePurchasedItem(Player player, BankTradeManager bankTradeManager)
     {
-        var devCard = bankTradeManager.RemoveRandomDevelopmentCard();
+        var devCard = bankTradeManager.RemoveRandomGrowthCard();
 
         if (devCard is null)
         {
-            return Result.Failure(GameErrors.NoDevelopmentCardsLeft);
+            return Result.Failure(GameErrors.NoGrowthCardsLeft);
         }
 
-        player.AddDevelopmentCard(devCard.Value);
+        player.AddGrowthCard(devCard.Value);
 
         return Result.Success();
     }

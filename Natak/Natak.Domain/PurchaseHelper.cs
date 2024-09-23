@@ -6,16 +6,16 @@ namespace Natak.Domain;
 
 public static class PurchaseHelper
 {
-    private static readonly DevelopmentCardPurchase developmentCardPurchase = new();
+    private static readonly GrowthCardPurchase growthCardPurchase = new();
     private static readonly RoadPurchase roadPurchase = new();
-    private static readonly SettlementPurchase settlementPurchase = new();
-    private static readonly CityPurchase cityPurchase = new();
+    private static readonly VillagePurchase villagePurchase = new();
+    private static readonly TownPurchase townPurchase = new();
 
-    public static Result BuyDevelopmentCard(
+    public static Result BuyGrowthCard(
         Player player,
         BankTradeManager bankTradeManager)
     {
-        return Buy(player, bankTradeManager, developmentCardPurchase);
+        return Buy(player, bankTradeManager, growthCardPurchase);
     }
 
     public static Result BuyRoad(
@@ -25,18 +25,18 @@ public static class PurchaseHelper
         return Buy(player, bankTradeManager, roadPurchase);
     }
 
-    public static Result BuySettlement(
+    public static Result BuyVillage(
         Player player,
         BankTradeManager bankTradeManager)
     {
-        return Buy(player, bankTradeManager, settlementPurchase);
+        return Buy(player, bankTradeManager, villagePurchase);
     }
 
-    public static Result BuyCity(
+    public static Result BuyTown(
         Player player,
         BankTradeManager bankTradeManager)
     {
-        return Buy(player, bankTradeManager, cityPurchase);
+        return Buy(player, bankTradeManager, townPurchase);
     }
 
     public static Result DiscardResources(

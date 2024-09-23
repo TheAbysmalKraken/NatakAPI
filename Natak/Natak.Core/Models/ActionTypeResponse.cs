@@ -2,14 +2,14 @@
 
 public enum ActionTypeResponse
 {
-    BuildSettlement,
+    BuildVillage,
     BuildRoad,
-    BuildCity,
+    BuildTown,
     RollDice,
     EndTurn,
     Trade,
-    PlayDevelopmentCard,
+    PlayGrowthCard,
     DiscardResources,
-    MoveRobber,
+    MoveThief,
     StealResource
 }

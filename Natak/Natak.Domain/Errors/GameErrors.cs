@@ -34,8 +34,8 @@ public static class GameErrors
         "Game.TradeOfferNotActive",
         "Trade offer is not active.");
 
-    public static Error NoDevelopmentCardsLeft => new(
+    public static Error NoGrowthCardsLeft => new(
         HttpStatusCode.BadRequest,
-        "Game.NoDevelopmentCardsLeft",
+        "Game.NoGrowthCardsLeft",
         "There are no development cards left in the deck.");
 }

@@ -26,9 +26,9 @@ internal static class GameFactory
                 player.GiveManyResources();
             }
 
-            if (options.GivePlayersDevelopmentCards)
+            if (options.GivePlayersGrowthCards)
             {
-                player.GiveDevelopmentCards();
+                player.GiveGrowthCards();
             }
 
             if (options.RemovePlayersPieces)
@@ -61,9 +61,9 @@ internal static class GameFactory
             game.Board.PrepareLongestRoad(game.PlayerManager.CurrentPlayerColour);
         }
 
-        if (options.PrepareSettlementPlacement)
+        if (options.PrepareVillagePlacement)
         {
-            game.Board.PrepareSettlementPlacement(game.PlayerManager.CurrentPlayerColour);
+            game.Board.PrepareVillagePlacement(game.PlayerManager.CurrentPlayerColour);
         }
 
         if (options.PrepareLargestArmy)
@@ -79,7 +79,7 @@ internal static class GameFactory
         for (var i = 0; i < playerCount; i++)
         {
             var x = 2 + 2 * i;
-            game.PlaceSettlement(new(x, 3));
+            game.PlaceVillage(new(x, 3));
             game.PlaceRoad(new(x, 3), new(x, 2));
             game.EndTurn();
         }
@@ -87,7 +87,7 @@ internal static class GameFactory
         for (var i = 0; i < playerCount; i++)
         {
             var x = 3 + 2 * i;
-            game.PlaceSettlement(new(x, 1));
+            game.PlaceVillage(new(x, 1));
             game.PlaceRoad(new(x, 1), new(x, 2));
 
             if (i != playerCount - 1)
@@ -114,22 +114,22 @@ internal static class GameFactory
         var resources = new Dictionary<ResourceType, int>
         {
             { ResourceType.Wood, 10 },
-            { ResourceType.Brick, 10 },
-            { ResourceType.Sheep, 10 },
-            { ResourceType.Wheat, 10 },
-            { ResourceType.Ore, 10 }
+            { ResourceType.Clay, 10 },
+            { ResourceType.Animal, 10 },
+            { ResourceType.Food, 10 },
+            { ResourceType.Metal, 10 }
         };
 
         player.AddResourceCards(resources);
     }
 
-    private static void GiveDevelopmentCards(this Player player)
+    private static void GiveGrowthCards(this Player player)
     {
-        player.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player.AddDevelopmentCard(DevelopmentCardType.RoadBuilding);
-        player.AddDevelopmentCard(DevelopmentCardType.YearOfPlenty);
-        player.AddDevelopmentCard(DevelopmentCardType.Monopoly);
-        player.CycleDevelopmentCards();
+        player.AddGrowthCard(GrowthCardType.Soldier);
+        player.AddGrowthCard(GrowthCardType.Roaming);
+        player.AddGrowthCard(GrowthCardType.Wealth);
+        player.AddGrowthCard(GrowthCardType.Gatherer);
+        player.CycleGrowthCards();
     }
 
     private static void RemoveAllPieces(this Player player)
@@ -139,14 +139,14 @@ internal static class GameFactory
         do
         {
             player.RemovePiece(BuildingType.Road);
-            player.RemovePiece(BuildingType.Settlement);
-            player.RemovePiece(BuildingType.City);
+            player.RemovePiece(BuildingType.Village);
+            player.RemovePiece(BuildingType.Town);
 
             var existingRoads = player.PieceManager.Roads;
-            var existingSettlements = player.PieceManager.Settlements;
+            var existingVillages = player.PieceManager.Villages;
             var existingCities = player.PieceManager.Cities;
 
-            piecesLeftToRemove = existingRoads + existingSettlements + existingCities > 0;
+            piecesLeftToRemove = existingRoads + existingVillages + existingCities > 0;
         }
         while (piecesLeftToRemove);
     }
@@ -194,17 +194,17 @@ internal static class GameFactory
         }
     }
 
-    private static void PrepareSettlementPlacement(this Board board, PlayerColour playerColour)
+    private static void PrepareVillagePlacement(this Board board, PlayerColour playerColour)
     {
         board.PlaceRoad(new(1, 2), new(2, 2), playerColour);
     }
 
     private static void PrepareLargestArmy(this Game game, PlayerColour playerColour)
     {
-        game.CurrentPlayer.AddDevelopmentCard(DevelopmentCardType.Knight);
-        game.CurrentPlayer.AddDevelopmentCard(DevelopmentCardType.Knight);
-        game.PlayKnightCard();
-        game.MoveState(ActionType.MoveRobber);
+        game.CurrentPlayer.AddGrowthCard(GrowthCardType.Soldier);
+        game.CurrentPlayer.AddGrowthCard(GrowthCardType.Soldier);
+        game.PlaySoldierCard();
+        game.MoveState(ActionType.MoveThief);
         game.MoveState(ActionType.StealResource);
         do
         {
@@ -213,8 +213,8 @@ internal static class GameFactory
         }
         while (game.CurrentPlayerColour != playerColour);
 
-        game.PlayKnightCard();
-        game.MoveState(ActionType.MoveRobber);
+        game.PlaySoldierCard();
+        game.MoveState(ActionType.MoveThief);
         game.MoveState(ActionType.StealResource);
         do
         {

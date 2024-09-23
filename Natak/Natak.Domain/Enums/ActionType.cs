@@ -2,22 +2,22 @@
 
 public enum ActionType
 {
-    BuildSettlement,
+    BuildVillage,
     BuildRoad,
-    BuildCity,
+    BuildTown,
     FirstSetupFinished,
     SecondSetupFinished,
     RollDice,
     EndTurn,
     Trade,
-    PlayKnightCard,
-    PlayRoadBuildingCard,
-    FinishRoadBuilding,
-    PlayYearOfPlentyCard,
-    PlayMonopolyCard,
+    PlaySoldierCard,
+    PlayRoamingCard,
+    FinishRoaming,
+    PlayWealthCard,
+    PlayGathererCard,
     RollSeven,
     AllResourcesDiscarded,
-    MoveRobber,
+    MoveThief,
     StealResource,
     PlayerHasWon
 }

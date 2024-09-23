@@ -9,10 +9,10 @@ public static class BoardErrors
         "Board.InvalidTilePoint",
         "Invalid tile point.");
 
-    public static Error RobberAlreadyAtLocation => new(
+    public static Error ThiefAlreadyAtLocation => new(
         HttpStatusCode.BadRequest,
-        "Board.RobberAlreadyAtLocation",
-        "Robber is already at the specified location.");
+        "Board.ThiefAlreadyAtLocation",
+        "Thief is already at the specified location.");
 
     public static Error InvalidRoadPoints => new(
         HttpStatusCode.BadRequest,
@@ -32,45 +32,45 @@ public static class BoardErrors
     public static Error RoadIsBlocked => new(
         HttpStatusCode.BadRequest,
         "Board.RoadIsBlocked",
-        "Road is blocked by another player's settlement or city.");
+        "Road is blocked by another player's village or town.");
 
     public static Error RoadDoesNotConnect => new(
         HttpStatusCode.BadRequest,
         "Board.RoadDoesNotConnect",
-        "Road does not connect to any existing roads, settlements or cities.");
+        "Road does not connect to any existing roads, villages or cities.");
 
-    public static Error InvalidSettlementPoint => new(
+    public static Error InvalidVillagePoint => new(
         HttpStatusCode.BadRequest,
-        "Board.InvalidSettlementPoint",
-        "Invalid settlement point.");
+        "Board.InvalidVillagePoint",
+        "Invalid village point.");
 
-    public static Error SettlementAlreadyExists => new(
+    public static Error VillageAlreadyExists => new(
         HttpStatusCode.BadRequest,
-        "Board.SettlementAlreadyExists",
-        "Settlement already exists at the specified point.");
+        "Board.VillageAlreadyExists",
+        "Village already exists at the specified point.");
 
-    public static Error SettlementIsTooClose => new(
+    public static Error VillageIsTooClose => new(
         HttpStatusCode.BadRequest,
-        "Board.SettlementIsTooClose",
-        "Settlement is too close to another settlement.");
+        "Board.VillageIsTooClose",
+        "Village is too close to another village.");
 
-    public static Error SettlementDoesNotConnect => new(
+    public static Error VillageDoesNotConnect => new(
         HttpStatusCode.BadRequest,
-        "Board.SettlementDoesNotConnect",
-        "Settlement does not connect to any existing roads.");
+        "Board.VillageDoesNotConnect",
+        "Village does not connect to any existing roads.");
 
-    public static Error SettlementNotOwnedByPlayer => new(
+    public static Error VillageNotOwnedByPlayer => new(
         HttpStatusCode.BadRequest,
-        "Board.SettlementNotOwnedByPlayer",
-        "Settlement is not owned by the player.");
+        "Board.VillageNotOwnedByPlayer",
+        "Village is not owned by the player.");
 
-    public static Error SettlementAlreadyUpgraded => new(
+    public static Error VillageAlreadyUpgraded => new(
         HttpStatusCode.BadRequest,
-        "Board.SettlementAlreadyUpgraded",
-        "Settlement is already upgraded to a city.");
+        "Board.VillageAlreadyUpgraded",
+        "Village is already upgraded to a town.");
 
     public static Error RoadAlreadyConnected => new(
         HttpStatusCode.BadRequest,
         "Board.RoadAlreadyConnected",
-        "Road is already connected to the specified settlement.");
+        "Road is already connected to the specified village.");
 }

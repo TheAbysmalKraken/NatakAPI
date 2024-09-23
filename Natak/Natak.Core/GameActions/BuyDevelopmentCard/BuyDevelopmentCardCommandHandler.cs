@@ -3,14 +3,14 @@ using Natak.Core.Services;
 using Natak.Domain;
 using Natak.Domain.Errors;
 
-namespace Natak.Core.GameActions.BuyDevelopmentCard;
+namespace Natak.Core.GameActions.BuyGrowthCard;
 
-internal sealed class BuyDevelopmentCardCommandHandler(
+internal sealed class BuyGrowthCardCommandHandler(
     IActiveGameCache cache)
-    : ICommandHandler<BuyDevelopmentCardCommand>
+    : ICommandHandler<BuyGrowthCardCommand>
 {
     public async Task<Result> Handle(
-        BuyDevelopmentCardCommand request,
+        BuyGrowthCardCommand request,
         CancellationToken cancellationToken)
     {
         var game = await cache.GetAsync(request.GameId, cancellationToken);
@@ -20,7 +20,7 @@ internal sealed class BuyDevelopmentCardCommandHandler(
             return Result.Failure(GameErrors.GameNotFound);
         }
 
-        var purchaseResult = game.BuyDevelopmentCard();
+        var purchaseResult = game.BuyGrowthCard();
 
         if (purchaseResult.IsFailure)
         {

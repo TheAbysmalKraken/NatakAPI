@@ -2,20 +2,20 @@ using Natak.Domain.Enums;
 
 namespace Natak.Domain.Managers;
 
-public sealed class PlayerDevelopmentCardManager : ItemManager<DevelopmentCardType>
+public sealed class PlayerGrowthCardManager : ItemManager<GrowthCardType>
 {
-    private readonly Dictionary<DevelopmentCardType, int> onHoldCards = [];
+    private readonly Dictionary<GrowthCardType, int> onHoldCards = [];
 
-    public Dictionary<DevelopmentCardType, int> Cards => items;
+    public Dictionary<GrowthCardType, int> Cards => items;
 
-    public Dictionary<DevelopmentCardType, int> OnHoldCards => onHoldCards;
+    public Dictionary<GrowthCardType, int> OnHoldCards => onHoldCards;
 
-    public bool HasOnHold(DevelopmentCardType card)
+    public bool HasOnHold(GrowthCardType card)
     {
         return CountOnHold(card) > 0;
     }
 
-    public int CountOnHold(DevelopmentCardType card)
+    public int CountOnHold(GrowthCardType card)
     {
         return onHoldCards.TryGetValue(card, out int value) ? value : 0;
     }
@@ -25,9 +25,9 @@ public sealed class PlayerDevelopmentCardManager : ItemManager<DevelopmentCardTy
         return onHoldCards.Values.Sum();
     }
 
-    public void Add(DevelopmentCardType card)
+    public void Add(GrowthCardType card)
     {
-        if (card == DevelopmentCardType.VictoryPoint)
+        if (card == GrowthCardType.VictoryPoint)
         {
             base.Add(card);
 

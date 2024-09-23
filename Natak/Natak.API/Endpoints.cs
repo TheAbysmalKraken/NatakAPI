@@ -1,23 +1,23 @@
 ﻿using Natak.API.Requests;
-using Natak.Core.GameActions.BuildCity;
+using Natak.Core.GameActions.BuildTown;
 using Natak.Core.GameActions.BuildRoad;
-using Natak.Core.GameActions.BuildSettlement;
-using Natak.Core.GameActions.BuyDevelopmentCard;
+using Natak.Core.GameActions.BuildVillage;
+using Natak.Core.GameActions.BuyGrowthCard;
 using Natak.Core.GameActions.CancelTradeOffer;
 using Natak.Core.GameActions.CreateGame;
 using Natak.Core.GameActions.DiscardResources;
 using Natak.Core.GameActions.EmbargoPlayer;
 using Natak.Core.GameActions.EndTurn;
-using Natak.Core.GameActions.GetAvailableCityLocations;
+using Natak.Core.GameActions.GetAvailableTownLocations;
 using Natak.Core.GameActions.GetAvailableRoadLocations;
-using Natak.Core.GameActions.GetAvailableSettlementLocations;
+using Natak.Core.GameActions.GetAvailableVillageLocations;
 using Natak.Core.GameActions.GetGame;
 using Natak.Core.GameActions.MakeTradeOffer;
-using Natak.Core.GameActions.MoveRobber;
-using Natak.Core.GameActions.PlayKnightCard;
-using Natak.Core.GameActions.PlayMonopolyCard;
-using Natak.Core.GameActions.PlayRoadBuildingCard;
-using Natak.Core.GameActions.PlayYearOfPlentyCard;
+using Natak.Core.GameActions.MoveThief;
+using Natak.Core.GameActions.PlaySoldierCard;
+using Natak.Core.GameActions.PlayGathererCard;
+using Natak.Core.GameActions.PlayRoamingCard;
+using Natak.Core.GameActions.PlayWealthCard;
 using Natak.Core.GameActions.RemoveEmbargo;
 using Natak.Core.GameActions.RespondToTradeOffer;
 using Natak.Core.GameActions.RollDice;
@@ -42,21 +42,21 @@ public static class Endpoints
         this RouteGroupBuilder builder)
     {
         builder.MapGet("{gameId}/{playerColour}", GetGameStatusAsync);
-        builder.MapGet("{gameId}/available-settlement-locations", GetAvailableSettlementLocationsAsync);
-        builder.MapGet("{gameId}/available-city-locations", GetAvailableCityLocationsAsync);
+        builder.MapGet("{gameId}/available-village-locations", GetAvailableVillageLocationsAsync);
+        builder.MapGet("{gameId}/available-town-locations", GetAvailableTownLocationsAsync);
         builder.MapGet("{gameId}/available-road-locations", GetAvailableRoadLocationsAsync);
         builder.MapPost("", CreateGameAsync);
         builder.MapPost("{gameId}/roll", RollDiceAsync);
         builder.MapPost("{gameId}/end-turn", EndTurnAsync);
         builder.MapPost("{gameId}/build/road", BuildRoadAsync);
-        builder.MapPost("{gameId}/build/settlement", BuildSettlementAsync);
-        builder.MapPost("{gameId}/build/city", BuildCityAsync);
-        builder.MapPost("{gameId}/buy/development-card", BuyDevelopmentCardAsync);
-        builder.MapPost("{gameId}/play-development-card/knight", PlayKnightCardAsync);
-        builder.MapPost("{gameId}/play-development-card/road-building", PlayRoadBuildingCardAsync);
-        builder.MapPost("{gameId}/play-development-card/year-of-plenty", PlayYearOfPlentyCardAsync);
-        builder.MapPost("{gameId}/play-development-card/monopoly", PlayMonopolyCardAsync);
-        builder.MapPost("{gameId}/move-robber", MoveRobberAsync);
+        builder.MapPost("{gameId}/build/village", BuildVillageAsync);
+        builder.MapPost("{gameId}/build/town", BuildTownAsync);
+        builder.MapPost("{gameId}/buy/growth-card", BuyGrowthCardAsync);
+        builder.MapPost("{gameId}/play-growth-card/soldier", PlaySoldierCardAsync);
+        builder.MapPost("{gameId}/play-growth-card/roaming", PlayRoamingCardAsync);
+        builder.MapPost("{gameId}/play-growth-card/wealth", PlayWealthCardAsync);
+        builder.MapPost("{gameId}/play-growth-card/gatherer", PlayGathererCardAsync);
+        builder.MapPost("{gameId}/move-thief", MoveThiefAsync);
         builder.MapPost("{gameId}/steal-resource", StealResourceAsync);
         builder.MapPost("{gameId}/{playerColour}/discard-resources", DiscardResourcesAsync);
         builder.MapPost("{gameId}/trade/bank", TradeWithBankAsync);
@@ -89,14 +89,14 @@ public static class Endpoints
         }
     }
 
-    private static async Task<IResult> GetAvailableSettlementLocationsAsync(
+    private static async Task<IResult> GetAvailableVillageLocationsAsync(
         ISender sender,
         string gameId,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var query = new GetAvailableSettlementLocationsQuery(gameId);
+            var query = new GetAvailableVillageLocationsQuery(gameId);
 
             var result = await sender.Send(query, cancellationToken);
 
@@ -127,14 +127,14 @@ public static class Endpoints
         }
     }
 
-    private static async Task<IResult> GetAvailableCityLocationsAsync(
+    private static async Task<IResult> GetAvailableTownLocationsAsync(
         ISender sender,
         string gameId,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var query = new GetAvailableCityLocationsQuery(gameId);
+            var query = new GetAvailableTownLocationsQuery(gameId);
 
             var result = await sender.Send(query, cancellationToken);
 
@@ -226,7 +226,7 @@ public static class Endpoints
         }
     }
 
-    private static async Task<IResult> BuildSettlementAsync(
+    private static async Task<IResult> BuildVillageAsync(
         ISender sender,
         string gameId,
         BuildBuildingRequest request,
@@ -234,7 +234,7 @@ public static class Endpoints
     {
         try
         {
-            var command = new BuildSettlementCommand(
+            var command = new BuildVillageCommand(
                 gameId,
                 request.Point.ToPoint());
 
@@ -248,7 +248,7 @@ public static class Endpoints
         }
     }
 
-    private static async Task<IResult> BuildCityAsync(
+    private static async Task<IResult> BuildTownAsync(
         ISender sender,
         string gameId,
         BuildBuildingRequest request,
@@ -256,7 +256,7 @@ public static class Endpoints
     {
         try
         {
-            var command = new BuildCityCommand(
+            var command = new BuildTownCommand(
                 gameId,
                 request.Point.ToPoint());
 
@@ -270,14 +270,14 @@ public static class Endpoints
         }
     }
 
-    private static async Task<IResult> BuyDevelopmentCardAsync(
+    private static async Task<IResult> BuyGrowthCardAsync(
         ISender sender,
         string gameId,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var command = new BuyDevelopmentCardCommand(gameId);
+            var command = new BuyGrowthCardCommand(gameId);
 
             var result = await sender.Send(command, cancellationToken);
 
@@ -289,14 +289,14 @@ public static class Endpoints
         }
     }
 
-    private static async Task<IResult> PlayKnightCardAsync(
+    private static async Task<IResult> PlaySoldierCardAsync(
         ISender sender,
         string gameId,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var command = new PlayKnightCardCommand(gameId);
+            var command = new PlaySoldierCardCommand(gameId);
 
             var result = await sender.Send(command, cancellationToken);
 
@@ -308,14 +308,14 @@ public static class Endpoints
         }
     }
 
-    private static async Task<IResult> PlayRoadBuildingCardAsync(
+    private static async Task<IResult> PlayRoamingCardAsync(
         ISender sender,
         string gameId,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var command = new PlayRoadBuildingCardCommand(
+            var command = new PlayRoamingCardCommand(
                 gameId);
 
             var result = await sender.Send(command, cancellationToken);
@@ -328,15 +328,15 @@ public static class Endpoints
         }
     }
 
-    private static async Task<IResult> PlayYearOfPlentyCardAsync(
+    private static async Task<IResult> PlayWealthCardAsync(
         ISender sender,
         string gameId,
-        [FromBody] PlayYearOfPlentyCardRequest request,
+        [FromBody] PlayWealthCardRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var command = new PlayYearOfPlentyCardCommand(
+            var command = new PlayWealthCardCommand(
                 gameId,
                 request.FirstResource,
                 request.SecondResource);
@@ -351,15 +351,15 @@ public static class Endpoints
         }
     }
 
-    private static async Task<IResult> PlayMonopolyCardAsync(
+    private static async Task<IResult> PlayGathererCardAsync(
         ISender sender,
         string gameId,
-        [FromBody] PlayMonopolyCardRequest request,
+        [FromBody] PlayGathererCardRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var command = new PlayMonopolyCardCommand(
+            var command = new PlayGathererCardCommand(
                 gameId,
                 request.Resource);
 
@@ -373,17 +373,17 @@ public static class Endpoints
         }
     }
 
-    private static async Task<IResult> MoveRobberAsync(
+    private static async Task<IResult> MoveThiefAsync(
         ISender sender,
         string gameId,
-        [FromBody] MoveRobberRequest request,
+        [FromBody] MoveThiefRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var command = new MoveRobberCommand(
+            var command = new MoveThiefCommand(
                 gameId,
-                request.MoveRobberTo.ToPoint());
+                request.MoveThiefTo.ToPoint());
 
             var result = await sender.Send(command, cancellationToken);
 

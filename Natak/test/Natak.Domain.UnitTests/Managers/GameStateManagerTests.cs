@@ -12,7 +12,7 @@ public sealed class GameStateManagerTests
         var stateManager = new GameStateManager();
         stateManager.MoveState(ActionType.RollSeven);
         stateManager.MoveState(ActionType.AllResourcesDiscarded);
-        stateManager.MoveState(ActionType.MoveRobber);
+        stateManager.MoveState(ActionType.MoveThief);
 
         // Act
         stateManager.MoveState(ActionType.StealResource);
@@ -27,8 +27,8 @@ public sealed class GameStateManagerTests
         // Arrange
         var stateManager = new GameStateManager();
         stateManager.MoveState(ActionType.RollDice);
-        stateManager.MoveState(ActionType.PlayKnightCard);
-        stateManager.MoveState(ActionType.MoveRobber);
+        stateManager.MoveState(ActionType.PlaySoldierCard);
+        stateManager.MoveState(ActionType.MoveThief);
 
         // Act
         stateManager.MoveState(ActionType.StealResource);

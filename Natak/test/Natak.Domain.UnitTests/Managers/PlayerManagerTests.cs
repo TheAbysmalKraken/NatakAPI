@@ -109,26 +109,26 @@ public sealed class PlayerManagerTests
     }
 
     [Fact]
-    public void NextPlayer_Should_CyclePlayerDevelopmentCards()
+    public void NextPlayer_Should_CyclePlayerGrowthCards()
     {
         // Arrange
         var playerManager = new PlayerManager(4);
         var player = playerManager.CurrentPlayer;
-        player.AddDevelopmentCard(DevelopmentCardType.Knight);
+        player.AddGrowthCard(GrowthCardType.Soldier);
 
-        var hasKnightBefore = player.DevelopmentCardManager.Has(DevelopmentCardType.Knight);
+        var hasSoldierBefore = player.GrowthCardManager.Has(GrowthCardType.Soldier);
 
         // Act
         playerManager.NextPlayer();
 
         // Assert
-        var hasKnightAfter = player.DevelopmentCardManager.Has(DevelopmentCardType.Knight);
-        Assert.False(hasKnightBefore);
-        Assert.True(hasKnightAfter);
+        var hasSoldierAfter = player.GrowthCardManager.Has(GrowthCardType.Soldier);
+        Assert.False(hasSoldierBefore);
+        Assert.True(hasSoldierAfter);
     }
 
     [Fact]
-    public void GivePlayerMonopolyResource_Should_GiveResourceToPlayer_WhenOtherPlayersHaveResource()
+    public void GivePlayerGathererResource_Should_GiveResourceToPlayer_WhenOtherPlayersHaveResource()
     {
         // Arrange
         var playerManager = new PlayerManager(4);
@@ -140,7 +140,7 @@ public sealed class PlayerManagerTests
         var otherPlayerWoodBefore = otherPlayer.CountResourceCard(ResourceType.Wood);
 
         // Act
-        playerManager.GivePlayerMonopolyResource(player, ResourceType.Wood);
+        playerManager.GivePlayerGathererResource(player, ResourceType.Wood);
 
         // Assert
         var playerWoodAfter = player.CountResourceCard(ResourceType.Wood);
@@ -152,7 +152,7 @@ public sealed class PlayerManagerTests
     }
 
     [Fact]
-    public void GivePlayerMonopolyResource_Should_NotGiveResourceToPlayer_WhenOtherPlayersDoNotHaveResource()
+    public void GivePlayerGathererResource_Should_NotGiveResourceToPlayer_WhenOtherPlayersDoNotHaveResource()
     {
         // Arrange
         var playerManager = new PlayerManager(4);
@@ -163,7 +163,7 @@ public sealed class PlayerManagerTests
         var otherPlayerWoodBefore = otherPlayer.CountResourceCard(ResourceType.Wood);
 
         // Act
-        playerManager.GivePlayerMonopolyResource(player, ResourceType.Wood);
+        playerManager.GivePlayerGathererResource(player, ResourceType.Wood);
 
         // Assert
         var playerWoodAfter = player.CountResourceCard(ResourceType.Wood);
@@ -257,13 +257,13 @@ public sealed class PlayerManagerTests
         // Arrange
         var playerManager = new PlayerManager(4);
         var player = playerManager.CurrentPlayer;
-        player.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player.CycleDevelopmentCards();
-        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
-        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
-        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+        player.AddGrowthCard(GrowthCardType.Soldier);
+        player.AddGrowthCard(GrowthCardType.Soldier);
+        player.AddGrowthCard(GrowthCardType.Soldier);
+        player.CycleGrowthCards();
+        player.RemoveGrowthCard(GrowthCardType.Soldier);
+        player.RemoveGrowthCard(GrowthCardType.Soldier);
+        player.RemoveGrowthCard(GrowthCardType.Soldier);
 
         Assert.False(player.ScoreManager.HasLargestArmy);
 
@@ -280,9 +280,9 @@ public sealed class PlayerManagerTests
         // Arrange
         var playerManager = new PlayerManager(4);
         var player = playerManager.CurrentPlayer;
-        player.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player.CycleDevelopmentCards();
-        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+        player.AddGrowthCard(GrowthCardType.Soldier);
+        player.CycleGrowthCards();
+        player.RemoveGrowthCard(GrowthCardType.Soldier);
 
         Assert.False(player.ScoreManager.HasLargestArmy);
 
@@ -295,14 +295,14 @@ public sealed class PlayerManagerTests
     }
 
     [Fact]
-    public void UpdateLargestArmyPlayer_Should_NotGiveLargestArmyCard_WhenPlayerDoesNotHaveMinimumKnights()
+    public void UpdateLargestArmyPlayer_Should_NotGiveLargestArmyCard_WhenPlayerDoesNotHaveMinimumSoldiers()
     {
         // Arrange
         var playerManager = new PlayerManager(4);
         var player = playerManager.CurrentPlayer;
-        player.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player.CycleDevelopmentCards();
-        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+        player.AddGrowthCard(GrowthCardType.Soldier);
+        player.CycleGrowthCards();
+        player.RemoveGrowthCard(GrowthCardType.Soldier);
 
         Assert.False(player.ScoreManager.HasLargestArmy);
 
@@ -321,28 +321,28 @@ public sealed class PlayerManagerTests
         var playerManager = new PlayerManager(4);
         var player = playerManager.CurrentPlayer;
         var player2 = playerManager.Players.First(p => p.Colour != player.Colour);
-        player.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player.CycleDevelopmentCards();
-        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
-        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
-        player.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+        player.AddGrowthCard(GrowthCardType.Soldier);
+        player.AddGrowthCard(GrowthCardType.Soldier);
+        player.AddGrowthCard(GrowthCardType.Soldier);
+        player.CycleGrowthCards();
+        player.RemoveGrowthCard(GrowthCardType.Soldier);
+        player.RemoveGrowthCard(GrowthCardType.Soldier);
+        player.RemoveGrowthCard(GrowthCardType.Soldier);
 
         playerManager.UpdateLargestArmyPlayer();
 
         Assert.True(player.ScoreManager.HasLargestArmy);
         Assert.False(player2.ScoreManager.HasLargestArmy);
 
-        player2.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player2.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player2.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player2.AddDevelopmentCard(DevelopmentCardType.Knight);
-        player2.CycleDevelopmentCards();
-        player2.RemoveDevelopmentCard(DevelopmentCardType.Knight);
-        player2.RemoveDevelopmentCard(DevelopmentCardType.Knight);
-        player2.RemoveDevelopmentCard(DevelopmentCardType.Knight);
-        player2.RemoveDevelopmentCard(DevelopmentCardType.Knight);
+        player2.AddGrowthCard(GrowthCardType.Soldier);
+        player2.AddGrowthCard(GrowthCardType.Soldier);
+        player2.AddGrowthCard(GrowthCardType.Soldier);
+        player2.AddGrowthCard(GrowthCardType.Soldier);
+        player2.CycleGrowthCards();
+        player2.RemoveGrowthCard(GrowthCardType.Soldier);
+        player2.RemoveGrowthCard(GrowthCardType.Soldier);
+        player2.RemoveGrowthCard(GrowthCardType.Soldier);
+        player2.RemoveGrowthCard(GrowthCardType.Soldier);
 
         // Act
         playerManager.UpdateLargestArmyPlayer();

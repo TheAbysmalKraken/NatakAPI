@@ -9,7 +9,7 @@ public sealed class Game
     private const int MAX_ROAD_BUILDING_ROADS = 2;
 
     private readonly Stack<DiceRoll> diceRolls = [];
-    private int roadBuildingRoadsLeftToPlace = 0;
+    private int roamingRoadsLeftToPlace = 0;
 
     public Game(int playerCount)
     {
@@ -31,7 +31,7 @@ public sealed class Game
 
     public PlayerManager PlayerManager { get; init; }
 
-    public bool DevelopmentCardPlayed { get; private set; }
+    public bool GrowthCardPlayed { get; private set; }
 
     public DiceRoll LastRoll => diceRolls.First();
 
@@ -48,34 +48,34 @@ public sealed class Game
         return StateManager.MoveState(actionType);
     }
 
-    public Result<List<Point>> GetAvailableCityLocations()
+    public Result<List<Point>> GetAvailableTownLocations()
     {
-        return Board.GetAvailableCityLocations(CurrentPlayerColour);
+        return Board.GetAvailableTownLocations(CurrentPlayerColour);
     }
 
-    public Result BuyCity()
+    public Result BuyTown()
     {
-        return PurchaseHelper.BuyCity(CurrentPlayer, BankManager);
+        return PurchaseHelper.BuyTown(CurrentPlayer, BankManager);
     }
 
-    public Result PlaceCity(
+    public Result PlaceTown(
         Point point)
     {
-        var moveStateResult = MoveState(ActionType.BuildCity);
+        var moveStateResult = MoveState(ActionType.BuildTown);
 
         if (moveStateResult.IsFailure)
         {
             return moveStateResult;
         }
 
-        var playerPieceResult = CurrentPlayer.RemovePiece(BuildingType.City);
+        var playerPieceResult = CurrentPlayer.RemovePiece(BuildingType.Town);
 
         if (playerPieceResult.IsFailure)
         {
             return playerPieceResult;
         }
 
-        CurrentPlayer.AddPiece(BuildingType.Settlement);
+        CurrentPlayer.AddPiece(BuildingType.Village);
 
         var placeResult = Board.UpgradeHouse(point, CurrentPlayerColour);
 
@@ -122,38 +122,38 @@ public sealed class Game
             return placeResult;
         }
 
-        if (roadBuildingRoadsLeftToPlace > 0)
+        if (roamingRoadsLeftToPlace > 0)
         {
-            roadBuildingRoadsLeftToPlace--;
+            roamingRoadsLeftToPlace--;
         }
 
-        CheckFinishedRoadBuilding();
+        CheckFinishedRoaming();
         CheckForLongestRoad();
         CheckForWinner();
 
         return Result.Success();
     }
 
-    public Result<List<Point>> GetAvailableSettlementLocations()
+    public Result<List<Point>> GetAvailableVillageLocations()
     {
-        return Board.GetAvailableSettlementLocations(CurrentPlayerColour, IsSetup);
+        return Board.GetAvailableVillageLocations(CurrentPlayerColour, IsSetup);
     }
 
-    public Result BuySettlement()
+    public Result BuyVillage()
     {
-        return PurchaseHelper.BuySettlement(CurrentPlayer, BankManager);
+        return PurchaseHelper.BuyVillage(CurrentPlayer, BankManager);
     }
 
-    public Result PlaceSettlement(Point point)
+    public Result PlaceVillage(Point point)
     {
-        var moveStateResult = MoveState(ActionType.BuildSettlement);
+        var moveStateResult = MoveState(ActionType.BuildVillage);
 
         if (moveStateResult.IsFailure)
         {
             return moveStateResult;
         }
 
-        var playerPieceResult = CurrentPlayer.RemovePiece(BuildingType.Settlement);
+        var playerPieceResult = CurrentPlayer.RemovePiece(BuildingType.Village);
 
         if (playerPieceResult.IsFailure)
         {
@@ -169,7 +169,7 @@ public sealed class Game
 
         if (PlayerManager.IsSecondRoundOfSetup)
         {
-            return GivePlayerResourcesAroundSettlement(point);
+            return GivePlayerResourcesAroundVillage(point);
         }
 
         UpdatePlayerPorts(point);
@@ -178,9 +178,9 @@ public sealed class Game
         return Result.Success();
     }
 
-    public Result BuyDevelopmentCard()
+    public Result BuyGrowthCard()
     {
-        return PurchaseHelper.BuyDevelopmentCard(CurrentPlayer, BankManager);
+        return PurchaseHelper.BuyGrowthCard(CurrentPlayer, BankManager);
     }
 
     public void CancelTradeOffer()
@@ -221,7 +221,7 @@ public sealed class Game
 
     public Result EndTurn()
     {
-        DevelopmentCardPlayed = false;
+        GrowthCardPlayed = false;
         TradeManager.Inactive();
 
         var moveStateResult = MoveState(ActionType.EndTurn);
@@ -251,48 +251,48 @@ public sealed class Game
         return TradeManager.CreateOffer(CurrentPlayer, offer, request);
     }
 
-    public Result MoveRobber(
+    public Result MoveThief(
         Point point)
     {
-        var moveStateResult = MoveState(ActionType.MoveRobber);
+        var moveStateResult = MoveState(ActionType.MoveThief);
 
         if (moveStateResult.IsFailure)
         {
             return moveStateResult;
         }
 
-        return Board.MoveRobberToPoint(point);
+        return Board.MoveThiefToPoint(point);
     }
 
-    public Result RemoveDevelopmentCardFromCurrentPlayer(
-        DevelopmentCardType developmentCardType)
+    public Result RemoveGrowthCardFromCurrentPlayer(
+        GrowthCardType growthCardType)
     {
-        return CurrentPlayer.RemoveDevelopmentCard(developmentCardType);
+        return CurrentPlayer.RemoveGrowthCard(growthCardType);
     }
 
-    public Result PlayKnightCard()
+    public Result PlaySoldierCard()
     {
-        if (DevelopmentCardPlayed)
+        if (GrowthCardPlayed)
         {
-            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+            return Result.Failure(PlayerErrors.GrowthCardAlreadyPlayed);
         }
 
-        var moveStateResult = MoveState(ActionType.PlayKnightCard);
+        var moveStateResult = MoveState(ActionType.PlaySoldierCard);
 
         if (moveStateResult.IsFailure)
         {
             return moveStateResult;
         }
 
-        var removeCardResult = CurrentPlayer.RemoveDevelopmentCard(
-            DevelopmentCardType.Knight);
+        var removeCardResult = CurrentPlayer.RemoveGrowthCard(
+            GrowthCardType.Soldier);
 
         if (removeCardResult.IsFailure)
         {
             return removeCardResult;
         }
 
-        DevelopmentCardPlayed = true;
+        GrowthCardPlayed = true;
 
         PlayerManager.UpdateLargestArmyPlayer();
         CheckForWinner();
@@ -300,87 +300,87 @@ public sealed class Game
         return Result.Success();
     }
 
-    public Result PlayMonopolyCard(
+    public Result PlayGathererCard(
         ResourceType resource)
     {
-        if (DevelopmentCardPlayed)
+        if (GrowthCardPlayed)
         {
-            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+            return Result.Failure(PlayerErrors.GrowthCardAlreadyPlayed);
         }
 
-        var moveStateResult = MoveState(ActionType.PlayMonopolyCard);
+        var moveStateResult = MoveState(ActionType.PlayGathererCard);
 
         if (moveStateResult.IsFailure)
         {
             return moveStateResult;
         }
 
-        var removeCardResult = CurrentPlayer.RemoveDevelopmentCard(
-            DevelopmentCardType.Monopoly);
+        var removeCardResult = CurrentPlayer.RemoveGrowthCard(
+            GrowthCardType.Gatherer);
 
         if (removeCardResult.IsFailure)
         {
             return removeCardResult;
         }
 
-        if (resource == ResourceType.Desert)
+        if (resource == ResourceType.None)
         {
             return Result.Failure(GameErrors.InvalidResourceType);
         }
 
-        PlayerManager.GivePlayerMonopolyResource(CurrentPlayer, resource);
+        PlayerManager.GivePlayerGathererResource(CurrentPlayer, resource);
 
-        DevelopmentCardPlayed = true;
+        GrowthCardPlayed = true;
 
         return Result.Success();
     }
 
-    public Result PlayRoadBuildingCard()
+    public Result PlayRoamingCard()
     {
-        if (DevelopmentCardPlayed)
+        if (GrowthCardPlayed)
         {
-            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+            return Result.Failure(PlayerErrors.GrowthCardAlreadyPlayed);
         }
 
-        var moveStateResult = MoveState(ActionType.PlayRoadBuildingCard);
+        var moveStateResult = MoveState(ActionType.PlayRoamingCard);
 
         if (moveStateResult.IsFailure)
         {
             return moveStateResult;
         }
 
-        var removeCardResult = CurrentPlayer.RemoveDevelopmentCard(
-            DevelopmentCardType.RoadBuilding);
+        var removeCardResult = CurrentPlayer.RemoveGrowthCard(
+            GrowthCardType.Roaming);
 
         if (removeCardResult.IsFailure)
         {
             return removeCardResult;
         }
 
-        DevelopmentCardPlayed = true;
-        roadBuildingRoadsLeftToPlace = MAX_ROAD_BUILDING_ROADS;
+        GrowthCardPlayed = true;
+        roamingRoadsLeftToPlace = MAX_ROAD_BUILDING_ROADS;
 
         return Result.Success();
     }
 
-    public Result PlayYearOfPlentyCard(
+    public Result PlayWealthCard(
         ResourceType firstResource,
         ResourceType secondResource)
     {
-        if (DevelopmentCardPlayed)
+        if (GrowthCardPlayed)
         {
-            return Result.Failure(PlayerErrors.DevelopmentCardAlreadyPlayed);
+            return Result.Failure(PlayerErrors.GrowthCardAlreadyPlayed);
         }
 
-        var moveStateResult = MoveState(ActionType.PlayYearOfPlentyCard);
+        var moveStateResult = MoveState(ActionType.PlayWealthCard);
 
         if (moveStateResult.IsFailure)
         {
             return moveStateResult;
         }
 
-        var removeCardResult = CurrentPlayer.RemoveDevelopmentCard(
-            DevelopmentCardType.YearOfPlenty);
+        var removeCardResult = CurrentPlayer.RemoveGrowthCard(
+            GrowthCardType.Wealth);
 
         if (removeCardResult.IsFailure)
         {
@@ -395,7 +395,7 @@ public sealed class Game
                 { secondResource, 1 }
             });
 
-        DevelopmentCardPlayed = true;
+        GrowthCardPlayed = true;
 
         return Result.Success();
     }
@@ -484,7 +484,7 @@ public sealed class Game
         return BankManager.Trade(CurrentPlayer, offeredResource, requestedResource);
     }
 
-    private Result GivePlayerResourcesAroundSettlement(Point point)
+    private Result GivePlayerResourcesAroundVillage(Point point)
     {
         var tiles = Board.GetTilesSurroundingHouse(point);
 
@@ -492,7 +492,7 @@ public sealed class Game
         {
             var resourceType = tile.Type;
 
-            if (resourceType == ResourceType.Desert)
+            if (resourceType == ResourceType.None)
             {
                 continue;
             }
@@ -518,23 +518,23 @@ public sealed class Game
         return Result.Success();
     }
 
-    private Result PlaceRoadBuildingRoads(
+    private Result PlaceRoamingRoads(
         Point firstRoadFirstPoint,
         Point firstRoadSecondPoint,
         Point secondRoadFirstPoint,
         Point secondRoadSecondPoint)
     {
-        var firstRoadResult = PlaceRoadBuildingRoad(firstRoadFirstPoint, firstRoadSecondPoint);
+        var firstRoadResult = PlaceRoamingRoad(firstRoadFirstPoint, firstRoadSecondPoint);
 
         if (firstRoadResult.IsFailure)
         {
             return firstRoadResult;
         }
 
-        return PlaceRoadBuildingRoad(secondRoadFirstPoint, secondRoadSecondPoint);
+        return PlaceRoamingRoad(secondRoadFirstPoint, secondRoadSecondPoint);
     }
 
-    private Result PlaceRoadBuildingRoad(
+    private Result PlaceRoamingRoad(
         Point firstPoint,
         Point secondPoint)
     {
@@ -557,7 +557,7 @@ public sealed class Game
 
     private void DistributeResourcesOnTilePoint(Point tilePoint)
     {
-        if (tilePoint.Equals(Board.RobberPosition))
+        if (tilePoint.Equals(Board.ThiefPosition))
         {
             return;
         }
@@ -565,7 +565,7 @@ public sealed class Game
         var tile = Board.GetTile(tilePoint);
 
         if (tile is null
-        || tile.Type == ResourceType.Desert)
+        || tile.Type == ResourceType.None)
         {
             return;
         }
@@ -587,9 +587,9 @@ public sealed class Game
         var player = GetPlayer(house.Colour)
                 ?? throw new InvalidOperationException("Player not found");
 
-        var isCity = house.Type == BuildingType.City;
+        var isTown = house.Type == BuildingType.Town;
 
-        var resourceCount = isCity ? 2 : 1;
+        var resourceCount = isTown ? 2 : 1;
 
         PurchaseHelper.GetFreeResources(
             player,
@@ -631,12 +631,12 @@ public sealed class Game
         return;
     }
 
-    private void CheckFinishedRoadBuilding()
+    private void CheckFinishedRoaming()
     {
-        if (CurrentState == GameState.RoadBuilding
-            && roadBuildingRoadsLeftToPlace == 0)
+        if (CurrentState == GameState.Roaming
+            && roamingRoadsLeftToPlace == 0)
         {
-            MoveState(ActionType.FinishRoadBuilding);
+            MoveState(ActionType.FinishRoaming);
         }
     }
 

@@ -3,17 +3,17 @@ using Natak.Domain.Managers;
 
 namespace Natak.Domain.UnitTests.Managers;
 
-public sealed class PlayerDevelopmentCardManagerTests
+public sealed class PlayerGrowthCardManagerTests
 {
     [Fact]
     public void HasOnHold_Should_ReturnTrue_WhenCardIsOnHold()
     {
         // Arrange
-        var manager = new PlayerDevelopmentCardManager();
-        manager.Add(DevelopmentCardType.Knight);
+        var manager = new PlayerGrowthCardManager();
+        manager.Add(GrowthCardType.Soldier);
 
         // Act
-        var result = manager.HasOnHold(DevelopmentCardType.Knight);
+        var result = manager.HasOnHold(GrowthCardType.Soldier);
 
         // Assert
         Assert.True(result);
@@ -23,12 +23,12 @@ public sealed class PlayerDevelopmentCardManagerTests
     public void HasOnHold_Should_ReturnFalse_WhenCardIsNotOnHold()
     {
         // Arrange
-        var manager = new PlayerDevelopmentCardManager();
-        manager.Add(DevelopmentCardType.Knight);
+        var manager = new PlayerGrowthCardManager();
+        manager.Add(GrowthCardType.Soldier);
         manager.CycleOnHoldCards();
 
         // Act
-        var result = manager.HasOnHold(DevelopmentCardType.Knight);
+        var result = manager.HasOnHold(GrowthCardType.Soldier);
 
         // Assert
         Assert.False(result);
@@ -38,12 +38,12 @@ public sealed class PlayerDevelopmentCardManagerTests
     public void CountOnHold_Should_ReturnCountOfCardOnHold()
     {
         // Arrange
-        var manager = new PlayerDevelopmentCardManager();
-        manager.Add(DevelopmentCardType.Knight);
-        manager.Add(DevelopmentCardType.Knight);
+        var manager = new PlayerGrowthCardManager();
+        manager.Add(GrowthCardType.Soldier);
+        manager.Add(GrowthCardType.Soldier);
 
         // Act
-        var result = manager.CountOnHold(DevelopmentCardType.Knight);
+        var result = manager.CountOnHold(GrowthCardType.Soldier);
 
         // Assert
         Assert.Equal(2, result);
@@ -53,11 +53,11 @@ public sealed class PlayerDevelopmentCardManagerTests
     public void CountAllOnHold_Should_ReturnCountOfAllCardsOnHold()
     {
         // Arrange
-        var manager = new PlayerDevelopmentCardManager();
-        manager.Add(DevelopmentCardType.Knight);
-        manager.Add(DevelopmentCardType.Monopoly);
-        manager.Add(DevelopmentCardType.RoadBuilding);
-        manager.Add(DevelopmentCardType.YearOfPlenty);
+        var manager = new PlayerGrowthCardManager();
+        manager.Add(GrowthCardType.Soldier);
+        manager.Add(GrowthCardType.Gatherer);
+        manager.Add(GrowthCardType.Roaming);
+        manager.Add(GrowthCardType.Wealth);
 
         // Act
         var result = manager.CountAllOnHold();
@@ -67,14 +67,14 @@ public sealed class PlayerDevelopmentCardManagerTests
     }
 
     [Theory]
-    [InlineData(DevelopmentCardType.Knight)]
-    [InlineData(DevelopmentCardType.Monopoly)]
-    [InlineData(DevelopmentCardType.RoadBuilding)]
-    [InlineData(DevelopmentCardType.YearOfPlenty)]
-    public void Add_Should_AddCardToOnHold(DevelopmentCardType card)
+    [InlineData(GrowthCardType.Soldier)]
+    [InlineData(GrowthCardType.Gatherer)]
+    [InlineData(GrowthCardType.Roaming)]
+    [InlineData(GrowthCardType.Wealth)]
+    public void Add_Should_AddCardToOnHold(GrowthCardType card)
     {
         // Arrange
-        var manager = new PlayerDevelopmentCardManager();
+        var manager = new PlayerGrowthCardManager();
 
         // Act
         manager.Add(card);
@@ -88,34 +88,34 @@ public sealed class PlayerDevelopmentCardManagerTests
     public void Add_Should_AddVictoryPointToCards()
     {
         // Arrange
-        var manager = new PlayerDevelopmentCardManager();
+        var manager = new PlayerGrowthCardManager();
 
         // Act
-        manager.Add(DevelopmentCardType.VictoryPoint);
+        manager.Add(GrowthCardType.VictoryPoint);
 
         // Assert
-        Assert.True(manager.Cards[DevelopmentCardType.VictoryPoint] == 1);
-        Assert.False(manager.OnHoldCards.ContainsKey(DevelopmentCardType.VictoryPoint));
+        Assert.True(manager.Cards[GrowthCardType.VictoryPoint] == 1);
+        Assert.False(manager.OnHoldCards.ContainsKey(GrowthCardType.VictoryPoint));
     }
 
     [Fact]
     public void CycleOnHoldCards_Should_MoveAllOnHoldCardsToCards()
     {
         // Arrange
-        var manager = new PlayerDevelopmentCardManager();
-        manager.Add(DevelopmentCardType.Knight);
-        manager.Add(DevelopmentCardType.Monopoly);
-        manager.Add(DevelopmentCardType.RoadBuilding);
-        manager.Add(DevelopmentCardType.YearOfPlenty);
+        var manager = new PlayerGrowthCardManager();
+        manager.Add(GrowthCardType.Soldier);
+        manager.Add(GrowthCardType.Gatherer);
+        manager.Add(GrowthCardType.Roaming);
+        manager.Add(GrowthCardType.Wealth);
 
         // Act
         manager.CycleOnHoldCards();
 
         // Assert
-        Assert.True(manager.Cards[DevelopmentCardType.Knight] == 1);
-        Assert.True(manager.Cards[DevelopmentCardType.Monopoly] == 1);
-        Assert.True(manager.Cards[DevelopmentCardType.RoadBuilding] == 1);
-        Assert.True(manager.Cards[DevelopmentCardType.YearOfPlenty] == 1);
+        Assert.True(manager.Cards[GrowthCardType.Soldier] == 1);
+        Assert.True(manager.Cards[GrowthCardType.Gatherer] == 1);
+        Assert.True(manager.Cards[GrowthCardType.Roaming] == 1);
+        Assert.True(manager.Cards[GrowthCardType.Wealth] == 1);
         Assert.True(manager.OnHoldCards.Count == 0);
     }
 }

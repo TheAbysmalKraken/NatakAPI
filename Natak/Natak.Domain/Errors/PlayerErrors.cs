@@ -39,9 +39,9 @@ public static class PlayerErrors
         "Player.NotFound",
         "Player not found by specified identifier.");
 
-    public static Error DevelopmentCardAlreadyPlayed => new(
+    public static Error GrowthCardAlreadyPlayed => new(
         HttpStatusCode.BadRequest,
-        "Player.DevelopmentCardAlreadyPlayed",
+        "Player.GrowthCardAlreadyPlayed",
         "Player has already played a development card this turn.");
 
     public static Error CannotPlayVictoryPointCard => new(
@@ -49,9 +49,9 @@ public static class PlayerErrors
         "Player.CannotPlayVictoryPointCard",
         "Player cannot play a victory point card.");
 
-    public static Error NoDevelopmentCardsOfType => new(
+    public static Error NoGrowthCardsOfType => new(
         HttpStatusCode.BadRequest,
-        "Player.NoDevelopmentCardsOfType",
+        "Player.NoGrowthCardsOfType",
         "Player does not have any development cards of the specified type.");
 
     public static Error CannotTradeWithSelf => new(

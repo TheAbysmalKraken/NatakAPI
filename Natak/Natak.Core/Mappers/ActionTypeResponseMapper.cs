@@ -7,21 +7,21 @@ public static class ActionTypeResponseMapper
 {
     private static readonly Dictionary<ActionType, ActionTypeResponse> mapping = new()
     {
-        { ActionType.BuildSettlement, ActionTypeResponse.BuildSettlement },
+        { ActionType.BuildVillage, ActionTypeResponse.BuildVillage },
         { ActionType.BuildRoad, ActionTypeResponse.BuildRoad },
-        { ActionType.BuildCity, ActionTypeResponse.BuildCity },
+        { ActionType.BuildTown, ActionTypeResponse.BuildTown },
         { ActionType.FirstSetupFinished, ActionTypeResponse.EndTurn },
         { ActionType.SecondSetupFinished, ActionTypeResponse.EndTurn },
         { ActionType.RollDice, ActionTypeResponse.RollDice },
         { ActionType.EndTurn, ActionTypeResponse.EndTurn },
         { ActionType.Trade, ActionTypeResponse.Trade },
-        { ActionType.PlayKnightCard, ActionTypeResponse.PlayDevelopmentCard },
-        { ActionType.PlayRoadBuildingCard, ActionTypeResponse.PlayDevelopmentCard },
-        { ActionType.PlayYearOfPlentyCard, ActionTypeResponse.PlayDevelopmentCard },
-        { ActionType.PlayMonopolyCard, ActionTypeResponse.PlayDevelopmentCard },
+        { ActionType.PlaySoldierCard, ActionTypeResponse.PlayGrowthCard },
+        { ActionType.PlayRoamingCard, ActionTypeResponse.PlayGrowthCard },
+        { ActionType.PlayWealthCard, ActionTypeResponse.PlayGrowthCard },
+        { ActionType.PlayGathererCard, ActionTypeResponse.PlayGrowthCard },
         { ActionType.RollSeven, ActionTypeResponse.RollDice },
         { ActionType.AllResourcesDiscarded, ActionTypeResponse.DiscardResources },
-        { ActionType.MoveRobber, ActionTypeResponse.MoveRobber },
+        { ActionType.MoveThief, ActionTypeResponse.MoveThief },
         { ActionType.StealResource, ActionTypeResponse.StealResource }
     };
 

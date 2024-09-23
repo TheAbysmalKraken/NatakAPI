@@ -15,10 +15,10 @@ public sealed class BankTradeManagerTests
         var cardsToRemove = new Dictionary<ResourceType, int>()
         {
             { ResourceType.Wood, 1 },
-            { ResourceType.Brick, 2 },
-            { ResourceType.Sheep, 3 },
-            { ResourceType.Wheat, 4 },
-            { ResourceType.Ore, 5 }
+            { ResourceType.Clay, 2 },
+            { ResourceType.Animal, 3 },
+            { ResourceType.Food, 4 },
+            { ResourceType.Metal, 5 }
         };
 
         // Act
@@ -43,10 +43,10 @@ public sealed class BankTradeManagerTests
         var cardsToRemove = new Dictionary<ResourceType, int>()
         {
             { ResourceType.Wood, 1 },
-            { ResourceType.Brick, 2 },
-            { ResourceType.Sheep, 3 },
-            { ResourceType.Wheat, 4 },
-            { ResourceType.Ore, 5 }
+            { ResourceType.Clay, 2 },
+            { ResourceType.Animal, 3 },
+            { ResourceType.Food, 4 },
+            { ResourceType.Metal, 5 }
         };
 
         // Act
@@ -69,10 +69,10 @@ public sealed class BankTradeManagerTests
         var cardsToRemove = new Dictionary<ResourceType, int>()
         {
             { ResourceType.Wood, 20 },
-            { ResourceType.Brick, 20 },
-            { ResourceType.Sheep, 20 },
-            { ResourceType.Wheat, 20 },
-            { ResourceType.Ore, 20 }
+            { ResourceType.Clay, 20 },
+            { ResourceType.Animal, 20 },
+            { ResourceType.Food, 20 },
+            { ResourceType.Metal, 20 }
         };
 
         // Act
@@ -93,7 +93,7 @@ public sealed class BankTradeManagerTests
         var player = new Player(PlayerColour.Blue);
 
         // Act
-        var tradeResult = manager.Trade(player, ResourceType.Wood, ResourceType.Brick);
+        var tradeResult = manager.Trade(player, ResourceType.Wood, ResourceType.Clay);
 
         // Assert
         Assert.False(tradeResult.IsSuccess);
@@ -107,10 +107,10 @@ public sealed class BankTradeManagerTests
         var player = new Player(PlayerColour.Blue);
         player.AddResourceCard(ResourceType.Wood, 4);
 
-        manager.ResourceCards[ResourceType.Brick] = 0;
+        manager.ResourceCards[ResourceType.Clay] = 0;
 
         // Act
-        var tradeResult = manager.Trade(player, ResourceType.Wood, ResourceType.Brick);
+        var tradeResult = manager.Trade(player, ResourceType.Wood, ResourceType.Clay);
 
         // Assert
         Assert.False(tradeResult.IsSuccess);
@@ -127,14 +127,14 @@ public sealed class BankTradeManagerTests
         player.AddResourceCard(ResourceType.Wood, 4);
 
         // Act
-        var tradeResult = manager.Trade(player, ResourceType.Wood, ResourceType.Brick);
+        var tradeResult = manager.Trade(player, ResourceType.Wood, ResourceType.Clay);
 
         // Assert
         Assert.True(tradeResult.IsSuccess);
         Assert.Equal(0, player.CountResourceCard(ResourceType.Wood));
-        Assert.Equal(1, player.CountResourceCard(ResourceType.Brick));
+        Assert.Equal(1, player.CountResourceCard(ResourceType.Clay));
         Assert.Equal(existingCards[ResourceType.Wood] + 4, manager.ResourceCards[ResourceType.Wood]);
-        Assert.Equal(existingCards[ResourceType.Brick] - 1, manager.ResourceCards[ResourceType.Brick]);
+        Assert.Equal(existingCards[ResourceType.Clay] - 1, manager.ResourceCards[ResourceType.Clay]);
     }
 
     [Fact]
@@ -150,14 +150,14 @@ public sealed class BankTradeManagerTests
         player.Ports.Add(PortType.ThreeToOne);
 
         // Act
-        var tradeResult = manager.Trade(player, ResourceType.Wood, ResourceType.Brick);
+        var tradeResult = manager.Trade(player, ResourceType.Wood, ResourceType.Clay);
 
         // Assert
         Assert.True(tradeResult.IsSuccess);
         Assert.Equal(0, player.CountResourceCard(ResourceType.Wood));
-        Assert.Equal(1, player.CountResourceCard(ResourceType.Brick));
+        Assert.Equal(1, player.CountResourceCard(ResourceType.Clay));
         Assert.Equal(existingCards[ResourceType.Wood] + 3, manager.ResourceCards[ResourceType.Wood]);
-        Assert.Equal(existingCards[ResourceType.Brick] - 1, manager.ResourceCards[ResourceType.Brick]);
+        Assert.Equal(existingCards[ResourceType.Clay] - 1, manager.ResourceCards[ResourceType.Clay]);
     }
 
     [Fact]
@@ -173,14 +173,14 @@ public sealed class BankTradeManagerTests
         player.Ports.Add(PortType.Wood);
 
         // Act
-        var tradeResult = manager.Trade(player, ResourceType.Wood, ResourceType.Brick);
+        var tradeResult = manager.Trade(player, ResourceType.Wood, ResourceType.Clay);
 
         // Assert
         Assert.True(tradeResult.IsSuccess);
         Assert.Equal(0, player.CountResourceCard(ResourceType.Wood));
-        Assert.Equal(1, player.CountResourceCard(ResourceType.Brick));
+        Assert.Equal(1, player.CountResourceCard(ResourceType.Clay));
         Assert.Equal(existingCards[ResourceType.Wood] + 2, manager.ResourceCards[ResourceType.Wood]);
-        Assert.Equal(existingCards[ResourceType.Brick] - 1, manager.ResourceCards[ResourceType.Brick]);
+        Assert.Equal(existingCards[ResourceType.Clay] - 1, manager.ResourceCards[ResourceType.Clay]);
     }
 
     [Fact]
@@ -193,16 +193,16 @@ public sealed class BankTradeManagerTests
         var player = new Player(PlayerColour.Blue);
         player.AddResourceCard(ResourceType.Wood, 2);
 
-        player.Ports.Add(PortType.Brick);
+        player.Ports.Add(PortType.Clay);
 
         // Act
-        var tradeResult = manager.Trade(player, ResourceType.Wood, ResourceType.Brick);
+        var tradeResult = manager.Trade(player, ResourceType.Wood, ResourceType.Clay);
 
         // Assert
         Assert.False(tradeResult.IsSuccess);
         Assert.Equal(2, player.CountResourceCard(ResourceType.Wood));
-        Assert.Equal(0, player.CountResourceCard(ResourceType.Brick));
+        Assert.Equal(0, player.CountResourceCard(ResourceType.Clay));
         Assert.Equal(existingCards[ResourceType.Wood], manager.ResourceCards[ResourceType.Wood]);
-        Assert.Equal(existingCards[ResourceType.Brick], manager.ResourceCards[ResourceType.Brick]);
+        Assert.Equal(existingCards[ResourceType.Clay], manager.ResourceCards[ResourceType.Clay]);
     }
 }

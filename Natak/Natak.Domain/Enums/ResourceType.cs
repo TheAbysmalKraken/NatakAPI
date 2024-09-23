@@ -2,10 +2,10 @@
 
 public enum ResourceType
 {
-    Desert,
+    None,
     Wood,
-    Brick,
-    Sheep,
-    Wheat,
-    Ore
+    Clay,
+    Animal,
+    Food,
+    Metal
 }

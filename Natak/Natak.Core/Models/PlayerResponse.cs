@@ -8,8 +8,8 @@ public class PlayerResponse
     [JsonPropertyName("colour")]
     public required int Colour { get; init; }
 
-    [JsonPropertyName("knightsPlayed")]
-    public required int KnightsPlayed { get; init; }
+    [JsonPropertyName("soldiersPlayed")]
+    public required int SoldiersPlayed { get; init; }
 
     [JsonPropertyName("visibleVictoryPoints")]
     public required int VisibleVictoryPoints { get; init; }
@@ -17,8 +17,8 @@ public class PlayerResponse
     [JsonPropertyName("totalResourceCards")]
     public required int TotalResourceCards { get; init; }
 
-    [JsonPropertyName("totalDevelopmentCards")]
-    public required int TotalDevelopmentCards { get; init; }
+    [JsonPropertyName("totalGrowthCards")]
+    public required int TotalGrowthCards { get; init; }
 
     [JsonPropertyName("hasLargestArmy")]
     public required bool HasLargestArmy { get; init; }
@@ -26,8 +26,8 @@ public class PlayerResponse
     [JsonPropertyName("hasLongestRoad")]
     public required bool HasLongestRoad { get; init; }
 
-    [JsonPropertyName("remainingSettlements")]
-    public required int RemainingSettlements { get; init; }
+    [JsonPropertyName("remainingVillages")]
+    public required int RemainingVillages { get; init; }
 
     [JsonPropertyName("remainingCities")]
     public required int RemainingCities { get; init; }
@@ -41,19 +41,19 @@ public class PlayerResponse
     public static PlayerResponse FromDomain(Player player)
     {
         var resourceCards = player.ResourceCardManager.Cards;
-        var playableDevelopmentCards = player.DevelopmentCardManager.Cards;
-        var onHoldDevelopmentCards = player.DevelopmentCardManager.OnHoldCards;
+        var playableGrowthCards = player.GrowthCardManager.Cards;
+        var onHoldGrowthCards = player.GrowthCardManager.OnHoldCards;
 
         return new PlayerResponse
         {
             Colour = (int)player.Colour,
-            KnightsPlayed = player.KnightsPlayed,
+            SoldiersPlayed = player.SoldiersPlayed,
             VisibleVictoryPoints = player.ScoreManager.VisiblePoints,
             TotalResourceCards = resourceCards.Sum(kvp => kvp.Value),
-            TotalDevelopmentCards = playableDevelopmentCards.Sum(kvp => kvp.Value) + onHoldDevelopmentCards.Sum(kvp => kvp.Value),
+            TotalGrowthCards = playableGrowthCards.Sum(kvp => kvp.Value) + onHoldGrowthCards.Sum(kvp => kvp.Value),
             HasLargestArmy = player.ScoreManager.HasLargestArmy,
             HasLongestRoad = player.ScoreManager.HasLongestRoad,
-            RemainingSettlements = player.PieceManager.Settlements,
+            RemainingVillages = player.PieceManager.Villages,
             RemainingCities = player.PieceManager.Cities,
             RemainingRoads = player.PieceManager.Roads,
             CardsToDiscard = player.CardsToDiscard

@@ -7,16 +7,16 @@ public sealed class BankTradeManager
 {
     private readonly ItemManager<ResourceType> resourceCards = new();
 
-    private readonly ItemManager<DevelopmentCardType> developmentCards = new();
+    private readonly ItemManager<GrowthCardType> growthCards = new();
 
     public Dictionary<ResourceType, int> ResourceCards => resourceCards.Items;
 
-    public Dictionary<DevelopmentCardType, int> DevelopmentCards => developmentCards.Items;
+    public Dictionary<GrowthCardType, int> GrowthCards => growthCards.Items;
 
     public BankTradeManager()
     {
         SetupResourceCards();
-        SetupDevelopmentCards();
+        SetupGrowthCards();
     }
 
     public bool HasResourceCards(Dictionary<ResourceType, int> resourceCards)
@@ -68,9 +68,9 @@ public sealed class BankTradeManager
         return resourceCards.Remove(resourceType, count);
     }
 
-    public DevelopmentCardType? RemoveRandomDevelopmentCard()
+    public GrowthCardType? RemoveRandomGrowthCard()
     {
-        return developmentCards.RemoveRandom();
+        return growthCards.RemoveRandom();
     }
 
     public Result Trade(
@@ -97,20 +97,20 @@ public sealed class BankTradeManager
 
     private void SetupResourceCards()
     {
-        resourceCards.Add(ResourceType.Brick, 19);
-        resourceCards.Add(ResourceType.Ore, 19);
-        resourceCards.Add(ResourceType.Sheep, 19);
-        resourceCards.Add(ResourceType.Wheat, 19);
+        resourceCards.Add(ResourceType.Clay, 19);
+        resourceCards.Add(ResourceType.Metal, 19);
+        resourceCards.Add(ResourceType.Animal, 19);
+        resourceCards.Add(ResourceType.Food, 19);
         resourceCards.Add(ResourceType.Wood, 19);
     }
 
-    private void SetupDevelopmentCards()
+    private void SetupGrowthCards()
     {
-        developmentCards.Add(DevelopmentCardType.Knight, 14);
-        developmentCards.Add(DevelopmentCardType.VictoryPoint, 5);
-        developmentCards.Add(DevelopmentCardType.Monopoly, 2);
-        developmentCards.Add(DevelopmentCardType.RoadBuilding, 2);
-        developmentCards.Add(DevelopmentCardType.YearOfPlenty, 2);
+        growthCards.Add(GrowthCardType.Soldier, 14);
+        growthCards.Add(GrowthCardType.VictoryPoint, 5);
+        growthCards.Add(GrowthCardType.Gatherer, 2);
+        growthCards.Add(GrowthCardType.Roaming, 2);
+        growthCards.Add(GrowthCardType.Wealth, 2);
     }
 
     private Result TradeTwoToOne(

@@ -11,18 +11,18 @@ public sealed class DetailedPlayerResponse : PlayerResponse
     [JsonPropertyName("resourceCards")]
     public required Dictionary<int, int> ResourceCards { get; init; }
 
-    [JsonPropertyName("playableDevelopmentCards")]
-    public required Dictionary<int, int> PlayableDevelopmentCards { get; init; }
+    [JsonPropertyName("playableGrowthCards")]
+    public required Dictionary<int, int> PlayableGrowthCards { get; init; }
 
-    [JsonPropertyName("onHoldDevelopmentCards")]
-    public required Dictionary<int, int> OnHoldDevelopmentCards { get; init; }
+    [JsonPropertyName("onHoldGrowthCards")]
+    public required Dictionary<int, int> OnHoldGrowthCards { get; init; }
 
     new public static DetailedPlayerResponse FromDomain(Player player)
     {
         var baseResponse = PlayerResponse.FromDomain(player);
         var resourceCards = player.ResourceCardManager.Cards;
-        var playableDevelopmentCards = player.DevelopmentCardManager.Cards;
-        var onHoldDevelopmentCards = player.DevelopmentCardManager.OnHoldCards;
+        var playableGrowthCards = player.GrowthCardManager.Cards;
+        var onHoldGrowthCards = player.GrowthCardManager.OnHoldCards;
 
         return new()
         {
@@ -30,22 +30,22 @@ public sealed class DetailedPlayerResponse : PlayerResponse
             ResourceCards = resourceCards
                 .Select(kvp => new KeyValuePair<int, int>((int)kvp.Key, kvp.Value))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
-            PlayableDevelopmentCards = playableDevelopmentCards
+            PlayableGrowthCards = playableGrowthCards
                 .Select(kvp => new KeyValuePair<int, int>((int)kvp.Key, kvp.Value))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
-            OnHoldDevelopmentCards = onHoldDevelopmentCards
+            OnHoldGrowthCards = onHoldGrowthCards
                 .Select(kvp => new KeyValuePair<int, int>((int)kvp.Key, kvp.Value))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
             Colour = baseResponse.Colour,
-            KnightsPlayed = baseResponse.KnightsPlayed,
+            SoldiersPlayed = baseResponse.SoldiersPlayed,
             VisibleVictoryPoints = baseResponse.VisibleVictoryPoints,
             TotalResourceCards = baseResponse.TotalResourceCards,
-            TotalDevelopmentCards = baseResponse.TotalDevelopmentCards,
+            TotalGrowthCards = baseResponse.TotalGrowthCards,
             HasLargestArmy = baseResponse.HasLargestArmy,
             HasLongestRoad = baseResponse.HasLongestRoad,
             RemainingCities = baseResponse.RemainingCities,
             RemainingRoads = baseResponse.RemainingRoads,
-            RemainingSettlements = baseResponse.RemainingSettlements,
+            RemainingVillages = baseResponse.RemainingVillages,
             CardsToDiscard = baseResponse.CardsToDiscard
         };
     }

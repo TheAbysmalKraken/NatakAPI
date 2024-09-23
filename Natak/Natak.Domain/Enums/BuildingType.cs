@@ -4,6 +4,6 @@ public enum BuildingType
 {
     None,
     Road,
-    Settlement,
-    City
+    Village,
+    Town
 }

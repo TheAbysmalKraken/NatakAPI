@@ -7,7 +7,7 @@ namespace Natak.Domain.UnitTests;
 public sealed class GameTests
 {
     [Fact]
-    public void PlaceCity_Should_ReturnFailure_WhenInIncorrectState()
+    public void PlaceTown_Should_ReturnFailure_WhenInIncorrectState()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -16,17 +16,17 @@ public sealed class GameTests
             GivePlayersResources = true
         };
         var game = GameFactory.Create(gameOptions);
-        var availableLocations = game.GetAvailableCityLocations().Value;
+        var availableLocations = game.GetAvailableTownLocations().Value;
 
         // Act
-        var result = game.PlaceCity(availableLocations.First());
+        var result = game.PlaceTown(availableLocations.First());
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlaceCity_Should_ReturnFailure_WhenPlayerHasNoCityPieces()
+    public void PlaceTown_Should_ReturnFailure_WhenPlayerHasNoTownPieces()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -36,17 +36,17 @@ public sealed class GameTests
             RemovePlayersPieces = true
         };
         var game = GameFactory.Create(gameOptions);
-        var availableLocations = game.GetAvailableCityLocations().Value;
+        var availableLocations = game.GetAvailableTownLocations().Value;
 
         // Act
-        var result = game.PlaceCity(availableLocations.First());
+        var result = game.PlaceTown(availableLocations.First());
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlaceCity_Should_RemoveCityPiece_WhenSuccessful()
+    public void PlaceTown_Should_RemoveTownPiece_WhenSuccessful()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -56,11 +56,11 @@ public sealed class GameTests
             HasRolled = true
         };
         var game = GameFactory.Create(gameOptions);
-        var availableLocations = game.GetAvailableCityLocations().Value;
+        var availableLocations = game.GetAvailableTownLocations().Value;
         var existingCities = game.CurrentPlayer.PieceManager.Cities;
 
         // Act
-        var result = game.PlaceCity(availableLocations.First());
+        var result = game.PlaceTown(availableLocations.First());
 
         // Assert
         var newCities = game.CurrentPlayer.PieceManager.Cities;
@@ -69,7 +69,7 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void PlaceCity_Should_AddSettlementPiece_WhenSuccessful()
+    public void PlaceTown_Should_AddVillagePiece_WhenSuccessful()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -79,20 +79,20 @@ public sealed class GameTests
             HasRolled = true
         };
         var game = GameFactory.Create(gameOptions);
-        var availableLocations = game.GetAvailableCityLocations().Value;
-        var existingSettlements = game.CurrentPlayer.PieceManager.Settlements;
+        var availableLocations = game.GetAvailableTownLocations().Value;
+        var existingVillages = game.CurrentPlayer.PieceManager.Villages;
 
         // Act
-        var result = game.PlaceCity(availableLocations.First());
+        var result = game.PlaceTown(availableLocations.First());
 
         // Assert
-        var newSettlements = game.CurrentPlayer.PieceManager.Settlements;
+        var newVillages = game.CurrentPlayer.PieceManager.Villages;
         Assert.True(result.IsSuccess);
-        Assert.Equal(existingSettlements + 1, newSettlements);
+        Assert.Equal(existingVillages + 1, newVillages);
     }
 
     [Fact]
-    public void PlaceCity_Should_PlaceCity()
+    public void PlaceTown_Should_PlaceTown()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -102,21 +102,21 @@ public sealed class GameTests
             HasRolled = true
         };
         var game = GameFactory.Create(gameOptions);
-        var availableLocations = game.GetAvailableCityLocations().Value;
+        var availableLocations = game.GetAvailableTownLocations().Value;
         var point = availableLocations.First();
 
         // Act
-        var result = game.PlaceCity(point);
+        var result = game.PlaceTown(point);
 
         // Assert
-        var city = game.Board.GetHouse(point);
+        var town = game.Board.GetHouse(point);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(city);
-        Assert.Equal(BuildingType.City, city.Type);
+        Assert.NotNull(town);
+        Assert.Equal(BuildingType.Town, town.Type);
     }
 
     [Fact]
-    public void PlaceCity_Should_SetWinner_IfPlayerNeedsOnePoint()
+    public void PlaceTown_Should_SetWinner_IfPlayerNeedsOnePoint()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -128,10 +128,10 @@ public sealed class GameTests
             PlayersHiddenPoints = 0
         };
         var game = GameFactory.Create(gameOptions);
-        var availableLocations = game.GetAvailableCityLocations().Value;
+        var availableLocations = game.GetAvailableTownLocations().Value;
 
         // Act
-        var result = game.PlaceCity(availableLocations.First());
+        var result = game.PlaceTown(availableLocations.First());
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -226,20 +226,20 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void PlaceRoad_Should_FinishRoadBuilding_WhenPlayerHasPlacedTwoRoads()
+    public void PlaceRoad_Should_FinishRoaming_WhenPlayerHasPlacedTwoRoads()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
             GivePlayersResources = true,
-            GivePlayersDevelopmentCards = true,
+            GivePlayersGrowthCards = true,
             HasRolled = false
         };
         var game = GameFactory.Create(gameOptions);
-        game.PlayRoadBuildingCard();
+        game.PlayRoamingCard();
 
-        Assert.Equal(GameState.RoadBuilding, game.CurrentState);
+        Assert.Equal(GameState.Roaming, game.CurrentState);
 
         var availableLocations = game.GetAvailableRoadLocations().Value;
         var availableRoad = availableLocations.First();
@@ -247,7 +247,7 @@ public sealed class GameTests
 
         game.PlaceRoad(availableRoad.FirstPoint, availableRoad.SecondPoint);
 
-        Assert.Equal(GameState.RoadBuilding, game.CurrentState);
+        Assert.Equal(GameState.Roaming, game.CurrentState);
 
         // Act
         var result = game.PlaceRoad(availableRoad2.FirstPoint, availableRoad2.SecondPoint);
@@ -283,27 +283,27 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void PlaceSettlement_Should_ReturnFailure_WhenInIncorrectState()
+    public void PlaceVillage_Should_ReturnFailure_WhenInIncorrectState()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
             GivePlayersResources = true,
-            PrepareSettlementPlacement = true
+            PrepareVillagePlacement = true
         };
         var game = GameFactory.Create(gameOptions);
-        var availableLocations = game.GetAvailableSettlementLocations().Value;
+        var availableLocations = game.GetAvailableVillageLocations().Value;
 
         // Act
-        var result = game.PlaceSettlement(availableLocations.First());
+        var result = game.PlaceVillage(availableLocations.First());
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlaceSettlement_Should_ReturnFailure_WhenPlayerHasNoSettlementPieces()
+    public void PlaceVillage_Should_ReturnFailure_WhenPlayerHasNoVillagePieces()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -311,20 +311,20 @@ public sealed class GameTests
             IsSetup = false,
             GivePlayersResources = true,
             RemovePlayersPieces = true,
-            PrepareSettlementPlacement = true
+            PrepareVillagePlacement = true
         };
         var game = GameFactory.Create(gameOptions);
-        var availableLocations = game.GetAvailableSettlementLocations().Value;
+        var availableLocations = game.GetAvailableVillageLocations().Value;
 
         // Act
-        var result = game.PlaceSettlement(availableLocations.First());
+        var result = game.PlaceVillage(availableLocations.First());
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlaceSettlement_Should_RemoveSettlementPiece_WhenSuccessful()
+    public void PlaceVillage_Should_RemoveVillagePiece_WhenSuccessful()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -332,23 +332,23 @@ public sealed class GameTests
             IsSetup = false,
             GivePlayersResources = true,
             HasRolled = true,
-            PrepareSettlementPlacement = true
+            PrepareVillagePlacement = true
         };
         var game = GameFactory.Create(gameOptions);
-        var availableLocations = game.GetAvailableSettlementLocations().Value;
-        var existingSettlements = game.CurrentPlayer.PieceManager.Settlements;
+        var availableLocations = game.GetAvailableVillageLocations().Value;
+        var existingVillages = game.CurrentPlayer.PieceManager.Villages;
 
         // Act
-        var result = game.PlaceSettlement(availableLocations.First());
+        var result = game.PlaceVillage(availableLocations.First());
 
         // Assert
-        var newSettlements = game.CurrentPlayer.PieceManager.Settlements;
+        var newVillages = game.CurrentPlayer.PieceManager.Villages;
         Assert.True(result.IsSuccess);
-        Assert.Equal(existingSettlements - 1, newSettlements);
+        Assert.Equal(existingVillages - 1, newVillages);
     }
 
     [Fact]
-    public void PlaceSettlement_Should_PlaceSettlement()
+    public void PlaceVillage_Should_PlaceVillage()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -356,24 +356,24 @@ public sealed class GameTests
             IsSetup = false,
             GivePlayersResources = true,
             HasRolled = true,
-            PrepareSettlementPlacement = true
+            PrepareVillagePlacement = true
         };
         var game = GameFactory.Create(gameOptions);
-        var availableLocations = game.GetAvailableSettlementLocations().Value;
+        var availableLocations = game.GetAvailableVillageLocations().Value;
         var point = availableLocations.First();
 
         // Act
-        var result = game.PlaceSettlement(point);
+        var result = game.PlaceVillage(point);
 
         // Assert
-        var settlement = game.Board.GetHouse(point);
+        var village = game.Board.GetHouse(point);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(settlement);
-        Assert.Equal(BuildingType.Settlement, settlement.Type);
+        Assert.NotNull(village);
+        Assert.Equal(BuildingType.Village, village.Type);
     }
 
     [Fact]
-    public void PlaceSettlement_Should_SetWinner_IfPlayerNeedsOnePoint()
+    public void PlaceVillage_Should_SetWinner_IfPlayerNeedsOnePoint()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -383,13 +383,13 @@ public sealed class GameTests
             HasRolled = true,
             PlayersVisiblePoints = 9,
             PlayersHiddenPoints = 0,
-            PrepareSettlementPlacement = true
+            PrepareVillagePlacement = true
         };
         var game = GameFactory.Create(gameOptions);
-        var availableLocations = game.GetAvailableSettlementLocations().Value;
+        var availableLocations = game.GetAvailableVillageLocations().Value;
 
         // Act
-        var result = game.PlaceSettlement(availableLocations.First());
+        var result = game.PlaceVillage(availableLocations.First());
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -398,7 +398,7 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void PlaceSettlement_Should_GivePlayerPort_WhenPlacedOnPort()
+    public void PlaceVillage_Should_GivePlayerPort_WhenPlacedOnPort()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -406,13 +406,13 @@ public sealed class GameTests
             IsSetup = false,
             GivePlayersResources = true,
             HasRolled = true,
-            PrepareSettlementPlacement = true
+            PrepareVillagePlacement = true
         };
         var game = GameFactory.Create(gameOptions);
-        var availableLocations = game.GetAvailableSettlementLocations().Value;
+        var availableLocations = game.GetAvailableVillageLocations().Value;
 
         // Act
-        var result = game.PlaceSettlement(availableLocations.First());
+        var result = game.PlaceVillage(availableLocations.First());
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -433,8 +433,8 @@ public sealed class GameTests
         var resources = new Dictionary<ResourceType, int>
         {
             { ResourceType.Wood, 10 },
-            { ResourceType.Brick, 10 },
-            { ResourceType.Sheep, 5 }
+            { ResourceType.Clay, 10 },
+            { ResourceType.Animal, 5 }
         };
 
         // Act
@@ -482,8 +482,8 @@ public sealed class GameTests
         var resources = new Dictionary<ResourceType, int>
         {
             { ResourceType.Wood, 10 },
-            { ResourceType.Brick, 10 },
-            { ResourceType.Sheep, 5 }
+            { ResourceType.Clay, 10 },
+            { ResourceType.Animal, 5 }
         };
 
         // Act
@@ -495,11 +495,11 @@ public sealed class GameTests
         Assert.True(result.IsSuccess);
         Assert.Equal(0, game.CurrentPlayer.CardsToDiscard);
         Assert.Equal(playerResources[ResourceType.Wood] - resources[ResourceType.Wood], newPlayerResources[ResourceType.Wood]);
-        Assert.Equal(playerResources[ResourceType.Brick] - resources[ResourceType.Brick], newPlayerResources[ResourceType.Brick]);
-        Assert.Equal(playerResources[ResourceType.Sheep] - resources[ResourceType.Sheep], newPlayerResources[ResourceType.Sheep]);
+        Assert.Equal(playerResources[ResourceType.Clay] - resources[ResourceType.Clay], newPlayerResources[ResourceType.Clay]);
+        Assert.Equal(playerResources[ResourceType.Animal] - resources[ResourceType.Animal], newPlayerResources[ResourceType.Animal]);
         Assert.Equal(bankResources[ResourceType.Wood] + resources[ResourceType.Wood], newBankResources[ResourceType.Wood]);
-        Assert.Equal(bankResources[ResourceType.Brick] + resources[ResourceType.Brick], newBankResources[ResourceType.Brick]);
-        Assert.Equal(bankResources[ResourceType.Sheep] + resources[ResourceType.Sheep], newBankResources[ResourceType.Sheep]);
+        Assert.Equal(bankResources[ResourceType.Clay] + resources[ResourceType.Clay], newBankResources[ResourceType.Clay]);
+        Assert.Equal(bankResources[ResourceType.Animal] + resources[ResourceType.Animal], newBankResources[ResourceType.Animal]);
     }
 
     [Fact]
@@ -517,8 +517,8 @@ public sealed class GameTests
         var resources = new Dictionary<ResourceType, int>
         {
             { ResourceType.Wood, 10 },
-            { ResourceType.Brick, 10 },
-            { ResourceType.Sheep, 5 }
+            { ResourceType.Clay, 10 },
+            { ResourceType.Animal, 5 }
         };
 
         // Act
@@ -544,8 +544,8 @@ public sealed class GameTests
         var resources = new Dictionary<ResourceType, int>
         {
             { ResourceType.Wood, 10 },
-            { ResourceType.Brick, 10 },
-            { ResourceType.Sheep, 5 }
+            { ResourceType.Clay, 10 },
+            { ResourceType.Animal, 5 }
         };
 
         // Act
@@ -599,26 +599,26 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void EndTurn_Should_ResetDevelopmentCardPlayed()
+    public void EndTurn_Should_ResetGrowthCardPlayed()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
             HasRolled = true,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
-        game.PlayMonopolyCard(ResourceType.Wood);
+        game.PlayGathererCard(ResourceType.Wood);
 
-        Assert.True(game.DevelopmentCardPlayed);
+        Assert.True(game.GrowthCardPlayed);
 
         // Act
         var result = game.EndTurn();
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.False(game.DevelopmentCardPlayed);
+        Assert.False(game.GrowthCardPlayed);
     }
 
     [Fact]
@@ -675,87 +675,87 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void PlayKnightCard_Should_ReturnFailure_WhenInIncorrectState()
+    public void PlaySoldierCard_Should_ReturnFailure_WhenInIncorrectState()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = true,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayKnightCard();
+        var result = game.PlaySoldierCard();
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlayKnightCard_Should_ReturnFailure_WhenPlayerHasNoKnightCards()
+    public void PlaySoldierCard_Should_ReturnFailure_WhenPlayerHasNoSoldierCards()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = false
+            GivePlayersGrowthCards = false
         };
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayKnightCard();
+        var result = game.PlaySoldierCard();
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlayKnightCard_Should_ReturnFailure_WhenPlayerHasAlreadyPlayedDevelopmentCard()
+    public void PlaySoldierCard_Should_ReturnFailure_WhenPlayerHasAlreadyPlayedGrowthCard()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
-        game.PlayMonopolyCard(ResourceType.Wood);
+        game.PlayGathererCard(ResourceType.Wood);
 
         // Act
-        var result = game.PlayKnightCard();
+        var result = game.PlaySoldierCard();
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlayKnightCard_Should_StopMoreDevelopmentCardsBeingPlayedThisTurn()
+    public void PlaySoldierCard_Should_StopMoreGrowthCardsBeingPlayedThisTurn()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayKnightCard();
+        var result = game.PlaySoldierCard();
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.True(game.DevelopmentCardPlayed);
+        Assert.True(game.GrowthCardPlayed);
     }
 
     [Fact]
-    public void PlayKnightCard_Should_SetWinner_IfPlayerNeedsOnePoint_AndGetsLargestArmy()
+    public void PlaySoldierCard_Should_SetWinner_IfPlayerNeedsOnePoint_AndGetsLargestArmy()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = true,
+            GivePlayersGrowthCards = true,
             PlayersVisiblePoints = 9,
             PlayersHiddenPoints = 0,
             PrepareLargestArmy = true
@@ -765,7 +765,7 @@ public sealed class GameTests
         Assert.Null(game.PlayerManager.WinningPlayer);
 
         // Act
-        var result = game.PlayKnightCard();
+        var result = game.PlaySoldierCard();
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -775,87 +775,87 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void PlayMonopolyCard_Should_ReturnFailure_WhenInIncorrectState()
+    public void PlayGathererCard_Should_ReturnFailure_WhenInIncorrectState()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = true,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayMonopolyCard(ResourceType.Wood);
+        var result = game.PlayGathererCard(ResourceType.Wood);
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlayMonopolyCard_Should_ReturnFailure_WhenPlayerHasNoMonopolyCards()
+    public void PlayGathererCard_Should_ReturnFailure_WhenPlayerHasNoGathererCards()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = false
+            GivePlayersGrowthCards = false
         };
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayMonopolyCard(ResourceType.Wood);
+        var result = game.PlayGathererCard(ResourceType.Wood);
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlayMonopolyCard_Should_ReturnFailure_WhenPlayerHasAlreadyPlayedDevelopmentCard()
+    public void PlayGathererCard_Should_ReturnFailure_WhenPlayerHasAlreadyPlayedGrowthCard()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
-        game.PlayMonopolyCard(ResourceType.Wood);
+        game.PlayGathererCard(ResourceType.Wood);
 
         // Act
-        var result = game.PlayMonopolyCard(ResourceType.Wood);
+        var result = game.PlayGathererCard(ResourceType.Wood);
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlayMonopolyCard_Should_StopMoreDevelopmentCardsBeingPlayedThisTurn()
+    public void PlayGathererCard_Should_StopMoreGrowthCardsBeingPlayedThisTurn()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayMonopolyCard(ResourceType.Wood);
+        var result = game.PlayGathererCard(ResourceType.Wood);
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.True(game.DevelopmentCardPlayed);
+        Assert.True(game.GrowthCardPlayed);
     }
 
     [Fact]
-    public void PlayMonopolyCard_Should_GivePlayerResources()
+    public void PlayGathererCard_Should_GivePlayerResources()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
         var player = game.CurrentPlayer;
@@ -867,7 +867,7 @@ public sealed class GameTests
             .Sum(p => p.CountResourceCard(ResourceType.Wood));
 
         // Act
-        var result = game.PlayMonopolyCard(ResourceType.Wood);
+        var result = game.PlayGathererCard(ResourceType.Wood);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -876,174 +876,174 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void PlayRoadBuildingCard_Should_ReturnFailure_WhenInIncorrectState()
+    public void PlayRoamingCard_Should_ReturnFailure_WhenInIncorrectState()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = true,
-            GivePlayersDevelopmentCards = true,
+            GivePlayersGrowthCards = true,
         };
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayRoadBuildingCard();
+        var result = game.PlayRoamingCard();
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlayRoadBuildingCard_Should_ReturnFailure_WhenPlayerHasNoRoadBuildingCards()
+    public void PlayRoamingCard_Should_ReturnFailure_WhenPlayerHasNoRoamingCards()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = false
+            GivePlayersGrowthCards = false
         };
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayRoadBuildingCard();
+        var result = game.PlayRoamingCard();
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlayRoadBuildingCard_Should_ReturnFailure_WhenPlayerHasAlreadyPlayedDevelopmentCard()
+    public void PlayRoamingCard_Should_ReturnFailure_WhenPlayerHasAlreadyPlayedGrowthCard()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
-        game.PlayMonopolyCard(ResourceType.Wood);
+        game.PlayGathererCard(ResourceType.Wood);
 
         // Act
-        var result = game.PlayRoadBuildingCard();
+        var result = game.PlayRoamingCard();
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlayRoadBuildingCard_Should_StopMoreDevelopmentCardsBeingPlayedThisTurn()
+    public void PlayRoamingCard_Should_StopMoreGrowthCardsBeingPlayedThisTurn()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayRoadBuildingCard();
+        var result = game.PlayRoamingCard();
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.True(game.DevelopmentCardPlayed);
+        Assert.True(game.GrowthCardPlayed);
     }
 
     [Fact]
-    public void PlayYearOfPlentyCard_Should_ReturnFailure_WhenInIncorrectState()
+    public void PlayWealthCard_Should_ReturnFailure_WhenInIncorrectState()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = true,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayYearOfPlentyCard(ResourceType.Wood, ResourceType.Brick);
+        var result = game.PlayWealthCard(ResourceType.Wood, ResourceType.Clay);
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlayYearOfPlentyCard_Should_ReturnFailure_WhenPlayerHasNoYearOfPlentyCards()
+    public void PlayWealthCard_Should_ReturnFailure_WhenPlayerHasNoWealthCards()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = false
+            GivePlayersGrowthCards = false
         };
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayYearOfPlentyCard(ResourceType.Wood, ResourceType.Brick);
+        var result = game.PlayWealthCard(ResourceType.Wood, ResourceType.Clay);
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlayYearOfPlentyCard_Should_ReturnFailure_WhenPlayerHasAlreadyPlayedDevelopmentCard()
+    public void PlayWealthCard_Should_ReturnFailure_WhenPlayerHasAlreadyPlayedGrowthCard()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
-        game.PlayYearOfPlentyCard(ResourceType.Wood, ResourceType.Brick);
+        game.PlayWealthCard(ResourceType.Wood, ResourceType.Clay);
 
         // Act
-        var result = game.PlayYearOfPlentyCard(ResourceType.Wood, ResourceType.Brick);
+        var result = game.PlayWealthCard(ResourceType.Wood, ResourceType.Clay);
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void PlayYearOfPlentyCard_Should_StopMoreDevelopmentCardsBeingPlayedThisTurn()
+    public void PlayWealthCard_Should_StopMoreGrowthCardsBeingPlayedThisTurn()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlayYearOfPlentyCard(ResourceType.Wood, ResourceType.Brick);
+        var result = game.PlayWealthCard(ResourceType.Wood, ResourceType.Clay);
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.True(game.DevelopmentCardPlayed);
+        Assert.True(game.GrowthCardPlayed);
     }
 
     [Fact]
-    public void PlayYearOfPlentyCard_Should_GivePlayerResources()
+    public void PlayWealthCard_Should_GivePlayerResources()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
-            GivePlayersDevelopmentCards = true
+            GivePlayersGrowthCards = true
         };
         var game = GameFactory.Create(gameOptions);
         var player = game.CurrentPlayer;
         var initialPlayerWood = player.CountResourceCard(ResourceType.Wood);
-        var initialPlayerBrick = player.CountResourceCard(ResourceType.Brick);
+        var initialPlayerClay = player.CountResourceCard(ResourceType.Clay);
 
         // Act
-        var result = game.PlayYearOfPlentyCard(ResourceType.Wood, ResourceType.Brick);
+        var result = game.PlayWealthCard(ResourceType.Wood, ResourceType.Clay);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(initialPlayerWood + 1, player.CountResourceCard(ResourceType.Wood));
-        Assert.Equal(initialPlayerBrick + 1, player.CountResourceCard(ResourceType.Brick));
+        Assert.Equal(initialPlayerClay + 1, player.CountResourceCard(ResourceType.Clay));
     }
 
     [Fact]
@@ -1113,8 +1113,8 @@ public sealed class GameTests
 
                 var resourceCount = house.Type switch
                 {
-                    BuildingType.Settlement => 1,
-                    BuildingType.City => 2,
+                    BuildingType.Village => 1,
+                    BuildingType.Town => 2,
                     _ => 0
                 };
 
@@ -1149,7 +1149,7 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void DistributeResources_Should_NotGiveResources_ToHousesOnTileWithRobber()
+    public void DistributeResources_Should_NotGiveResources_ToHousesOnTileWithThief()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -1173,15 +1173,15 @@ public sealed class GameTests
             return;
         }
 
-        game.Board.MoveRobberToPoint(tilesWithNumber.First());
+        game.Board.MoveThiefToPoint(tilesWithNumber.First());
 
-        var robberPoint = game.Board.RobberPosition;
+        var thiefPoint = game.Board.ThiefPosition;
 
         var playerResourcesGained = new Dictionary<PlayerColour, Dictionary<ResourceType, int>>();
 
         foreach (var point in tilesWithNumber)
         {
-            if (point == robberPoint)
+            if (point == thiefPoint)
             {
                 continue;
             }
@@ -1194,8 +1194,8 @@ public sealed class GameTests
 
                 var resourceCount = house.Type switch
                 {
-                    BuildingType.Settlement => 1,
-                    BuildingType.City => 2,
+                    BuildingType.Village => 1,
+                    BuildingType.Town => 2,
                     _ => 0
                 };
 

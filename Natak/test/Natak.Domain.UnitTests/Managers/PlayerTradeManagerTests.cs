@@ -28,10 +28,10 @@ public sealed class PlayerTradeManagerTests
         player.AddResourceCards(
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 1 },
+                { ResourceType.Clay, 1 },
                 { ResourceType.Wood, 1 },
-                { ResourceType.Ore, 1 },
-                { ResourceType.Wheat, 1 }
+                { ResourceType.Metal, 1 },
+                { ResourceType.Food, 1 }
             }
         );
 
@@ -40,13 +40,13 @@ public sealed class PlayerTradeManagerTests
             player,
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 1 },
+                { ResourceType.Clay, 1 },
                 { ResourceType.Wood, 1 }
             },
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Ore, 1 },
-                { ResourceType.Wheat, 1 }
+                { ResourceType.Metal, 1 },
+                { ResourceType.Food, 1 }
             }
         );
 
@@ -64,9 +64,9 @@ public sealed class PlayerTradeManagerTests
         player.AddResourceCards(
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 1 },
-                { ResourceType.Ore, 1 },
-                { ResourceType.Wheat, 1 }
+                { ResourceType.Clay, 1 },
+                { ResourceType.Metal, 1 },
+                { ResourceType.Food, 1 }
             }
         );
 
@@ -75,13 +75,13 @@ public sealed class PlayerTradeManagerTests
             player,
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 2 },
+                { ResourceType.Clay, 2 },
                 { ResourceType.Wood, 1 }
             },
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Ore, 1 },
-                { ResourceType.Wheat, 1 }
+                { ResourceType.Metal, 1 },
+                { ResourceType.Food, 1 }
             }
         );
 
@@ -99,10 +99,10 @@ public sealed class PlayerTradeManagerTests
         player.AddResourceCards(
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 1 },
+                { ResourceType.Clay, 1 },
                 { ResourceType.Wood, 1 },
-                { ResourceType.Ore, 1 },
-                { ResourceType.Wheat, 1 }
+                { ResourceType.Metal, 1 },
+                { ResourceType.Food, 1 }
             }
         );
 
@@ -114,13 +114,13 @@ public sealed class PlayerTradeManagerTests
             player,
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 1 },
+                { ResourceType.Clay, 1 },
                 { ResourceType.Wood, 1 }
             },
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Ore, 1 },
-                { ResourceType.Wheat, 1 }
+                { ResourceType.Metal, 1 },
+                { ResourceType.Food, 1 }
             }
         );
 
@@ -232,11 +232,11 @@ public sealed class PlayerTradeManagerTests
         acceptingPlayer.AddResourceCards(
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 10 },
+                { ResourceType.Clay, 10 },
                 { ResourceType.Wood, 10 },
-                { ResourceType.Sheep, 10 },
-                { ResourceType.Ore, 10 },
-                { ResourceType.Wheat, 10 }
+                { ResourceType.Animal, 10 },
+                { ResourceType.Metal, 10 },
+                { ResourceType.Food, 10 }
             }
         );
 
@@ -288,11 +288,11 @@ public sealed class PlayerTradeManagerTests
         acceptingPlayer.AddResourceCards(
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 10 },
+                { ResourceType.Clay, 10 },
                 { ResourceType.Wood, 10 },
-                { ResourceType.Sheep, 10 },
-                { ResourceType.Ore, 10 },
-                { ResourceType.Wheat, 10 }
+                { ResourceType.Animal, 10 },
+                { ResourceType.Metal, 10 },
+                { ResourceType.Food, 10 }
             }
         );
         SetupTrade(playerTradeManager);
@@ -316,11 +316,11 @@ public sealed class PlayerTradeManagerTests
         acceptingPlayer.AddResourceCards(
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 10 },
+                { ResourceType.Clay, 10 },
                 { ResourceType.Wood, 10 },
-                { ResourceType.Sheep, 10 },
-                { ResourceType.Ore, 10 },
-                { ResourceType.Wheat, 10 }
+                { ResourceType.Animal, 10 },
+                { ResourceType.Metal, 10 },
+                { ResourceType.Food, 10 }
             }
         );
 
@@ -331,10 +331,10 @@ public sealed class PlayerTradeManagerTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.Equal(0, player.CountResourceCard(ResourceType.Brick));
+        Assert.Equal(0, player.CountResourceCard(ResourceType.Clay));
         Assert.Equal(0, player.CountResourceCard(ResourceType.Wood));
-        Assert.Equal(9, acceptingPlayer.CountResourceCard(ResourceType.Ore));
-        Assert.Equal(9, acceptingPlayer.CountResourceCard(ResourceType.Wheat));
+        Assert.Equal(9, acceptingPlayer.CountResourceCard(ResourceType.Metal));
+        Assert.Equal(9, acceptingPlayer.CountResourceCard(ResourceType.Food));
     }
 
     [Fact]
@@ -347,11 +347,11 @@ public sealed class PlayerTradeManagerTests
         acceptingPlayer.AddResourceCards(
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 10 },
+                { ResourceType.Clay, 10 },
                 { ResourceType.Wood, 10 },
-                { ResourceType.Sheep, 10 },
-                { ResourceType.Ore, 10 },
-                { ResourceType.Wheat, 10 }
+                { ResourceType.Animal, 10 },
+                { ResourceType.Metal, 10 },
+                { ResourceType.Food, 10 }
             }
         );
 
@@ -445,10 +445,10 @@ public sealed class PlayerTradeManagerTests
         player.AddResourceCards(
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 1 },
+                { ResourceType.Clay, 1 },
                 { ResourceType.Wood, 1 },
-                { ResourceType.Ore, 1 },
-                { ResourceType.Wheat, 1 }
+                { ResourceType.Metal, 1 },
+                { ResourceType.Food, 1 }
             }
         );
 
@@ -460,13 +460,13 @@ public sealed class PlayerTradeManagerTests
             player,
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 1 },
+                { ResourceType.Clay, 1 },
                 { ResourceType.Wood, 1 }
             },
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Ore, 1 },
-                { ResourceType.Wheat, 1 }
+                { ResourceType.Metal, 1 },
+                { ResourceType.Food, 1 }
             }
         );
 
@@ -481,10 +481,10 @@ public sealed class PlayerTradeManagerTests
         player.AddResourceCards(
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 1 },
+                { ResourceType.Clay, 1 },
                 { ResourceType.Wood, 1 },
-                { ResourceType.Ore, 1 },
-                { ResourceType.Wheat, 1 }
+                { ResourceType.Metal, 1 },
+                { ResourceType.Food, 1 }
             }
         );
 
@@ -492,13 +492,13 @@ public sealed class PlayerTradeManagerTests
             player,
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Brick, 1 },
+                { ResourceType.Clay, 1 },
                 { ResourceType.Wood, 1 }
             },
             new Dictionary<ResourceType, int>
             {
-                { ResourceType.Ore, 1 },
-                { ResourceType.Wheat, 1 }
+                { ResourceType.Metal, 1 },
+                { ResourceType.Food, 1 }
             }
         );
     }

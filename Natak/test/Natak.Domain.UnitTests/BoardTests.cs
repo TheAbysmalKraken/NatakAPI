@@ -40,11 +40,11 @@ public sealed class BoardTests
         }
 
         Assert.Equal(0, resourceCounts[ResourceType.Wood]);
-        Assert.Equal(0, resourceCounts[ResourceType.Brick]);
-        Assert.Equal(0, resourceCounts[ResourceType.Sheep]);
-        Assert.Equal(0, resourceCounts[ResourceType.Wheat]);
-        Assert.Equal(0, resourceCounts[ResourceType.Ore]);
-        Assert.Equal(0, resourceCounts[ResourceType.Desert]);
+        Assert.Equal(0, resourceCounts[ResourceType.Clay]);
+        Assert.Equal(0, resourceCounts[ResourceType.Animal]);
+        Assert.Equal(0, resourceCounts[ResourceType.Food]);
+        Assert.Equal(0, resourceCounts[ResourceType.Metal]);
+        Assert.Equal(0, resourceCounts[ResourceType.None]);
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public sealed class BoardTests
     }
 
     [Fact]
-    public void CreateBoard_EmptySettlementsAndCitiesAreNull()
+    public void CreateBoard_EmptyVillagesAndCitiesAreNull()
     {
         // Act
         var board = new Board();
@@ -227,10 +227,10 @@ public sealed class BoardTests
         }
 
         Assert.Equal(0, remainingPortTypeTotals[PortType.Wood]);
-        Assert.Equal(0, remainingPortTypeTotals[PortType.Brick]);
-        Assert.Equal(0, remainingPortTypeTotals[PortType.Sheep]);
-        Assert.Equal(0, remainingPortTypeTotals[PortType.Wheat]);
-        Assert.Equal(0, remainingPortTypeTotals[PortType.Ore]);
+        Assert.Equal(0, remainingPortTypeTotals[PortType.Clay]);
+        Assert.Equal(0, remainingPortTypeTotals[PortType.Animal]);
+        Assert.Equal(0, remainingPortTypeTotals[PortType.Food]);
+        Assert.Equal(0, remainingPortTypeTotals[PortType.Metal]);
         Assert.Equal(0, remainingPortTypeTotals[PortType.ThreeToOne]);
     }
 
@@ -478,7 +478,7 @@ public sealed class BoardTests
     }
 
     [Fact]
-    public void CanUpgradeHouseAtPoint_HouseIsAlreadyACity_ReturnsFailure()
+    public void CanUpgradeHouseAtPoint_HouseIsAlreadyATown_ReturnsFailure()
     {
         // Arrange
         var board = new Board();
@@ -513,20 +513,20 @@ public sealed class BoardTests
     }
 
     [Fact]
-    public void CanMoveRobberToPoint_RobberAlreadyAtPoint_ReturnsFailure()
+    public void CanMoveThiefToPoint_ThiefAlreadyAtPoint_ReturnsFailure()
     {
         // Arrange
         var board = new Board();
-        var robberPosition = board.RobberPosition;
+        var thiefPosition = board.ThiefPosition;
         var initialPoint = new Point(1, 1);
 
-        if (!robberPosition.Equals(initialPoint))
+        if (!thiefPosition.Equals(initialPoint))
         {
-            board.MoveRobberToPoint(initialPoint);
+            board.MoveThiefToPoint(initialPoint);
         }
 
         // Act
-        var result = board.CanMoveRobberToPoint(initialPoint);
+        var result = board.CanMoveThiefToPoint(initialPoint);
 
         // Assert
         Assert.True(result.IsFailure);
@@ -538,7 +538,7 @@ public sealed class BoardTests
     [InlineData(0, 5)]
     [InlineData(5, 0)]
     [InlineData(5, 5)]
-    public void CanMoveRobberToPoint_PointIsInvalid_ReturnsFailure(int x, int y)
+    public void CanMoveThiefToPoint_PointIsInvalid_ReturnsFailure(int x, int y)
     {
         // Arrange
         var board = new Board();
@@ -546,28 +546,28 @@ public sealed class BoardTests
         var point = new Point(x, y);
 
         // Act
-        var result = board.CanMoveRobberToPoint(point);
+        var result = board.CanMoveThiefToPoint(point);
 
         // Assert
         Assert.True(result.IsFailure);
     }
 
     [Fact]
-    public void CanMoveRobberToPoint_ReturnsSuccess()
+    public void CanMoveThiefToPoint_ReturnsSuccess()
     {
         // Arrange
         var board = new Board();
         var initialPoint = new Point(1, 1);
 
-        if (!board.RobberPosition.Equals(initialPoint))
+        if (!board.ThiefPosition.Equals(initialPoint))
         {
-            board.MoveRobberToPoint(initialPoint);
+            board.MoveThiefToPoint(initialPoint);
         }
 
         var newPoint = new Point(1, 2);
 
         // Act
-        var result = board.CanMoveRobberToPoint(newPoint);
+        var result = board.CanMoveThiefToPoint(newPoint);
 
         // Assert
         Assert.True(result.IsSuccess);

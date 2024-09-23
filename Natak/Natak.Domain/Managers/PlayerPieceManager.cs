@@ -6,7 +6,7 @@ public sealed class PlayerPieceManager : ItemManager<BuildingType>
 {
     public int Roads => items[BuildingType.Road];
 
-    public int Settlements => items[BuildingType.Settlement];
+    public int Villages => items[BuildingType.Village];
 
-    public int Cities => items[BuildingType.City];
+    public int Cities => items[BuildingType.Town];
 }

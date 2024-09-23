@@ -27,11 +27,11 @@ public class Building
 
     public void SetTypeToHouse()
     {
-        Type = BuildingType.Settlement;
+        Type = BuildingType.Village;
     }
 
-    public void SetTypeToCity()
+    public void SetTypeToTown()
     {
-        Type = BuildingType.City;
+        Type = BuildingType.Town;
     }
 }

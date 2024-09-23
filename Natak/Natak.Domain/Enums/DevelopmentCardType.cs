@@ -1,10 +1,10 @@
 ﻿namespace Natak.Domain.Enums;
 
-public enum DevelopmentCardType
+public enum GrowthCardType
 {
-    Knight,
-    RoadBuilding,
-    YearOfPlenty,
-    Monopoly,
+    Soldier,
+    Roaming,
+    Wealth,
+    Gatherer,
     VictoryPoint
 }
