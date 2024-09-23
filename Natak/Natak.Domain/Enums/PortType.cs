@@ -1,0 +1,11 @@
+﻿namespace Natak.Domain.Enums;
+
+public enum PortType
+{
+    ThreeToOne,
+    Wood,
+    Brick,
+    Sheep,
+    Wheat,
+    Ore
+}

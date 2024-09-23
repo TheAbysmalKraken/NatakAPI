@@ -1,0 +1,9 @@
+﻿namespace Natak.Domain.Enums;
+
+public enum BuildingType
+{
+    None,
+    Road,
+    Settlement,
+    City
+}
