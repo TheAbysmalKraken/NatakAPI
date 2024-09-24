@@ -1,12 +1,10 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: Natak API CI/CD
+name: Natak API - Build and Deploy
 
 on:
   push:
-    branches: ["main", "dev"]
-  pull_request:
     branches: ["main", "dev"]
 
 env:
@@ -16,7 +14,6 @@ env:
 
 jobs:
   build-and-test:
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     defaults:
@@ -46,7 +43,6 @@ jobs:
         run: dotnet test --verbosity normal
 
   publish:
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     defaults:
@@ -83,7 +79,6 @@ jobs:
 
   deploy:
     needs: publish
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
@@ -108,7 +103,7 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.AZURE_DEV_WEB_APP_NAME }}
-          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.AZURE_DEV_PUBLISH_PROFILE }}
           package: ${{ env.ARTIFACT_PATH }}
 
       - name: Deploy to prod
@@ -116,7 +111,7 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.AZURE_PROD_WEB_APP_NAME }}
-          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.AZURE_PROD_PUBLISH_PROFILE }}
           package: ${{ env.ARTIFACT_PATH }}
 
       - name: Logout
