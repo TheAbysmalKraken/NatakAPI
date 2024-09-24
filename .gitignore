@@ -396,5 +396,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-Catan/Catan.API/appsettings.Development.json
-Catan/Catan.API/appsettings.json
+Natak/Natak.API/appsettings.Development.json
+Natak/Natak.API/appsettings.json
