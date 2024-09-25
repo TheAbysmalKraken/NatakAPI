@@ -144,9 +144,9 @@ internal static class GameFactory
 
             var existingRoads = player.PieceManager.Roads;
             var existingVillages = player.PieceManager.Villages;
-            var existingCities = player.PieceManager.Cities;
+            var existingTowns = player.PieceManager.Towns;
 
-            piecesLeftToRemove = existingRoads + existingVillages + existingCities > 0;
+            piecesLeftToRemove = existingRoads + existingVillages + existingTowns > 0;
         }
         while (piecesLeftToRemove);
     }

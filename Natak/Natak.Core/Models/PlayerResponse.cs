@@ -29,8 +29,8 @@ public class PlayerResponse
     [JsonPropertyName("remainingVillages")]
     public required int RemainingVillages { get; init; }
 
-    [JsonPropertyName("remainingCities")]
-    public required int RemainingCities { get; init; }
+    [JsonPropertyName("remainingTowns")]
+    public required int RemainingTowns { get; init; }
 
     [JsonPropertyName("remainingRoads")]
     public required int RemainingRoads { get; init; }
@@ -54,7 +54,7 @@ public class PlayerResponse
             HasLargestArmy = player.ScoreManager.HasLargestArmy,
             HasLongestRoad = player.ScoreManager.HasLongestRoad,
             RemainingVillages = player.PieceManager.Villages,
-            RemainingCities = player.PieceManager.Cities,
+            RemainingTowns = player.PieceManager.Towns,
             RemainingRoads = player.PieceManager.Roads,
             CardsToDiscard = player.CardsToDiscard
         };
