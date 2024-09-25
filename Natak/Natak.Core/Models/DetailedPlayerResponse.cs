@@ -43,7 +43,7 @@ public sealed class DetailedPlayerResponse : PlayerResponse
             TotalGrowthCards = baseResponse.TotalGrowthCards,
             HasLargestArmy = baseResponse.HasLargestArmy,
             HasLongestRoad = baseResponse.HasLongestRoad,
-            RemainingCities = baseResponse.RemainingCities,
+            RemainingTowns = baseResponse.RemainingTowns,
             RemainingRoads = baseResponse.RemainingRoads,
             RemainingVillages = baseResponse.RemainingVillages,
             CardsToDiscard = baseResponse.CardsToDiscard

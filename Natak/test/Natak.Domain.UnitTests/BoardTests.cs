@@ -82,7 +82,7 @@ public sealed class BoardTests
     }
 
     [Fact]
-    public void CreateBoard_EmptyVillagesAndCitiesAreNull()
+    public void CreateBoard_EmptyVillagesAndTownsAreNull()
     {
         // Act
         var board = new Board();

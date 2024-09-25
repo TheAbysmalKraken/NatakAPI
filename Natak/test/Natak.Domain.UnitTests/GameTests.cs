@@ -57,15 +57,15 @@ public sealed class GameTests
         };
         var game = GameFactory.Create(gameOptions);
         var availableLocations = game.GetAvailableTownLocations().Value;
-        var existingCities = game.CurrentPlayer.PieceManager.Cities;
+        var existingTowns = game.CurrentPlayer.PieceManager.Towns;
 
         // Act
         var result = game.PlaceTown(availableLocations.First());
 
         // Assert
-        var newCities = game.CurrentPlayer.PieceManager.Cities;
+        var newTowns = game.CurrentPlayer.PieceManager.Towns;
         Assert.True(result.IsSuccess);
-        Assert.Equal(existingCities - 1, newCities);
+        Assert.Equal(existingTowns - 1, newTowns);
     }
 
     [Fact]

@@ -15,8 +15,8 @@ public sealed class BoardResponse
     [JsonPropertyName("villages")]
     public required List<BuildingResponse> Villages { get; init; }
 
-    [JsonPropertyName("cities")]
-    public required List<BuildingResponse> Cities { get; init; }
+    [JsonPropertyName("towns")]
+    public required List<BuildingResponse> Towns { get; init; }
 
     [JsonPropertyName("ports")]
     public required List<PortResponse> Ports { get; init; }
@@ -28,7 +28,7 @@ public sealed class BoardResponse
             Hexes = [],
             Roads = board.GetRoads().Select(RoadResponse.FromDomain).ToList(),
             Villages = [],
-            Cities = [],
+            Towns = [],
             Ports = board.GetPorts().Select(PortResponse.FromDomain).ToList()
         };
 
@@ -59,7 +59,7 @@ public sealed class BoardResponse
                     }
                     else if (house.Type == BuildingType.Town)
                     {
-                        boardStatusResponse.Cities.Add(BuildingResponse.FromDomain(house, point));
+                        boardStatusResponse.Towns.Add(BuildingResponse.FromDomain(house, point));
                     }
                 }
             }

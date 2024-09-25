@@ -518,43 +518,6 @@ public sealed class Game
         return Result.Success();
     }
 
-    private Result PlaceRoamingRoads(
-        Point firstRoadFirstPoint,
-        Point firstRoadSecondPoint,
-        Point secondRoadFirstPoint,
-        Point secondRoadSecondPoint)
-    {
-        var firstRoadResult = PlaceRoamingRoad(firstRoadFirstPoint, firstRoadSecondPoint);
-
-        if (firstRoadResult.IsFailure)
-        {
-            return firstRoadResult;
-        }
-
-        return PlaceRoamingRoad(secondRoadFirstPoint, secondRoadSecondPoint);
-    }
-
-    private Result PlaceRoamingRoad(
-        Point firstPoint,
-        Point secondPoint)
-    {
-        var playerPieceResult = CurrentPlayer.RemovePiece(BuildingType.Road);
-
-        if (playerPieceResult.IsFailure)
-        {
-            return playerPieceResult;
-        }
-
-        var placeResult = Board.PlaceRoad(firstPoint, secondPoint, CurrentPlayerColour, IsSetup);
-
-        if (placeResult.IsFailure)
-        {
-            return placeResult;
-        }
-
-        return Result.Success();
-    }
-
     private void DistributeResourcesOnTilePoint(Point tilePoint)
     {
         if (tilePoint.Equals(Board.ThiefPosition))
