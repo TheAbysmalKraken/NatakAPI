@@ -465,7 +465,7 @@ public sealed class Game
         return Result.Success();
     }
 
-    public Result StealResourceFromPlayer(PlayerColour player)
+    public Result StealResourceFromPlayer(PlayerColour playerColour)
     {
         var moveStateResult = MoveState(ActionType.StealResource);
 
@@ -474,7 +474,15 @@ public sealed class Game
             return moveStateResult;
         }
 
-        return PlayerManager.StealFromPlayer(CurrentPlayerColour, player);
+        var thiefPosition = Board.ThiefPosition;
+        var playerColoursToStealFrom = Board.GetHouseColoursOnTile(thiefPosition);
+
+        if (!playerColoursToStealFrom.Contains(playerColour))
+        {
+            return Result.Failure(GameErrors.PlayerToStealFromDoesNotHaveHouseOnTile);
+        }
+
+        return PlayerManager.StealFromPlayer(CurrentPlayerColour, playerColour);
     }
 
     public Result TradeWithBank(
