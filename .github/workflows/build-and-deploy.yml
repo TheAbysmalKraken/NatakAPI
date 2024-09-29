@@ -72,7 +72,7 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
-          platforms: linux/amd64,linux/arm/v7
+          platforms: linux/arm/v7
 
   deploy:
     needs: publish
