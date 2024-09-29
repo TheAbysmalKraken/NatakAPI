@@ -5,5 +5,5 @@ RUN dotnet publish Natak/Natak.API/Natak.API.csproj -c Release -o publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=build publish .
+COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "Natak.API.dll"]
