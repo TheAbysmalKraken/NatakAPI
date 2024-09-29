@@ -11,7 +11,7 @@ env:
   AZURE_WEBAPP_PACKAGE_PATH: "publish"
   ARTIFACT_NAME: "publish-artifact"
   ARTIFACT_PATH: "./artifact"
-  IMAGE_NAME: "${{ secrets.DOCKER_USERNAME }}/natak-api"
+  IMAGE_NAME: "natak-api"
   TAG: "${{ github.ref == 'refs/head/main' && 'latest' || 'dev' }}"
 
 jobs:
@@ -56,21 +56,22 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
   
       - name: Log in to DockerHub
-        uses: docker/login-action@v1 
+        uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-  
-      - name: Build and push Docker image
-        run: |
-          docker buildx build --platform linux/arm/v7 -t $IMAGE_NAME:$TAG .
-          docker push $IMAGE_NAME:$TAG
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$TAG
 
   deploy:
     needs: publish
@@ -80,10 +81,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Deploy to Raspberry Pi
-        uses: appleboy/ssh-action@v0.1.5
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.RASPBERRY_PI_IP }}
-          username: ${{ secrets.RASPBERRY_PI_USER }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd NatakAPI
