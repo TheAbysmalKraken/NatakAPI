@@ -6,7 +6,7 @@ COPY --link Natak/*.csproj .
 RUN dotnet restore -a $TARGETARCH
 
 COPY --link Natak/. .
-RUN dotnet publish -a $TARGETARCH -c Release -o /publish --no-restore --self-contained
+RUN dotnet publish Natak.API -a $TARGETARCH -c Release -o /publish --no-restore --self-contained
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
