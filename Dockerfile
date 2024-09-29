@@ -1,9 +1,11 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG TARGETARCH
 WORKDIR /app
 COPY . .
-RUN dotnet publish Natak/Natak.API --runtime linux-arm -c Release -o publish --self-contained
+RUN dotnet restore Natak -a $TARGETARCH
+RUN dotnet publish Natak/Natak.API -a $TARGETARCH -c Release -o publish --self-contained --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --link --from=build publish .
+COPY --from=build /publish .
 ENTRYPOINT ["./Natak.API"]
