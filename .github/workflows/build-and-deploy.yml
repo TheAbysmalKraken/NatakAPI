@@ -48,6 +48,15 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm/v7]
+        include:
+          - platform: linux/amd64
+            runtime: linux-x64
+          - platform: linux/arm/v7
+            runtime: linux-arm
+
     defaults:
       run:
         working-directory: ./Natak
@@ -72,7 +81,7 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
-          platforms: linux/arm/v7
+          platforms: ${{ matrix.platform }}
 
   deploy:
     needs: publish
