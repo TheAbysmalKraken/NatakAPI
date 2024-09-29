@@ -51,10 +51,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - linux/amd64
-          - linux/arm/v7
-          - linux/arm64
+        platform: [linux/amd64, linux/arm/v7, linux/arm64]
+        include:
+          - platform: linux/amd64
+            runtime: linux-x64
+          - platform: linux/arm/v7
+            runtime: linux-arm
+          - platform: linux/arm64
+            runtime: linux-arm64
 
     defaults:
       run:
