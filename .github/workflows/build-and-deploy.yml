@@ -72,7 +72,7 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
-          platforms: linux/arm/v7
+          platforms: linux/arm/v7,linux/arm64,linux/amd64
 
   deploy:
     needs: publish
@@ -89,5 +89,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd NatakAPI
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$TAG
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
             docker-compose -f ~/compose.yml up -d
