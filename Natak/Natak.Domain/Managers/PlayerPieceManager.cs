@@ -8,5 +8,5 @@ public sealed class PlayerPieceManager : ItemManager<BuildingType>
 
     public int Villages => items[BuildingType.Village];
 
-    public int Cities => items[BuildingType.Town];
+    public int Towns => items[BuildingType.Town];
 }

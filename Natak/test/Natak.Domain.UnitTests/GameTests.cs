@@ -57,15 +57,15 @@ public sealed class GameTests
         };
         var game = GameFactory.Create(gameOptions);
         var availableLocations = game.GetAvailableTownLocations().Value;
-        var existingCities = game.CurrentPlayer.PieceManager.Cities;
+        var existingTowns = game.CurrentPlayer.PieceManager.Towns;
 
         // Act
         var result = game.PlaceTown(availableLocations.First());
 
         // Assert
-        var newCities = game.CurrentPlayer.PieceManager.Cities;
+        var newTowns = game.CurrentPlayer.PieceManager.Towns;
         Assert.True(result.IsSuccess);
-        Assert.Equal(existingCities - 1, newCities);
+        Assert.Equal(existingTowns - 1, newTowns);
     }
 
     [Fact]
@@ -1227,5 +1227,99 @@ public sealed class GameTests
                 Assert.Equal(initialPlayerResources[player.Colour][gainedResource.Key] + gainedResource.Value, newResources[gainedResource.Key]);
             }
         }
+    }
+
+    [Fact]
+    public void StealResourceFromPlayer_Should_ReturnFailure_WhenInIncorrectState()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = true,
+        };
+        var game = GameFactory.Create(gameOptions);
+        var player = game.PlayerManager.Players
+            .Where(p => p.Colour != game.CurrentPlayerColour)
+            .First();
+
+        // Act
+        var result = game.StealResourceFromPlayer(player.Colour);
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void StealResourceFromPlayer_Should_ReturnFailure_WhenThiefNotOnTileWithHouse()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            HasRolledSeven = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        var point = new Point(4, 2);
+        var coloursOnPoint = game.Board.GetHouseColoursOnTile(point);
+        var playerColour = game.PlayerManager.Players
+            .Select(p => p.Colour)
+            .Except(coloursOnPoint)
+            .Where(c => c != game.CurrentPlayerColour)
+            .First();
+
+        game.MoveThief(point);
+
+        // Act
+        var result = game.StealResourceFromPlayer(playerColour);
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void StealResourceFromPlayer_Should_StealResource()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            HasRolledSeven = true,
+            GivePlayersResources = false
+        };
+        var game = GameFactory.Create(gameOptions);
+        var currentPlayerColour = game.CurrentPlayerColour;
+        PlayerColour? playerColourToStealFrom = null;
+
+        /* Get a house owned by someone other than the current player
+        then move the thief to the same tile. */
+        bool thiefMoved = false;
+        for (int y = 0; y < 5 && !thiefMoved; y++)
+        {
+            for (int x = 0; x < 5 && !thiefMoved; x++)
+            {
+                var point = new Point(x, y);
+
+                if (game.Board.GetTile(point) is null)
+                {
+                    continue;
+                }
+
+                playerColourToStealFrom = game.Board.GetHouseColoursOnTile(point)
+                    .Where(c => c != currentPlayerColour)
+                    .FirstOrDefault();
+
+                if (playerColourToStealFrom != null)
+                {
+                    game.MoveThief(point);
+                    thiefMoved = true;
+                }
+            }
+        }
+
+        // Act
+        var result = game.StealResourceFromPlayer(playerColourToStealFrom!.Value);
+
+        // Assert
+        Assert.True(result.IsSuccess);
     }
 }

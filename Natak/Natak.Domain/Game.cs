@@ -465,7 +465,7 @@ public sealed class Game
         return Result.Success();
     }
 
-    public Result StealResourceFromPlayer(PlayerColour player)
+    public Result StealResourceFromPlayer(PlayerColour playerColour)
     {
         var moveStateResult = MoveState(ActionType.StealResource);
 
@@ -474,7 +474,15 @@ public sealed class Game
             return moveStateResult;
         }
 
-        return PlayerManager.StealFromPlayer(CurrentPlayerColour, player);
+        var thiefPosition = Board.ThiefPosition;
+        var playerColoursToStealFrom = Board.GetHouseColoursOnTile(thiefPosition);
+
+        if (!playerColoursToStealFrom.Contains(playerColour))
+        {
+            return Result.Failure(GameErrors.PlayerToStealFromDoesNotHaveHouseOnTile);
+        }
+
+        return PlayerManager.StealFromPlayer(CurrentPlayerColour, playerColour);
     }
 
     public Result TradeWithBank(
@@ -513,43 +521,6 @@ public sealed class Game
             var moveStateResult = MoveState(ActionType.AllResourcesDiscarded);
 
             return moveStateResult;
-        }
-
-        return Result.Success();
-    }
-
-    private Result PlaceRoamingRoads(
-        Point firstRoadFirstPoint,
-        Point firstRoadSecondPoint,
-        Point secondRoadFirstPoint,
-        Point secondRoadSecondPoint)
-    {
-        var firstRoadResult = PlaceRoamingRoad(firstRoadFirstPoint, firstRoadSecondPoint);
-
-        if (firstRoadResult.IsFailure)
-        {
-            return firstRoadResult;
-        }
-
-        return PlaceRoamingRoad(secondRoadFirstPoint, secondRoadSecondPoint);
-    }
-
-    private Result PlaceRoamingRoad(
-        Point firstPoint,
-        Point secondPoint)
-    {
-        var playerPieceResult = CurrentPlayer.RemovePiece(BuildingType.Road);
-
-        if (playerPieceResult.IsFailure)
-        {
-            return playerPieceResult;
-        }
-
-        var placeResult = Board.PlaceRoad(firstPoint, secondPoint, CurrentPlayerColour, IsSetup);
-
-        if (placeResult.IsFailure)
-        {
-            return placeResult;
         }
 
         return Result.Success();

@@ -1,0 +1,87 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: Natak API - Build and Publish
+
+on:
+  push:
+    branches: ["main", "dev"]
+
+env:
+  AZURE_WEBAPP_PACKAGE_PATH: "publish"
+  ARTIFACT_NAME: "publish-artifact"
+  ARTIFACT_PATH: "./artifact"
+  IMAGE_NAME: "natak-api"
+  TAG: "${{ github.ref == 'refs/head/main' && 'latest' || 'dev' }}"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./Natak
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Set up dependency caching for faster builds
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Test
+        run: dotnet test --verbosity normal
+
+  publish:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm/v7, linux/arm64]
+        include:
+          - platform: linux/amd64
+            runtime: linux-x64
+          - platform: linux/arm/v7
+            runtime: linux-arm
+          - platform: linux/arm64
+            runtime: linux-arm64
+
+    defaults:
+      run:
+        working-directory: ./Natak
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+  
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}-${{ matrix.runtime }}
+          platforms: ${{ matrix.platform }}
+          build-args: TARGETRUNTIME=${{ matrix.runtime }}

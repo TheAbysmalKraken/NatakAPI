@@ -37,7 +37,7 @@ public static class BoardErrors
     public static Error RoadDoesNotConnect => new(
         HttpStatusCode.BadRequest,
         "Board.RoadDoesNotConnect",
-        "Road does not connect to any existing roads, villages or cities.");
+        "Road does not connect to any existing roads, villages or towns.");
 
     public static Error InvalidVillagePoint => new(
         HttpStatusCode.BadRequest,

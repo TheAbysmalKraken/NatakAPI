@@ -219,7 +219,7 @@ public sealed class Board
 
     public Result CanMoveThiefToPoint(Point point)
     {
-        if (!TilePointIsValid(point) || point.Equals(ThiefPosition))
+        if (!TilePointIsValid(point))
         {
             return Result.Failure(BoardErrors.InvalidTilePoint);
         }
@@ -486,7 +486,7 @@ public sealed class Board
     {
         if (!TilePointIsValid(point))
         {
-            throw new ArgumentException("Point are not valid.");
+            throw new ArgumentException("Point is not valid.");
         }
 
         var surroundingHouses = GetHousesOnTile(point);
