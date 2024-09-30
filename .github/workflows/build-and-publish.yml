@@ -50,12 +50,14 @@ jobs:
 
     strategy:
       matrix:
-        platform: [linux/amd64, linux/arm/v7]
+        platform: [linux/amd64, linux/arm/v7, linux/arm64]
         include:
           - platform: linux/amd64
             runtime: linux-x64
           - platform: linux/arm/v7
             runtime: linux-arm
+          - platform: linux/arm64
+            runtime: linux-arm64
 
     defaults:
       run:
@@ -80,6 +82,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}-${{ matrix.runtime }}
           platforms: ${{ matrix.platform }}
           build-args: TARGETRUNTIME=${{ matrix.runtime }}
