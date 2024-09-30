@@ -12,7 +12,7 @@ env:
   ARTIFACT_NAME: "publish-artifact"
   ARTIFACT_PATH: "./artifact"
   IMAGE_NAME: "natak-api"
-  TAG: "${{ github.ref == 'refs/head/main' && 'latest' || 'dev' }}"
+  TAG: "${{ github.ref == 'refs/heads/main' && 'latest' || 'dev' }}"
 
 jobs:
   build-and-test:
