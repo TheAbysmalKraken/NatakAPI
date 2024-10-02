@@ -5,14 +5,14 @@ name: Natak API - Build and Publish
 
 on:
   push:
-    branches: ["main", "dev"]
+    tags: ["v*.*.*"]
+    branches: ["dev"]
 
 env:
   AZURE_WEBAPP_PACKAGE_PATH: "publish"
   ARTIFACT_NAME: "publish-artifact"
   ARTIFACT_PATH: "./artifact"
   IMAGE_NAME: "natak-api"
-  TAG: "${{ github.ref == 'refs/heads/main' && 'latest' || 'dev' }}"
 
 jobs:
   build-and-test:
@@ -78,10 +78,36 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
         
-      - name: Build and push
+      - name: Build and push (dev)
+        if: ${{ github.ref_name == 'dev' }}
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}-${{ matrix.runtime }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:dev-${{ matrix.runtime }}
+          platforms: ${{ matrix.platform }}
+          build-args: TARGETRUNTIME=${{ matrix.runtime }}
+          
+      - name: Build and push latest
+        if: ${{ github.ref_type == 'tag' }}
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest-${{ matrix.runtime }}
+          platforms: ${{ matrix.platform }}
+          build-args: TARGETRUNTIME=${{ matrix.runtime }}
+          
+      - name: Extract version tag
+        if: ${{ github.ref_type == 'tag' }}
+        id: extract_version
+        run: |
+          MAJOR_VERSION=$(echo ${{ github.ref_name }} | cut -d. -f1)
+          echo "VERSION_TAG=$MAJOR_VERSION" >> $GITHUB_ENV
+
+      - name: Build and push version
+        if: ${{ github.ref_type == 'tag' }}
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}-${{ matrix.runtime }}
           platforms: ${{ matrix.platform }}
           build-args: TARGETRUNTIME=${{ matrix.runtime }}
