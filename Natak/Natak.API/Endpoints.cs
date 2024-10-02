@@ -30,9 +30,11 @@ namespace Natak.API;
 
 public static class Endpoints
 {
+    private const int LATEST_API_VERSION = 1;
+    
     public static void MapEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGroup("api/natak/")
+        app.MapGroup($"api/v{LATEST_API_VERSION}/natak/")
             .WithTags("Natak")
             .WithOpenApi()
             .MapEndpointsToBuilder();
