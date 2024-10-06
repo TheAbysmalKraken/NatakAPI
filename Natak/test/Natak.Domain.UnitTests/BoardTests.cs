@@ -4,20 +4,22 @@ namespace Natak.Domain.UnitTests;
 
 public sealed class BoardTests
 {
-    [Fact]
-    public void CreateBoard_EmptyTilesAreNull()
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(0, 1)]
+    [InlineData(1, 0)]
+    [InlineData(4, 3)]
+    [InlineData(4, 4)]
+    [InlineData(3, 4)]
+    public void CreateBoard_EmptyTilesAreNull(int x, int y)
     {
         // Act
         var board = new Board();
-        var tiles = board.GetTiles();
 
         // Assert
-        Assert.Null(tiles[0, 0]);
-        Assert.Null(tiles[0, 1]);
-        Assert.Null(tiles[1, 0]);
-        Assert.Null(tiles[4, 3]);
-        Assert.Null(tiles[4, 4]);
-        Assert.Null(tiles[3, 4]);
+        var point = new Point(x, y);
+        var tile = board.GetTile(point);
+        Assert.Null(tile);
     }
 
     [Fact]

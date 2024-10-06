@@ -1,11 +1,14 @@
 ﻿using Natak.Domain.Enums;
 using Natak.Domain.Errors;
+using Natak.Domain.Managers;
 
 namespace Natak.Domain;
 
 public sealed class Board
 {
-    private readonly Tile[,] tiles;
+    private const int BOARD_SIZE = 5;
+    
+    private readonly TileManager tileManager;
     private readonly List<Port> ports;
     private readonly Building[,] houses;
     private readonly List<Road> roads;
@@ -13,38 +16,32 @@ public sealed class Board
     private readonly Random random = new();
     
     public Board(
-        Tile[,] tiles,
+        TileManager tileManager,
         Building[,] houses,
         List<Port> ports,
         List<Road> roads,
         Point thiefPosition,
-        int boardLength,
         LongestRoadInfo longestRoadInfo)
     {
-        this.tiles = tiles;
+        this.tileManager = tileManager;
         this.houses = houses;
         this.ports = ports;
         this.roads = roads;
         ThiefPosition = thiefPosition;
-        BoardLength = boardLength;
         LongestRoadInfo = longestRoadInfo;
     }
 
-    public Board(int? seed = null)
+    public Board()
     {
-        if (seed.HasValue)
-        {
-            random = new(seed.Value);
-        }
-
-        tiles = new Tile[BoardLength, BoardLength];
         ports = [];
         houses = new Building[11, 6];
         roads = [];
         ThiefPosition = new Point(0, 0);
         LongestRoadInfo = new(PlayerColour.None, 0);
 
-        InitialiseTilesAndSetThief();
+        tileManager = new TileManager(BOARD_SIZE);
+        ThiefPosition = tileManager.GetTile(ResourceType.None)?.FirstOrDefault()?.Point
+            ?? throw new InvalidOperationException("Thief position must not be null.");
         InitialiseHouses();
         InitialiseRoads();
         InitialisePorts();
@@ -56,23 +53,19 @@ public sealed class Board
 
     public LongestRoadInfo LongestRoadInfo { get; private set; }
     
-    public Tile[,] GetTiles() => tiles;
+    public TileManager GetTileManager()
+        => tileManager;
+    
+    public List<Tile> GetTiles() => tileManager.GetTiles();
 
     public Building[,] GetHouses() => houses;
 
     public List<Road> GetRoads() => roads;
 
     public List<Port> GetPorts() => ports;
-    
-    public Tile? GetTile(Point point)
-    {
-        if (TilePointIsValid(point))
-        {
-            return tiles[point.X, point.Y];
-        }
 
-        return null;
-    }
+    public Tile? GetTile(Point point)
+        => tileManager.GetTile(point);
 
     public Building? GetHouse(Point point)
     {
@@ -484,20 +477,7 @@ public sealed class Board
             throw new ArgumentException("Activation number must be between 2 and 12.");
         }
 
-        var tilesWithActivationNumber = new List<Point>();
-
-        for (int x = 0; x < BoardLength; x++)
-        {
-            for (int y = 0; y < BoardLength; y++)
-            {
-                if (tiles[x, y] != null && tiles[x, y].ActivationNumber == activationNumber)
-                {
-                    tilesWithActivationNumber.Add(new(x, y));
-                }
-            }
-        }
-
-        return tilesWithActivationNumber;
+        return tileManager.GetTile(activationNumber).Select(t => t.Point).ToList();
     }
 
     public List<PlayerColour> GetHouseColoursOnTile(Point point)
@@ -561,12 +541,7 @@ public sealed class Board
 
         foreach (var tilePoint in surroundingTilePoints)
         {
-            if (!TilePointIsValid(tilePoint))
-            {
-                continue;
-            }
-
-            var tile = tiles[tilePoint.X, tilePoint.Y];
+            var tile = tileManager.GetTile(tilePoint);
 
             if (tile != null)
             {
@@ -633,17 +608,7 @@ public sealed class Board
 
     private bool TilePointIsValid(Point point)
     {
-        if (point.X < 0 || point.Y < 0 || point.X >= tiles.GetLength(0) || point.Y >= tiles.GetLength(1))
-        {
-            return false;
-        }
-
-        if (tiles[point.X, point.Y] is null)
-        {
-            return false;
-        }
-
-        return true;
+        return tileManager.GetTile(point) != null;
     }
 
     private bool RoadIsClaimed(Point point1, Point point2)
@@ -817,28 +782,6 @@ public sealed class Board
         return furthestDistanceFromPoint;
     }
 
-    private void InitialiseTilesAndSetThief()
-    {
-        var remainingResourceTileTypes = DomainConstants.GetTileResourceTypeTotals();
-        var remainingActivationNumbers = DomainConstants.GetTileActivationNumberTotals();
-
-        for (int x = 0; x < BoardLength; x++)
-        {
-            for (int y = 0; y < BoardLength; y++)
-            {
-                if (x + y >= 2 && x + y <= BoardLength + 1)
-                {
-                    tiles[x, y] = CreateNewNatakTile(remainingResourceTileTypes, remainingActivationNumbers);
-
-                    if (tiles[x, y].Type == ResourceType.None)
-                    {
-                        ThiefPosition = new Point(x, y);
-                    }
-                }
-            }
-        }
-    }
-
     private void InitialiseHouses()
     {
         for (int x = 0; x < 11; x++)
@@ -915,50 +858,6 @@ public sealed class Board
             ports.Add(newPort1);
             ports.Add(newPort2);
         }
-    }
-
-    private Tile CreateNewNatakTile(Dictionary<ResourceType, int> remainingResourceTileTypes, Dictionary<int, int> remainingActivationNumbers)
-    {
-        if (remainingResourceTileTypes is null || remainingResourceTileTypes.Count == 0)
-        {
-            throw new ArgumentException($"{nameof(remainingResourceTileTypes)} must not be null or empty.");
-        }
-
-        if (remainingActivationNumbers is null || remainingActivationNumbers.Count == 0)
-        {
-            throw new ArgumentException($"{nameof(remainingActivationNumbers)} must not be null or empty.");
-        }
-
-        ResourceType natakTileType;
-        int lowestTileTypeNum = (int)remainingResourceTileTypes.First().Key;
-        int highestTileTypeNum = (int)remainingResourceTileTypes.Last().Key;
-
-        do
-        {
-            natakTileType = (ResourceType)random.Next(lowestTileTypeNum, highestTileTypeNum + 1);
-        }
-        while (remainingResourceTileTypes[natakTileType] <= 0);
-
-        remainingResourceTileTypes[natakTileType]--;
-
-        if (natakTileType == ResourceType.None)
-        {
-            return new Tile(natakTileType, 0);
-        }
-
-        int activationNumber;
-        int lowestActivationNum = remainingActivationNumbers.First().Key;
-        int highestActivationNum = remainingActivationNumbers.Last().Key;
-
-        do
-        {
-            activationNumber = random.Next(lowestActivationNum, highestActivationNum + 1);
-        }
-        while (remainingActivationNumbers[activationNumber] <= 0);
-
-        remainingActivationNumbers[activationNumber]--;
-
-        return new Tile(natakTileType, activationNumber);
     }
 
     private static List<Point> TileToSurroundingHousePoints(Point tilePoint)
