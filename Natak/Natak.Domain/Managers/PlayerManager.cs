@@ -13,10 +13,36 @@ public sealed class PlayerManager
     private readonly List<PlayerColour> setupPlayerOrder = [];
     private int currentPlayerIndex = 0;
 
+    public PlayerManager(
+        Dictionary<PlayerColour, Player> players,
+        List<PlayerColour> playerOrder,
+        List<PlayerColour> setupPlayerOrder,
+        int currentPlayerIndex,
+        bool isSetup)
+    {
+        this.players = players;
+        this.playerOrder = playerOrder;
+        this.setupPlayerOrder = setupPlayerOrder;
+        this.currentPlayerIndex = currentPlayerIndex;
+        IsSetup = isSetup;
+    }
+    
     public PlayerManager(int playerCount)
     {
         AddPlayers(playerCount);
     }
+    
+    public Dictionary<PlayerColour, Player> GetPlayersDictionary()
+        => players;
+    
+    public List<PlayerColour> GetPlayerOrder()
+        => playerOrder;
+    
+    public List<PlayerColour> GetSetupPlayerOrder()
+        => setupPlayerOrder;
+    
+    public int GetCurrentPlayerIndex()
+        => currentPlayerIndex;
 
     public Player CurrentPlayer => players[CurrentPlayerColour];
 
@@ -38,7 +64,7 @@ public sealed class PlayerManager
 
     public Player? LongestRoadPlayer => GetLongestRoadPlayer();
 
-    public Player? GetPlayer(PlayerColour playerColour) => players.TryGetValue(playerColour, out var player) ? player : null;
+    public Player? GetPlayer(PlayerColour playerColour) => players.GetValueOrDefault(playerColour);
 
     public void NextPlayer()
     {

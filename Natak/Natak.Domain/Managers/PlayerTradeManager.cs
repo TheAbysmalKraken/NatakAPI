@@ -6,10 +6,21 @@ namespace Natak.Domain.Managers;
 public sealed class PlayerTradeManager(int playerCount)
 {
     private TradeOffer tradeOffer = TradeOffer.Inactive();
-    private readonly int playerCount = playerCount;
 
-    public readonly Dictionary<PlayerColour, List<PlayerColour>> embargoes = [];
+    private readonly Dictionary<PlayerColour, List<PlayerColour>> embargoes = [];
 
+    public PlayerTradeManager(
+        int playerCount,
+        TradeOffer tradeOffer,
+        Dictionary<PlayerColour, List<PlayerColour>> embargoes)
+        : this(playerCount)
+    {
+        this.tradeOffer = tradeOffer;
+        this.embargoes = embargoes;
+    }
+    
+    public int PlayerCount => playerCount;
+    
     public Dictionary<PlayerColour, List<PlayerColour>> Embargoes => embargoes;
 
     public TradeOffer TradeOffer => tradeOffer;

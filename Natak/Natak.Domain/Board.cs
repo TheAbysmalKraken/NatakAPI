@@ -6,11 +6,29 @@ namespace Natak.Domain;
 public sealed class Board
 {
     private readonly Tile[,] tiles;
-    private readonly List<Port> ports = [];
+    private readonly List<Port> ports;
     private readonly Building[,] houses;
-    private readonly List<Road> roads = [];
+    private readonly List<Road> roads;
 
     private readonly Random random = new();
+    
+    public Board(
+        Tile[,] tiles,
+        Building[,] houses,
+        List<Port> ports,
+        List<Road> roads,
+        Point thiefPosition,
+        int boardLength,
+        LongestRoadInfo longestRoadInfo)
+    {
+        this.tiles = tiles;
+        this.houses = houses;
+        this.ports = ports;
+        this.roads = roads;
+        ThiefPosition = thiefPosition;
+        BoardLength = boardLength;
+        LongestRoadInfo = longestRoadInfo;
+    }
 
     public Board(int? seed = null)
     {
@@ -36,6 +54,8 @@ public sealed class Board
 
     public int BoardLength { get; private set; } = 5;
 
+    public LongestRoadInfo LongestRoadInfo { get; private set; }
+    
     public Tile[,] GetTiles() => tiles;
 
     public Building[,] GetHouses() => houses;
@@ -43,9 +63,7 @@ public sealed class Board
     public List<Road> GetRoads() => roads;
 
     public List<Port> GetPorts() => ports;
-
-    public LongestRoadInfo LongestRoadInfo { get; private set; }
-
+    
     public Tile? GetTile(Point point)
     {
         if (TilePointIsValid(point))

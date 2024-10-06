@@ -10,6 +10,28 @@ public sealed class Game
 
     private readonly Stack<DiceRoll> diceRolls = [];
     private int roamingRoadsLeftToPlace = 0;
+    
+    public Game(
+        string id,
+        Board board,
+        StateManager stateManager,
+        PlayerTradeManager tradeManager,
+        BankTradeManager bankManager,
+        PlayerManager playerManager,
+        bool growthCardPlayed,
+        Stack<DiceRoll> diceRolls,
+        int roamingRoadsLeftToPlace)
+    {
+        Id = id;
+        Board = board;
+        StateManager = stateManager;
+        TradeManager = tradeManager;
+        BankManager = bankManager;
+        PlayerManager = playerManager;
+        GrowthCardPlayed = growthCardPlayed;
+        this.diceRolls = diceRolls;
+        this.roamingRoadsLeftToPlace = roamingRoadsLeftToPlace;
+    }
 
     public Game(int playerCount)
     {
@@ -42,6 +64,10 @@ public sealed class Game
     public GameState CurrentState => StateManager.CurrentState;
 
     public bool IsSetup => PlayerManager.IsSetup;
+    
+    public Stack<DiceRoll> GetDiceRolls() => diceRolls;
+    
+    public int GetRoamingRoadsLeftToPlace() => roamingRoadsLeftToPlace;
 
     public Result MoveState(ActionType actionType)
     {

@@ -2,23 +2,15 @@
 
 namespace Natak.Domain;
 
-public class Building
+public class Building(PlayerColour colour, BuildingType type)
 {
-    public Building()
+    public Building() : this(PlayerColour.None, BuildingType.None)
     {
-        Colour = PlayerColour.None;
-        Type = BuildingType.None;
     }
 
-    public Building(PlayerColour colour, BuildingType type)
-    {
-        Colour = colour;
-        Type = type;
-    }
+    public PlayerColour Colour { get; private set; } = colour;
 
-    public PlayerColour Colour { get; protected set; }
-
-    public BuildingType Type { get; private set; }
+    public BuildingType Type { get; private set; } = type;
 
     public void SetColour(PlayerColour colour)
     {

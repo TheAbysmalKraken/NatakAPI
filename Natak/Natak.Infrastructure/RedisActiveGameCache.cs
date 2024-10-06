@@ -2,24 +2,21 @@ using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Natak.Core.Services;
 using Natak.Domain;
+using Natak.Infrastructure.DTOs;
 
 namespace Natak.Infrastructure;
 
 public sealed class RedisActiveGameCache(IDistributedCache distributedCache) : IActiveGameCache
 {
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-    };
-    
     public async Task UpsetAsync(
         string gameId,
         Game game,
         TimeSpan? expiresIn = null,
         CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(game, JsonSerializerOptions);
+        var dto = GameDto.FromDomain(game);
+        
+        var json = JsonSerializer.Serialize(dto);
         
         await distributedCache.SetStringAsync(gameId, json, new DistributedCacheEntryOptions
         {
@@ -33,9 +30,19 @@ public sealed class RedisActiveGameCache(IDistributedCache distributedCache) : I
     {
         var json = await distributedCache.GetStringAsync(gameId, cancellationToken);
         
-        return json is null
-            ? null
-            : JsonSerializer.Deserialize<Game>(json, JsonSerializerOptions);
+        if (json is null)
+        {
+            return null;
+        }
+        
+        var dto = JsonSerializer.Deserialize<GameDto>(json);
+
+        if (dto is null)
+        {
+            throw new InvalidOperationException("Failed to deserialize game from cache.");
+        }
+        
+        return dto.ToDomain();
     }
 
     public async Task RemoveAsync(

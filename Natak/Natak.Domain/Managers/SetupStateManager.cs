@@ -12,4 +12,8 @@ public sealed class SetupStateManager : StateManager
         { new(GameState.InitialRoad, ActionType.BuildRoad), new(GameState.SetupFinished) },
         { new(GameState.SetupFinished, ActionType.EndTurn), new(GameState.InitialVillage) }
     };
+    
+    public SetupStateManager() { }
+    
+    public SetupStateManager(Stack<GameState> stateStack) : base(stateStack) { }
 }
