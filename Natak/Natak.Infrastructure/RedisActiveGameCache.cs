@@ -2,12 +2,21 @@ using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Natak.Core.Services;
 using Natak.Domain;
+using Natak.Infrastructure.Converters;
 using Natak.Infrastructure.DTOs;
 
 namespace Natak.Infrastructure;
 
 public sealed class RedisActiveGameCache(IDistributedCache distributedCache) : IActiveGameCache
 {
+    private static readonly TimeSpan DefaultExpiration = TimeSpan.FromMinutes(15);
+    
+    private static JsonSerializerOptions JsonSerializerOptions => new()
+    {
+        WriteIndented = true,
+        Converters = { new StateManagerDtoConverter() }
+    };
+    
     public async Task UpsetAsync(
         string gameId,
         Game game,
@@ -16,11 +25,11 @@ public sealed class RedisActiveGameCache(IDistributedCache distributedCache) : I
     {
         var dto = GameDto.FromDomain(game);
         
-        var json = JsonSerializer.Serialize(dto);
+        var json = JsonSerializer.Serialize(dto, JsonSerializerOptions);
         
         await distributedCache.SetStringAsync(gameId, json, new DistributedCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = expiresIn ?? TimeSpan.FromMinutes(15)
+            AbsoluteExpirationRelativeToNow = expiresIn ?? DefaultExpiration
         }, cancellationToken);
     }
 
@@ -35,7 +44,7 @@ public sealed class RedisActiveGameCache(IDistributedCache distributedCache) : I
             return null;
         }
         
-        var dto = JsonSerializer.Deserialize<GameDto>(json);
+        var dto = JsonSerializer.Deserialize<GameDto>(json, JsonSerializerOptions);
 
         if (dto is null)
         {
