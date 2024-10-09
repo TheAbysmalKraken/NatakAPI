@@ -4,9 +4,10 @@ namespace Natak.Domain.Managers;
 
 public sealed class TileManager
 {
+    private const int Size = 5;
+    
     private static readonly Random random = new();
     
-    private readonly int size;
     private readonly List<Tile> tiles = [];
 
     public TileManager(List<Tile> tiles)
@@ -14,21 +15,19 @@ public sealed class TileManager
         this.tiles = tiles;
     }
     
-    public TileManager(int size)
+    public TileManager()
     {
-        this.size = size;
-        
         GenerateTiles();
     }
     
     public List<Tile> GetTiles()
         => tiles;
     
-    public List<Tile> GetTile(ResourceType type)
-        => tiles.Where(x => x.Type == type).ToList();
-    
-    public List<Tile> GetTile(int activationNumber)
+    public List<Tile> GetTiles(int activationNumber)
         => tiles.Where(x => x.ActivationNumber == activationNumber).ToList();
+    
+    public List<Tile> GetTiles(ResourceType type)
+        => tiles.Where(x => x.Type == type).ToList();
     
     public Tile? GetTile(Point point)
         => tiles.FirstOrDefault(x => x.Point.Equals(point));
@@ -38,16 +37,16 @@ public sealed class TileManager
         var remainingResourceTileTypes = DomainConstants.GetTileResourceTypeTotals();
         var remainingActivationNumbers = DomainConstants.GetTileActivationNumberTotals();
 
-        for (var x = 0; x < size; x++)
+        for (var x = 0; x < Size; x++)
         {
-            for (var y = 0; y < size; y++)
+            for (var y = 0; y < Size; y++)
             {
-                if (x + y < 2 || x + y > size + 1)
+                var point = new Point(x, y);
+                
+                if (!IsValidPoint(point))
                 {
                     continue;
                 }
-                
-                var point = new Point(x, y);
                 
                 AddNewTile(
                     point,
@@ -103,5 +102,13 @@ public sealed class TileManager
         remainingActivationNumbers[activationNumber]--;
 
         tiles.Add(new Tile(type, activationNumber, point));
+    }
+
+    private static bool IsValidPoint(Point point)
+    {
+        var x = point.X;
+        var y = point.Y;
+
+        return x + y >= 2 && x + y <= Size + 1;
     }
 }
