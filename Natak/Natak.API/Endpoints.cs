@@ -30,11 +30,11 @@ namespace Natak.API;
 
 public static class Endpoints
 {
-    private const int LATEST_API_VERSION = 1;
+    private const int LatestApiVersion = 1;
     
     public static void MapEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGroup($"api/v{LATEST_API_VERSION}/natak/")
+        app.MapGroup($"api/v{LatestApiVersion}/natak/")
             .WithTags("Natak")
             .WithOpenApi()
             .MapEndpointsToBuilder();
@@ -85,9 +85,8 @@ public static class Endpoints
 
             return TypedResultFactory.Ok(result);
         }
-        catch (Exception e)
+        catch
         {
-            Console.WriteLine(e);
             return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
         }
     }
@@ -162,9 +161,8 @@ public static class Endpoints
 
             return TypedResultFactory.Ok(result);
         }
-        catch (Exception e)
+        catch
         {
-            Console.WriteLine(e);
             return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
         }
     }
