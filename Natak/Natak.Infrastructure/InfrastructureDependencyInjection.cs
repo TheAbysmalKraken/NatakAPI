@@ -1,13 +1,14 @@
-﻿using Natak.Core.Services;
+﻿using Microsoft.Extensions.Configuration;
+using Natak.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Natak.Infrastructure;
 
 public static class InfrastructureDependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddRedisCache();
+        services.AddRedisCache(configuration);
         
         return services;
     }
@@ -21,11 +22,14 @@ public static class InfrastructureDependencyInjection
         return services;
     }
     
-    private static IServiceCollection AddRedisCache(this IServiceCollection services)
+    private static IServiceCollection AddRedisCache(this IServiceCollection services, IConfiguration configuration)
     {
+        var redisConnectionString = configuration.GetConnectionString("Redis")
+            ?? throw new InvalidOperationException("Redis connection string not found.");
+        
         services.AddStackExchangeRedisCache(options =>
         {
-            options.Configuration = "localhost:6379";
+            options.Configuration = redisConnectionString;
             options.InstanceName = "Natak";
         });
         
