@@ -14,11 +14,11 @@ public class HexResponse
     [JsonPropertyName("rollNumber")]
     public required int RollNumber { get; init; }
 
-    public static HexResponse FromDomain(Tile hex, Point point)
+    public static HexResponse FromDomain(Tile hex)
     {
         return new HexResponse
         {
-            Point = PointResponse.FromPoint(point),
+            Point = PointResponse.FromPoint(hex.Point),
             Resource = (int)hex.Type,
             RollNumber = hex.ActivationNumber
         };

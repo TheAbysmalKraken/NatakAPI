@@ -32,4 +32,8 @@ public sealed class GameStateManager : StateManager
         { new(GameState.Roaming, ActionType.BuildRoad), new(GameState.Roaming) },
         { new(GameState.Roaming, ActionType.FinishRoaming), new(GameState.Roaming, StateTransitionType.Remove) }
     };
+    
+    public GameStateManager() { }
+    
+    public GameStateManager(Stack<GameState> stateStack) : base(stateStack) { }
 }

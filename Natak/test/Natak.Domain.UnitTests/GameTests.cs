@@ -112,7 +112,7 @@ public sealed class GameTests
         var town = game.Board.GetHouse(point);
         Assert.True(result.IsSuccess);
         Assert.NotNull(town);
-        Assert.Equal(BuildingType.Town, town.Type);
+        Assert.Equal(HouseType.Town, town.Type);
     }
 
     [Fact]
@@ -219,10 +219,9 @@ public sealed class GameTests
         var result = game.PlaceRoad(availableRoad.FirstPoint, availableRoad.SecondPoint);
 
         // Assert
-        var placedRoad = game.Board.GetRoadAtPoints(availableRoad.FirstPoint, availableRoad.SecondPoint);
+        var placedRoad = game.Board.GetRoad(availableRoad.FirstPoint, availableRoad.SecondPoint);
         Assert.True(result.IsSuccess);
         Assert.NotNull(placedRoad);
-        Assert.Equal(BuildingType.Road, placedRoad.Type);
     }
 
     [Fact]
@@ -369,7 +368,7 @@ public sealed class GameTests
         var village = game.Board.GetHouse(point);
         Assert.True(result.IsSuccess);
         Assert.NotNull(village);
-        Assert.Equal(BuildingType.Village, village.Type);
+        Assert.Equal(HouseType.Village, village.Type);
     }
 
     [Fact]
@@ -1113,8 +1112,8 @@ public sealed class GameTests
 
                 var resourceCount = house.Type switch
                 {
-                    BuildingType.Village => 1,
-                    BuildingType.Town => 2,
+                    HouseType.Village => 1,
+                    HouseType.Town => 2,
                     _ => 0
                 };
 
@@ -1194,8 +1193,8 @@ public sealed class GameTests
 
                 var resourceCount = house.Type switch
                 {
-                    BuildingType.Village => 1,
-                    BuildingType.Town => 2,
+                    HouseType.Village => 1,
+                    HouseType.Town => 2,
                     _ => 0
                 };
 

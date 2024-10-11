@@ -10,6 +10,20 @@ public class ItemManager<TItem> where TItem : Enum
 
     public Dictionary<TItem, int> Items => items;
 
+    public ItemManager()
+    {
+    }
+    
+    public ItemManager(Dictionary<TItem, int> items)
+    {
+        this.items = items;
+    }
+    
+    public Dictionary<TItem, int> GetItems()
+    {
+        return items;
+    }
+    
     public bool Has(TItem item, int count = 1)
     {
         return Count(item) >= count;

@@ -4,7 +4,7 @@ namespace Natak.Domain;
 
 public sealed class TradeOffer
 {
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; init; } = true;
 
     public required PlayerColour? OfferingPlayer { get; init; }
 

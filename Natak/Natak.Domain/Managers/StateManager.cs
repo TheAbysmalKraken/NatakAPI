@@ -5,17 +5,24 @@ namespace Natak.Domain.Managers;
 
 public abstract class StateManager
 {
-    protected readonly Stack<GameState> stateStack = new();
+    private readonly Stack<GameState> stateStack = new();
 
     protected abstract GameState InitialState { get; }
     protected abstract Dictionary<StateTransition, StateTransitionOutput> Transitions { get; }
 
-    public StateManager()
+    protected StateManager(Stack<GameState> stateStack)
+    {
+        this.stateStack = stateStack;
+    }
+    
+    protected StateManager()
     {
         stateStack.Push(InitialState);
     }
 
     public GameState CurrentState => stateStack.First();
+    
+    public Stack<GameState> GetStateStack() => stateStack;
 
     public List<ActionType> GetValidActions()
     {
@@ -67,9 +74,7 @@ public abstract class StateManager
     private StateTransitionOutput? GetNextState(ActionType action)
     {
         var transition = new StateTransition(CurrentState, action);
-        return Transitions.TryGetValue(transition, out var nextState)
-            ? nextState
-            : null;
+        return Transitions.GetValueOrDefault(transition);
     }
 
     protected sealed record StateTransition(GameState CurrentState, ActionType Action)

@@ -6,6 +6,26 @@ namespace Natak.Domain;
 
 public sealed class Player
 {
+    public Player(
+        PlayerColour colour,
+        PlayerResourceCardManager resourceCardManager,
+        PlayerGrowthCardManager growthCardManager,
+        PlayerPieceManager pieceManager,
+        PlayerScoreManager scoreManager,
+        int soldiersPlayed,
+        List<PortType> ports,
+        int cardsToDiscard)
+    {
+        Colour = colour;
+        ResourceCardManager = resourceCardManager;
+        GrowthCardManager = growthCardManager;
+        PieceManager = pieceManager;
+        ScoreManager = scoreManager;
+        SoldiersPlayed = soldiersPlayed;
+        Ports = ports;
+        CardsToDiscard = cardsToDiscard;
+    }
+    
     public Player(PlayerColour colour)
     {
         Colour = colour;

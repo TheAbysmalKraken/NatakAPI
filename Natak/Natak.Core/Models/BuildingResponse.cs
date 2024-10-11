@@ -11,12 +11,12 @@ public sealed class BuildingResponse
     [JsonPropertyName("point")]
     public required PointResponse Point { get; init; }
 
-    public static BuildingResponse FromDomain(Building house, Point point)
+    public static BuildingResponse FromDomain(House house)
     {
         return new BuildingResponse
         {
             PlayerColour = (int)house.Colour,
-            Point = PointResponse.FromPoint(point)
+            Point = PointResponse.FromPoint(house.Point)
         };
     }
 }
