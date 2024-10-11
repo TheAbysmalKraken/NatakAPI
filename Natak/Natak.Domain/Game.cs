@@ -103,7 +103,7 @@ public sealed class Game
 
         CurrentPlayer.AddPiece(BuildingType.Village);
 
-        var placeResult = Board.UpgradeHouse(point, CurrentPlayerColour);
+        var placeResult = Board.UpgradeVillageAtPoint(point, CurrentPlayerColour);
 
         if (placeResult.IsFailure)
         {
@@ -186,7 +186,7 @@ public sealed class Game
             return playerPieceResult;
         }
 
-        var placeHouseResult = Board.PlaceHouse(point, CurrentPlayerColour, IsSetup);
+        var placeHouseResult = Board.PlaceVillage(point, CurrentPlayerColour, IsSetup);
 
         if (placeHouseResult.IsFailure)
         {
@@ -578,13 +578,13 @@ public sealed class Game
     }
 
     private void DistributeResourcesForHouse(
-        Building house,
+        House house,
         ResourceType resourceType)
     {
         var player = GetPlayer(house.Colour)
                 ?? throw new InvalidOperationException("Player not found");
 
-        var isTown = house.Type == BuildingType.Town;
+        var isTown = house.Type == HouseType.Town;
 
         var resourceCount = isTown ? 2 : 1;
 

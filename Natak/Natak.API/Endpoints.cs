@@ -85,8 +85,9 @@ public static class Endpoints
 
             return TypedResultFactory.Ok(result);
         }
-        catch
+        catch (Exception e)
         {
+            Console.WriteLine(e);
             return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
         }
     }
@@ -161,8 +162,9 @@ public static class Endpoints
 
             return TypedResultFactory.Ok(result);
         }
-        catch
+        catch (Exception e)
         {
+            Console.WriteLine(e);
             return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
         }
     }

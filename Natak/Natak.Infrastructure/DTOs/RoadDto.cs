@@ -1,9 +1,12 @@
 using Natak.Domain;
+using Natak.Domain.Enums;
 
 namespace Natak.Infrastructure.DTOs;
 
-public sealed class RoadDto : BuildingDto, IDto<Road, RoadDto>
+public sealed class RoadDto : IDto<Road, RoadDto>
 {
+    public required PlayerColour Colour { get; init; }
+    
     public required PointDto FirstPoint { get; init; }
     
     public required PointDto SecondPoint { get; init; }
@@ -13,13 +16,12 @@ public sealed class RoadDto : BuildingDto, IDto<Road, RoadDto>
         return new RoadDto()
         {
             Colour = domain.Colour,
-            Type = domain.Type,
             FirstPoint = PointDto.FromDomain(domain.FirstPoint),
             SecondPoint = PointDto.FromDomain(domain.SecondPoint)
         };
     }
 
-    public new Road ToDomain()
+    public Road ToDomain()
     {
         return new Road(
             Colour,

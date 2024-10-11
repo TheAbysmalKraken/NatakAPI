@@ -2,7 +2,6 @@
 
 public enum BuildingType
 {
-    None,
     Road,
     Village,
     Town

@@ -53,11 +53,11 @@ public sealed class BoardResponse
 
                 if (house is not null)
                 {
-                    if (house.Type == BuildingType.Village)
+                    if (house.Type == HouseType.Village)
                     {
                         boardStatusResponse.Villages.Add(BuildingResponse.FromDomain(house, point));
                     }
-                    else if (house.Type == BuildingType.Town)
+                    else if (house.Type == HouseType.Town)
                     {
                         boardStatusResponse.Towns.Add(BuildingResponse.FromDomain(house, point));
                     }
