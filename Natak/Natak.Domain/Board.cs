@@ -48,6 +48,10 @@ public sealed class Board
     
     public BuildingManager GetBuildingManager()
         => buildingManager;
+    
+    public List<Tile> GetTiles() => tileManager.GetTiles();
+    
+    public List<House> GetHouses() => buildingManager.GetHouses();
 
     public List<Road> GetRoads() => buildingManager.GetRoads();
 

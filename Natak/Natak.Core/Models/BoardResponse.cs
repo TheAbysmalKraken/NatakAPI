@@ -23,48 +23,15 @@ public sealed class BoardResponse
 
     public static BoardResponse FromDomain(Board board)
     {
-        var boardStatusResponse = new BoardResponse
+        var houses = board.GetHouses();
+        
+        return new BoardResponse
         {
-            Hexes = [],
+            Hexes = board.GetTiles().Select(HexResponse.FromDomain).ToList(),
             Roads = board.GetRoads().Select(RoadResponse.FromDomain).ToList(),
-            Villages = [],
-            Towns = [],
+            Villages = houses.Where(h => h.Type == HouseType.Village).Select(BuildingResponse.FromDomain).ToList(),
+            Towns = houses.Where(h => h.Type == HouseType.Town).Select(BuildingResponse.FromDomain).ToList(),
             Ports = board.GetPorts().Select(PortResponse.FromDomain).ToList()
         };
-
-        for (int x = 0; x < 5; x++)
-        {
-            for (int y = 0; y < 5; y++)
-            {
-                var point = new Point(x, y);
-                var hex = board.GetTile(point);
-
-                if (hex is not null)
-                    boardStatusResponse.Hexes.Add(HexResponse.FromDomain(hex, point));
-            }
-        }
-
-        for (int x = 0; x < 11; x++)
-        {
-            for (int y = 0; y < 6; y++)
-            {
-                var point = new Point(x, y);
-                var house = board.GetHouse(point);
-
-                if (house is not null)
-                {
-                    if (house.Type == HouseType.Village)
-                    {
-                        boardStatusResponse.Villages.Add(BuildingResponse.FromDomain(house, point));
-                    }
-                    else if (house.Type == HouseType.Town)
-                    {
-                        boardStatusResponse.Towns.Add(BuildingResponse.FromDomain(house, point));
-                    }
-                }
-            }
-        }
-
-        return boardStatusResponse;
     }
 }
