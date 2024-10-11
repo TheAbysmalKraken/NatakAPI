@@ -9,7 +9,7 @@ namespace Natak.Infrastructure;
 
 public sealed class RedisActiveGameCache(IDistributedCache distributedCache) : IActiveGameCache
 {
-    private static readonly TimeSpan DefaultExpiration = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan DefaultExpiration = TimeSpan.FromMinutes(60);
     
     private static JsonSerializerOptions JsonSerializerOptions => new()
     {
