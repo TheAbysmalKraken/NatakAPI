@@ -1,6 +1,7 @@
 using Natak.API;
 using Natak.Core;
 using Natak.Infrastructure;
+using Natak.Infrastructure.Middleware;
 
 const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -41,6 +42,8 @@ app.UseHttpsRedirection();
 app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
+
+app.UseMiddleware<ApiExceptionHandlingMiddleware>();
 
 app.MapControllers();
 
