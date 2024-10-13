@@ -2,6 +2,8 @@ using Natak.API;
 using Natak.Core;
 using Natak.Infrastructure;
 using Natak.Infrastructure.Middleware;
+using Serilog;
+using Serilog.Events;
 
 const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -10,6 +12,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddCore();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+var logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log.txt", LogEventLevel.Error)
+    .CreateLogger();
+
+builder.Services.AddSerilog(logger);
 
 builder.Services.AddCors(options =>
 {
