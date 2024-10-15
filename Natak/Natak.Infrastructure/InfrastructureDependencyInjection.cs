@@ -13,15 +13,6 @@ public static class InfrastructureDependencyInjection
         return services;
     }
     
-    private static IServiceCollection AddInMemoryCache(this IServiceCollection services)
-    {
-        services.AddMemoryCache();
-        
-        services.AddScoped<IActiveGameCache, InMemoryActiveGameCache>();
-
-        return services;
-    }
-    
     private static IServiceCollection AddRedisCache(this IServiceCollection services, IConfiguration configuration)
     {
         var redisConnectionString = configuration.GetConnectionString("Redis")
