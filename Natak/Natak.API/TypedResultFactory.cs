@@ -1,5 +1,5 @@
-﻿using Natak.API.Responses;
-using Natak.Domain;
+﻿using Natak.Domain;
+using Natak.Infrastructure.ApiResponses;
 
 namespace Natak.API;
 

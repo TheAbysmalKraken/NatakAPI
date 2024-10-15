@@ -77,18 +77,11 @@ public static class Endpoints
         int playerColour,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var query = new GetGameQuery(gameId, playerColour);
+        var query = new GetGameQuery(gameId, playerColour);
 
-            var result = await sender.Send(query, cancellationToken);
+        var result = await sender.Send(query, cancellationToken);
 
-            return TypedResultFactory.Ok(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.Ok(result);
     }
 
     private static async Task<IResult> GetAvailableVillageLocationsAsync(
@@ -96,18 +89,11 @@ public static class Endpoints
         string gameId,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var query = new GetAvailableVillageLocationsQuery(gameId);
+        var query = new GetAvailableVillageLocationsQuery(gameId);
 
-            var result = await sender.Send(query, cancellationToken);
+        var result = await sender.Send(query, cancellationToken);
 
-            return TypedResultFactory.Ok(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.Ok(result);
     }
 
     private static async Task<IResult> GetAvailableRoadLocationsAsync(
@@ -115,18 +101,11 @@ public static class Endpoints
         string gameId,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var query = new GetAvailableRoadLocationsQuery(gameId);
+        var query = new GetAvailableRoadLocationsQuery(gameId);
 
-            var result = await sender.Send(query, cancellationToken);
+        var result = await sender.Send(query, cancellationToken);
 
-            return TypedResultFactory.Ok(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.Ok(result);
     }
 
     private static async Task<IResult> GetAvailableTownLocationsAsync(
@@ -134,18 +113,11 @@ public static class Endpoints
         string gameId,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var query = new GetAvailableTownLocationsQuery(gameId);
+        var query = new GetAvailableTownLocationsQuery(gameId);
 
-            var result = await sender.Send(query, cancellationToken);
+        var result = await sender.Send(query, cancellationToken);
 
-            return TypedResultFactory.Ok(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.Ok(result);
     }
 
     private static async Task<IResult> CreateGameAsync(
@@ -153,18 +125,11 @@ public static class Endpoints
         CreateNewGameRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new CreateGameCommand(request.PlayerCount, request.Seed);
+        var command = new CreateGameCommand(request.PlayerCount, request.Seed);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.Ok(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.Ok(result);
     }
 
     private static async Task<IResult> RollDiceAsync(
@@ -172,18 +137,11 @@ public static class Endpoints
         string gameId,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new RollDiceCommand(gameId);
+        var command = new RollDiceCommand(gameId);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.Ok(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.Ok(result);
     }
 
     private static async Task<IResult> EndTurnAsync(
@@ -191,18 +149,11 @@ public static class Endpoints
         string gameId,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new EndTurnCommand(gameId);
+        var command = new EndTurnCommand(gameId);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> BuildRoadAsync(
@@ -211,21 +162,14 @@ public static class Endpoints
         BuildRoadRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new BuildRoadCommand(
-                gameId,
-                request.FirstPoint.ToPoint(),
-                request.SecondPoint.ToPoint());
+        var command = new BuildRoadCommand(
+            gameId,
+            request.FirstPoint.ToPoint(),
+            request.SecondPoint.ToPoint());
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> BuildVillageAsync(
@@ -234,20 +178,13 @@ public static class Endpoints
         BuildBuildingRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new BuildVillageCommand(
-                gameId,
-                request.Point.ToPoint());
+        var command = new BuildVillageCommand(
+            gameId,
+            request.Point.ToPoint());
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> BuildTownAsync(
@@ -256,20 +193,13 @@ public static class Endpoints
         BuildBuildingRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new BuildTownCommand(
-                gameId,
-                request.Point.ToPoint());
+        var command = new BuildTownCommand(
+            gameId,
+            request.Point.ToPoint());
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> BuyGrowthCardAsync(
@@ -277,18 +207,11 @@ public static class Endpoints
         string gameId,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new BuyGrowthCardCommand(gameId);
+        var command = new BuyGrowthCardCommand(gameId);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> PlaySoldierCardAsync(
@@ -296,18 +219,11 @@ public static class Endpoints
         string gameId,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new PlaySoldierCardCommand(gameId);
+        var command = new PlaySoldierCardCommand(gameId);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> PlayRoamingCardAsync(
@@ -315,19 +231,12 @@ public static class Endpoints
         string gameId,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new PlayRoamingCardCommand(
-                gameId);
+        var command = new PlayRoamingCardCommand(
+            gameId);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> PlayWealthCardAsync(
@@ -336,21 +245,14 @@ public static class Endpoints
         [FromBody] PlayWealthCardRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new PlayWealthCardCommand(
-                gameId,
-                request.FirstResource,
-                request.SecondResource);
+        var command = new PlayWealthCardCommand(
+            gameId,
+            request.FirstResource,
+            request.SecondResource);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> PlayGathererCardAsync(
@@ -359,20 +261,13 @@ public static class Endpoints
         [FromBody] PlayGathererCardRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new PlayGathererCardCommand(
-                gameId,
-                request.Resource);
+        var command = new PlayGathererCardCommand(
+            gameId,
+            request.Resource);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> MoveThiefAsync(
@@ -381,20 +276,13 @@ public static class Endpoints
         [FromBody] MoveThiefRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new MoveThiefCommand(
-                gameId,
-                request.MoveThiefTo.ToPoint());
+        var command = new MoveThiefCommand(
+            gameId,
+            request.MoveThiefTo.ToPoint());
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> StealResourceAsync(
@@ -403,20 +291,13 @@ public static class Endpoints
         [FromBody] StealResourceRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new StealResourceCommand(
-                gameId,
-                request.VictimColour);
+        var command = new StealResourceCommand(
+            gameId,
+            request.VictimColour);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> DiscardResourcesAsync(
@@ -426,21 +307,14 @@ public static class Endpoints
         [FromBody] DiscardResourcesRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new DiscardResourcesCommand(
-                gameId,
-                playerColour,
-                request.Resources);
+        var command = new DiscardResourcesCommand(
+            gameId,
+            playerColour,
+            request.Resources);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> TradeWithBankAsync(
@@ -449,21 +323,14 @@ public static class Endpoints
         [FromBody] TradeWithBankRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new TradeWithBankCommand(
-                gameId,
-                request.ResourceToGive,
-                request.ResourceToGet);
+        var command = new TradeWithBankCommand(
+            gameId,
+            request.ResourceToGive,
+            request.ResourceToGet);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> EmbargoPlayerAsync(
@@ -473,21 +340,14 @@ public static class Endpoints
         [FromBody] EmbargoPlayerRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new EmbargoPlayerCommand(
-                gameId,
-                playerColour,
-                request.PlayerColourToEmbargo);
+        var command = new EmbargoPlayerCommand(
+            gameId,
+            playerColour,
+            request.PlayerColourToEmbargo);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> RemoveEmbargoAsync(
@@ -497,21 +357,14 @@ public static class Endpoints
         [FromBody] RemoveEmbargoRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new RemoveEmbargoCommand(
-                gameId,
-                playerColour,
-                request.PlayerColourToRemoveEmbargoOn);
+        var command = new RemoveEmbargoCommand(
+            gameId,
+            playerColour,
+            request.PlayerColourToRemoveEmbargoOn);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> MakeTradeOfferAsync(
@@ -520,21 +373,14 @@ public static class Endpoints
         [FromBody] MakeTradeOfferRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new MakeTradeOfferCommand(
-                gameId,
-                request.Offer,
-                request.Request);
+        var command = new MakeTradeOfferCommand(
+            gameId,
+            request.Offer,
+            request.Request);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> RespondToTradeOfferAsync(
@@ -544,21 +390,14 @@ public static class Endpoints
         bool accept,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new RespondToTradeOfferCommand(
-                gameId,
-                playerColour,
-                accept);
+        var command = new RespondToTradeOfferCommand(
+            gameId,
+            playerColour,
+            accept);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 
     private static async Task<IResult> CancelTradeOfferAsync(
@@ -566,17 +405,10 @@ public static class Endpoints
         string gameId,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var command = new CancelTradeOfferCommand(gameId);
+        var command = new CancelTradeOfferCommand(gameId);
 
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResultFactory.NoContent(result);
-        }
-        catch
-        {
-            return Results.Problem("An error occurred", statusCode: StatusCodes.Status500InternalServerError);
-        }
+        return TypedResultFactory.NoContent(result);
     }
 }

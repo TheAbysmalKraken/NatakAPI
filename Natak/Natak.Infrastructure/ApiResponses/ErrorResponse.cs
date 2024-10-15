@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Natak.API.Responses;
+namespace Natak.Infrastructure.ApiResponses;
 
-internal sealed class ErrorResponse
+public sealed class ErrorResponse
 {
     [JsonPropertyName("statusCode")]
     public required int StatusCode { get; init; }
