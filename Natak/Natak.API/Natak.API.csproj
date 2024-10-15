@@ -20,8 +20,4 @@
     <ProjectReference Include="..\Natak.Infrastructure\Natak.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Responses\" />
-  </ItemGroup>
-
 </Project>
