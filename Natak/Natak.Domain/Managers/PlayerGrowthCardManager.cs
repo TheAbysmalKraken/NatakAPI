@@ -6,6 +6,18 @@ public sealed class PlayerGrowthCardManager : ItemManager<GrowthCardType>
 {
     private readonly Dictionary<GrowthCardType, int> onHoldCards = [];
 
+    public PlayerGrowthCardManager()
+    {
+    }
+    
+    public PlayerGrowthCardManager(
+        Dictionary<GrowthCardType, int> onHoldCards,
+        Dictionary<GrowthCardType, int> cards)
+        : base(cards)
+    {
+        this.onHoldCards = onHoldCards;
+    }
+    
     public Dictionary<GrowthCardType, int> Cards => items;
 
     public Dictionary<GrowthCardType, int> OnHoldCards => onHoldCards;

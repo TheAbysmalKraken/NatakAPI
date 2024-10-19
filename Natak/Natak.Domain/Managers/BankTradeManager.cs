@@ -13,11 +13,25 @@ public sealed class BankTradeManager
 
     public Dictionary<GrowthCardType, int> GrowthCards => growthCards.Items;
 
+    public BankTradeManager(
+        ItemManager<ResourceType> resourceCards,
+        ItemManager<GrowthCardType> growthCards)
+    {
+        this.resourceCards = resourceCards;
+        this.growthCards = growthCards;
+    }
+    
     public BankTradeManager()
     {
         SetupResourceCards();
         SetupGrowthCards();
     }
+
+    public ItemManager<ResourceType> GetResourceCardManager()
+        => resourceCards;
+    
+    public ItemManager<GrowthCardType> GetGrowthCardManager()
+        => growthCards;
 
     public bool HasResourceCards(Dictionary<ResourceType, int> resourceCards)
     {

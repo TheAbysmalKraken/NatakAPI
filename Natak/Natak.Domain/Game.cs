@@ -10,6 +10,28 @@ public sealed class Game
 
     private readonly Stack<DiceRoll> diceRolls = [];
     private int roamingRoadsLeftToPlace = 0;
+    
+    public Game(
+        string id,
+        Board board,
+        StateManager stateManager,
+        PlayerTradeManager tradeManager,
+        BankTradeManager bankManager,
+        PlayerManager playerManager,
+        bool growthCardPlayed,
+        Stack<DiceRoll> diceRolls,
+        int roamingRoadsLeftToPlace)
+    {
+        Id = id;
+        Board = board;
+        StateManager = stateManager;
+        TradeManager = tradeManager;
+        BankManager = bankManager;
+        PlayerManager = playerManager;
+        GrowthCardPlayed = growthCardPlayed;
+        this.diceRolls = diceRolls;
+        this.roamingRoadsLeftToPlace = roamingRoadsLeftToPlace;
+    }
 
     public Game(int playerCount)
     {
@@ -42,6 +64,10 @@ public sealed class Game
     public GameState CurrentState => StateManager.CurrentState;
 
     public bool IsSetup => PlayerManager.IsSetup;
+    
+    public Stack<DiceRoll> GetDiceRolls() => diceRolls;
+    
+    public int GetRoamingRoadsLeftToPlace() => roamingRoadsLeftToPlace;
 
     public Result MoveState(ActionType actionType)
     {
@@ -77,7 +103,7 @@ public sealed class Game
 
         CurrentPlayer.AddPiece(BuildingType.Village);
 
-        var placeResult = Board.UpgradeHouse(point, CurrentPlayerColour);
+        var placeResult = Board.UpgradeVillageAtPoint(point, CurrentPlayerColour);
 
         if (placeResult.IsFailure)
         {
@@ -160,7 +186,7 @@ public sealed class Game
             return playerPieceResult;
         }
 
-        var placeHouseResult = Board.PlaceHouse(point, CurrentPlayerColour, IsSetup);
+        var placeHouseResult = Board.PlaceVillage(point, CurrentPlayerColour, IsSetup);
 
         if (placeHouseResult.IsFailure)
         {
@@ -552,13 +578,13 @@ public sealed class Game
     }
 
     private void DistributeResourcesForHouse(
-        Building house,
+        House house,
         ResourceType resourceType)
     {
         var player = GetPlayer(house.Colour)
                 ?? throw new InvalidOperationException("Player not found");
 
-        var isTown = house.Type == BuildingType.Town;
+        var isTown = house.Type == HouseType.Town;
 
         var resourceCount = isTown ? 2 : 1;
 

@@ -43,6 +43,11 @@ public static class BoardErrors
         HttpStatusCode.BadRequest,
         "Board.InvalidVillagePoint",
         "Invalid village point.");
+    
+    public static Error VillageNotFound => new(
+        HttpStatusCode.BadRequest,
+        "Board.VillageNotFound",
+        "Village not found at the specified point.");
 
     public static Error VillageAlreadyExists => new(
         HttpStatusCode.BadRequest,

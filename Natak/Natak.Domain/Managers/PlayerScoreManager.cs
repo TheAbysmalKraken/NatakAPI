@@ -5,6 +5,22 @@ public sealed class PlayerScoreManager
     private int visiblePoints = 0;
     private int hiddenPoints = 0;
 
+    public PlayerScoreManager()
+    {
+    }
+    
+    public PlayerScoreManager(
+        int visiblePoints,
+        int hiddenPoints,
+        bool hasLargestArmy,
+        bool hasLongestRoad)
+    {
+        this.visiblePoints = visiblePoints;
+        this.hiddenPoints = hiddenPoints;
+        HasLargestArmy = hasLargestArmy;
+        HasLongestRoad = hasLongestRoad;
+    }
+
     public int VisiblePoints => visiblePoints;
 
     public int HiddenPoints => hiddenPoints;
