@@ -25,6 +25,7 @@ using Natak.Core.GameActions.StealResource;
 using Natak.Core.GameActions.TradeWithBank;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Natak.API.RateLimiting;
 
 namespace Natak.API;
 
@@ -37,7 +38,8 @@ public static class Endpoints
         app.MapGroup($"api/v{LatestApiVersion}/natak/")
             .WithTags("Natak")
             .WithOpenApi()
-            .MapEndpointsToBuilder();
+            .MapEndpointsToBuilder()
+            .RequireRateLimiting(RateLimiterConstants.DefaultPolicyName);
     }
 
     private static RouteGroupBuilder MapEndpointsToBuilder(
@@ -47,7 +49,8 @@ public static class Endpoints
         builder.MapGet("{gameId}/available-village-locations", GetAvailableVillageLocationsAsync);
         builder.MapGet("{gameId}/available-town-locations", GetAvailableTownLocationsAsync);
         builder.MapGet("{gameId}/available-road-locations", GetAvailableRoadLocationsAsync);
-        builder.MapPost("", CreateGameAsync);
+        builder.MapPost("", CreateGameAsync)
+            .RequireRateLimiting(RateLimiterConstants.CreateGamePolicyName);
         builder.MapPost("{gameId}/roll", RollDiceAsync);
         builder.MapPost("{gameId}/end-turn", EndTurnAsync);
         builder.MapPost("{gameId}/build/road", BuildRoadAsync);
