@@ -8,16 +8,22 @@ public static class InfrastructureDependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddRedisCache(configuration);
+        var redisConnectionString = configuration.GetConnectionString("Redis");
+        
+        if (string.IsNullOrWhiteSpace(redisConnectionString))
+        {
+            services.AddInMemoryCache();
+        }
+        else
+        {
+            services.AddRedisCache(redisConnectionString);
+        }
         
         return services;
     }
     
-    private static IServiceCollection AddRedisCache(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddRedisCache(this IServiceCollection services, string redisConnectionString)
     {
-        var redisConnectionString = configuration.GetConnectionString("Redis")
-            ?? throw new InvalidOperationException("Redis connection string not found.");
-        
         services.AddStackExchangeRedisCache(options =>
         {
             options.Configuration = redisConnectionString;
@@ -25,6 +31,15 @@ public static class InfrastructureDependencyInjection
         });
         
         services.AddScoped<IActiveGameCache, RedisActiveGameCache>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddInMemoryCache(this IServiceCollection services)
+    {
+        services.AddMemoryCache();
+        
+        services.AddScoped<IActiveGameCache, InMemoryActiveGameCache>();
 
         return services;
     }
