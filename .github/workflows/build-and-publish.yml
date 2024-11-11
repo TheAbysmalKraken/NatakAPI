@@ -50,7 +50,7 @@ jobs:
 
     strategy:
       matrix:
-        platform: [linux/amd64, linux/arm/v7, linux/arm64]
+        platform: [linux/amd64, windows/amd64, linux/arm/v7, linux/arm64]
         include:
           - platform: linux/amd64
             runtime: linux-x64
