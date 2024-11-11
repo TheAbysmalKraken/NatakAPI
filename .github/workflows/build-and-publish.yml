@@ -54,6 +54,8 @@ jobs:
         include:
           - platform: linux/amd64
             runtime: linux-x64
+          - platform: windows/amd64
+            runtime: win-x64
           - platform: linux/arm/v7
             runtime: linux-arm
           - platform: linux/arm64
