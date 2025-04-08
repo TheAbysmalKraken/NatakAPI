@@ -911,6 +911,48 @@ public sealed class GameTests
     }
 
     [Fact]
+    public void PlayRoamingCard_Should_NotFinishInRoamingState_WhenPlayerHasNoRoadPieces()
+    {
+        //Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersGrowthCards = true,
+            RemovePlayersPieces = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        
+        //Act
+        var result = game.PlayRoamingCard();
+        
+        //Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotEqual(GameState.Roaming, game.CurrentState);
+    }
+
+    [Fact]
+    public void PlayRoamingCard_Should_OnlyRequireOneRoadPlacement_WhenPlayerOnlyHasOneRoadPiece()
+    {
+        //Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersGrowthCards = true,
+            RemovePlayersPieces = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        game.CurrentPlayer.PieceManager.Add(BuildingType.Road);
+        
+        //Act
+        var result = game.PlayRoamingCard();
+        
+        //Assert
+        Assert.True(result.IsSuccess);
+        var remainingRoadsToPlace = game.GetRoamingRoadsLeftToPlace();
+        Assert.Equal(1, remainingRoadsToPlace);
+    }
+
+    [Fact]
     public void PlayRoamingCard_Should_ReturnFailure_WhenPlayerHasAlreadyPlayedGrowthCard()
     {
         // Arrange
