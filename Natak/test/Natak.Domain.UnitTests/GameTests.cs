@@ -417,6 +417,24 @@ public sealed class GameTests
         Assert.True(result.IsSuccess);
         Assert.NotEmpty(game.CurrentPlayer.Ports);
     }
+    
+    [Fact]
+    public void BuyGrowthCard_Should_ReturnFailure_WhenInIncorrectState()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.BuyGrowthCard();
+
+        // Assert
+        Assert.True(result.IsFailure);
+    }
 
     [Fact]
     public void DiscardResources_Should_ReturnFailure_WhenPlayerDoesNotNeedToDiscard()

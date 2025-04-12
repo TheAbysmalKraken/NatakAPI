@@ -20,6 +20,7 @@ public sealed class GameStateManager : StateManager
         { new(GameState.AfterRoll, ActionType.BuildVillage), new(GameState.AfterRoll) },
         { new(GameState.AfterRoll, ActionType.BuildRoad), new(GameState.AfterRoll) },
         { new(GameState.AfterRoll, ActionType.BuildTown), new(GameState.AfterRoll) },
+        { new(GameState.AfterRoll, ActionType.BuyGrowthCard), new(GameState.AfterRoll)},
         { new(GameState.AfterRoll, ActionType.Trade), new(GameState.AfterRoll) },
         { new(GameState.AfterRoll, ActionType.PlaySoldierCard), new(GameState.MoveThief, StateTransitionType.Add) },
         { new(GameState.AfterRoll, ActionType.PlayRoamingCard), new(GameState.Roaming, StateTransitionType.Add) },

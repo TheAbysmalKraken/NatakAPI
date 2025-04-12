@@ -179,6 +179,10 @@ public sealed class PlayerManager
             {
                 player.CardsToDiscard = resourceCount / 2;
             }
+            else
+            {
+                player.CardsToDiscard = 0;
+            }
         }
     }
 

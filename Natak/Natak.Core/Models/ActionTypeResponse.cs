@@ -11,5 +11,6 @@ public enum ActionTypeResponse
     PlayGrowthCard,
     DiscardResources,
     MoveThief,
-    StealResource
+    StealResource,
+    BuyGrowthCard
 }

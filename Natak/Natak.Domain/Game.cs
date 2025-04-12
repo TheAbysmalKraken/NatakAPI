@@ -206,6 +206,13 @@ public sealed class Game
 
     public Result BuyGrowthCard()
     {
+        var moveStateResult = MoveState(ActionType.BuyGrowthCard);
+        
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
+        }
+        
         return PurchaseHelper.BuyGrowthCard(CurrentPlayer, BankManager);
     }
 
