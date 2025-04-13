@@ -19,5 +19,6 @@ public enum ActionType
     AllResourcesDiscarded,
     MoveThief,
     StealResource,
-    PlayerHasWon
+    PlayerHasWon,
+    BuyGrowthCard
 }

@@ -257,7 +257,7 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void PlaceRoad_Should_SetWinner_IfPlayerNeedsOnePoint_AndGetsLongestRoad()
+    public void PlaceRoad_Should_SetWinner_IfPlayerNeedsTwoPoints_AndGetsLongestRoad()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -272,7 +272,7 @@ public sealed class GameTests
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlaceRoad(new(1, 3), new(1, 4));
+        var result = game.PlaceRoad(new(1, 4), new(2, 4));
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -416,6 +416,24 @@ public sealed class GameTests
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotEmpty(game.CurrentPlayer.Ports);
+    }
+    
+    [Fact]
+    public void BuyGrowthCard_Should_ReturnFailure_WhenInIncorrectState()
+    {
+        // Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersResources = true
+        };
+        var game = GameFactory.Create(gameOptions);
+
+        // Act
+        var result = game.BuyGrowthCard();
+
+        // Assert
+        Assert.True(result.IsFailure);
     }
 
     [Fact]
@@ -748,14 +766,14 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void PlaySoldierCard_Should_SetWinner_IfPlayerNeedsOnePoint_AndGetsLargestArmy()
+    public void PlaySoldierCard_Should_SetWinner_IfPlayerNeedsTwoPoints_AndGetsLargestArmy()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
             GivePlayersGrowthCards = true,
-            PlayersVisiblePoints = 9,
+            PlayersVisiblePoints = 8,
             PlayersHiddenPoints = 0,
             PrepareLargestArmy = true
         };
@@ -908,6 +926,48 @@ public sealed class GameTests
 
         // Assert
         Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public void PlayRoamingCard_Should_NotFinishInRoamingState_WhenPlayerHasNoRoadPieces()
+    {
+        //Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersGrowthCards = true,
+            RemovePlayersPieces = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        
+        //Act
+        var result = game.PlayRoamingCard();
+        
+        //Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotEqual(GameState.Roaming, game.CurrentState);
+    }
+
+    [Fact]
+    public void PlayRoamingCard_Should_OnlyRequireOneRoadPlacement_WhenPlayerOnlyHasOneRoadPiece()
+    {
+        //Arrange
+        var gameOptions = new GameFactoryOptions
+        {
+            IsSetup = false,
+            GivePlayersGrowthCards = true,
+            RemovePlayersPieces = true
+        };
+        var game = GameFactory.Create(gameOptions);
+        game.CurrentPlayer.PieceManager.Add(BuildingType.Road);
+        
+        //Act
+        var result = game.PlayRoamingCard();
+        
+        //Assert
+        Assert.True(result.IsSuccess);
+        var remainingRoadsToPlace = game.GetRoamingRoadsLeftToPlace();
+        Assert.Equal(1, remainingRoadsToPlace);
     }
 
     [Fact]
@@ -1238,8 +1298,7 @@ public sealed class GameTests
         };
         var game = GameFactory.Create(gameOptions);
         var player = game.PlayerManager.Players
-            .Where(p => p.Colour != game.CurrentPlayerColour)
-            .First();
+            .First(p => p.Colour != game.CurrentPlayerColour);
 
         // Act
         var result = game.StealResourceFromPlayer(player.Colour);
@@ -1263,8 +1322,7 @@ public sealed class GameTests
         var playerColour = game.PlayerManager.Players
             .Select(p => p.Colour)
             .Except(coloursOnPoint)
-            .Where(c => c != game.CurrentPlayerColour)
-            .First();
+            .First(c => c != game.CurrentPlayerColour);
 
         game.MoveThief(point);
 
@@ -1303,9 +1361,9 @@ public sealed class GameTests
                     continue;
                 }
 
-                playerColourToStealFrom = game.Board.GetHouseColoursOnTile(point)
-                    .Where(c => c != currentPlayerColour)
-                    .FirstOrDefault();
+                playerColourToStealFrom = game.Board
+                    .GetHouseColoursOnTile(point)
+                    .FirstOrDefault(c => c != currentPlayerColour);
 
                 if (playerColourToStealFrom != null)
                 {

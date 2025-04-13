@@ -658,4 +658,207 @@ public sealed class BuildingManagerTests
         // Assert
         Assert.Equal(3, length);
     }
+    
+    [Fact]
+    public void GetLengthOfLongestRoadForColour_DoesNotCountRoadsOfDifferentColour()
+    {
+        // Arrange
+        var buildingManager = new BuildingManager();
+        const PlayerColour playerColour = PlayerColour.Blue;
+        const PlayerColour otherPlayerColour = PlayerColour.Red;
+        var roads = new List<Road>
+        {
+            new(playerColour, new Point(2, 0), new Point(3, 0)),
+            new(playerColour, new Point(3, 0), new Point(4, 0)),
+            new(playerColour, new Point(5, 0), new Point(4, 0)),
+            new(playerColour, new Point(5, 0), new Point(6, 0)),
+            new(playerColour, new Point(6, 0), new Point(6, 1)),
+            new(otherPlayerColour, new Point(6, 1), new Point(7, 1)),
+            new(otherPlayerColour, new Point(7, 1), new Point(8, 1)),
+        };
+        var house = new House(playerColour, HouseType.Village, new Point(2, 0));
+
+        buildingManager.AddVillage(house);
+
+        foreach (var road in roads)
+        {
+            buildingManager.AddRoad(road);
+        }
+
+        // Act
+        var length = buildingManager.GetLengthOfLongestRoadForColour(playerColour);
+
+        // Assert
+        Assert.Equal(5, length);
+    }
+    
+    [Fact]
+    public void GetLengthOfLongestRoadForColour_ReturnsCorrectLengthForALoop()
+    {
+        // Arrange
+        var buildingManager = new BuildingManager();
+        const PlayerColour playerColour = PlayerColour.Blue;
+        var roads = new List<Road>
+        {
+            new(playerColour, new Point(2, 0), new Point(3, 0)),
+            new(playerColour, new Point(3, 0), new Point(4, 0)),
+            new(playerColour, new Point(4, 0), new Point(4, 1)),
+            new(playerColour, new Point(4, 1), new Point(3, 1)),
+            new(playerColour, new Point(3, 1), new Point(2, 1)),
+            new(playerColour, new Point(2, 1), new Point(2, 0))
+        };
+        var house = new House(playerColour, HouseType.Village, new Point(2, 0));
+
+        buildingManager.AddVillage(house);
+
+        foreach (var road in roads)
+        {
+            buildingManager.AddRoad(road);
+        }
+
+        // Act
+        var length = buildingManager.GetLengthOfLongestRoadForColour(playerColour);
+
+        // Assert
+        Assert.Equal(6, length);
+    }
+    
+    [Fact]
+    public void GetLengthOfLongestRoadForColour_ReturnsCorrectLengthForLoopAndSeparateShorterRoad()
+    {
+        // Arrange
+        var buildingManager = new BuildingManager();
+        const PlayerColour playerColour = PlayerColour.Blue;
+        var roads = new List<Road>
+        {
+            new(playerColour, new Point(2, 0), new Point(3, 0)),
+            new(playerColour, new Point(3, 0), new Point(4, 0)),
+            new(playerColour, new Point(4, 0), new Point(4, 1)),
+            new(playerColour, new Point(4, 1), new Point(3, 1)),
+            new(playerColour, new Point(3, 1), new Point(2, 1)),
+            new(playerColour, new Point(2, 1), new Point(2, 0)),
+            new(playerColour, new Point(5, 0), new Point(6, 0)),
+            new(playerColour, new Point(6, 0), new Point(7, 0)),
+            new(playerColour, new Point(7, 0), new Point(8, 0))
+        };
+        var firstHouse = new House(playerColour, HouseType.Village, new Point(2, 0));
+        var secondHouse = new House(playerColour, HouseType.Village, new Point(5, 0));
+
+        buildingManager.AddVillage(firstHouse);
+        buildingManager.AddVillage(secondHouse);
+
+        foreach (var road in roads)
+        {
+            buildingManager.AddRoad(road);
+        }
+
+        // Act
+        var length = buildingManager.GetLengthOfLongestRoadForColour(playerColour);
+
+        // Assert
+        Assert.Equal(6, length);
+    }
+    
+    [Fact]
+    public void GetLengthOfLongestRoadForColour_ReturnsCorrectLengthAndColourForComplexBoard()
+    {
+        // Arrange
+        var buildingManager = new BuildingManager();
+        var roads = new List<Road>
+        {
+            // Blue
+            new(PlayerColour.Blue, new Point(2, 4), new Point(2, 5)),
+            new(PlayerColour.Blue, new Point(2, 5), new Point(3, 5)),
+            new(PlayerColour.Blue, new Point(3, 5), new Point(4, 5)),
+            
+            new(PlayerColour.Blue, new Point(9, 1), new Point(9, 2)),
+            new(PlayerColour.Blue, new Point(9, 2), new Point(10, 2)),
+            new(PlayerColour.Blue, new Point(10, 2), new Point(10, 3)),
+            
+            // Red
+            new(PlayerColour.Red, new Point(6, 0), new Point(7, 0)),
+            new(PlayerColour.Red, new Point(7, 0), new Point(8, 0)),
+            new(PlayerColour.Red, new Point(8, 0), new Point(8, 1)),
+            new(PlayerColour.Red, new Point(8, 1), new Point(7, 1)),
+            new(PlayerColour.Red, new Point(8, 1), new Point(9, 1)),
+            
+            new(PlayerColour.Red, new Point(8, 5), new Point(8, 4)),
+            new(PlayerColour.Red, new Point(8, 4), new Point(9, 4)),
+            
+            // Green
+            new(PlayerColour.Green, new Point(2, 1), new Point(2, 0)),
+            new(PlayerColour.Green, new Point(2, 0), new Point(3, 0)),
+            new(PlayerColour.Green, new Point(3, 0), new Point(4, 0)),
+            new(PlayerColour.Green, new Point(4, 0), new Point(5, 0)),
+            new(PlayerColour.Green, new Point(4, 0), new Point(4, 1)),
+            new(PlayerColour.Green, new Point(4, 1), new Point(5, 1)),
+            
+            new(PlayerColour.Green, new Point(4, 4), new Point(4, 5)),
+            new(PlayerColour.Green, new Point(4, 5), new Point(5, 5)),
+            new(PlayerColour.Green, new Point(5, 5), new Point(6, 5)),
+            new(PlayerColour.Green, new Point(6, 5), new Point(7, 5)),
+            new(PlayerColour.Green, new Point(7, 5), new Point(8, 5)),
+            new(PlayerColour.Green, new Point(6, 5), new Point(6, 4)),
+            new(PlayerColour.Green, new Point(6, 4), new Point(5, 4)),
+            new(PlayerColour.Green, new Point(6, 4), new Point(7, 4)),
+            new(PlayerColour.Green, new Point(7, 4), new Point(8, 4)),
+            
+            // Yellow
+            new(PlayerColour.Yellow, new Point(1, 1), new Point(2, 1)),
+            new(PlayerColour.Yellow, new Point(2, 1), new Point(3, 1)),
+            new(PlayerColour.Yellow, new Point(3, 1), new Point(4, 1)),
+            new(PlayerColour.Yellow, new Point(3, 1), new Point(3, 2)),
+            new(PlayerColour.Yellow, new Point(3, 2), new Point(4, 2)),
+            new(PlayerColour.Yellow, new Point(4, 2), new Point(4, 3)),
+            new(PlayerColour.Yellow, new Point(4, 3), new Point(5, 3)),
+            new(PlayerColour.Yellow, new Point(5, 3), new Point(5, 4)),
+            
+            new(PlayerColour.Yellow, new Point(7, 1), new Point(7, 2)),
+            new(PlayerColour.Yellow, new Point(7, 2), new Point(8, 2)),
+            new(PlayerColour.Yellow, new Point(8, 2), new Point(9, 2)),
+            new(PlayerColour.Yellow, new Point(8, 2), new Point(8, 3)),
+            new(PlayerColour.Yellow, new Point(8, 3), new Point(9, 3)),
+            new(PlayerColour.Yellow, new Point(9, 3), new Point(10, 3)),
+            new(PlayerColour.Yellow, new Point(9, 3), new Point(9, 4))
+        };
+        
+        var houses = new List<House>
+        {
+            new(PlayerColour.Blue, HouseType.Village, new Point(2, 4)),
+            new(PlayerColour.Blue, HouseType.Village, new Point(3, 5)),
+            new(PlayerColour.Blue, HouseType.Village, new Point(10, 2)),
+            new(PlayerColour.Red, HouseType.Village, new Point(8, 1)),
+            new(PlayerColour.Red, HouseType.Town, new Point(8, 5)),
+            new(PlayerColour.Red, HouseType.Village, new Point(9, 4)),
+            new(PlayerColour.Green, HouseType.Town, new Point(2, 0)),
+            new(PlayerColour.Green, HouseType.Town, new Point(4, 4)),
+            new(PlayerColour.Green, HouseType.Town, new Point(6, 4)),
+            new(PlayerColour.Yellow, HouseType.Town, new Point(1, 1)),
+            new(PlayerColour.Yellow, HouseType.Town, new Point(4, 1)),
+            new(PlayerColour.Yellow, HouseType.Town, new Point(7, 2)),
+            new(PlayerColour.Yellow, HouseType.Town, new Point(8, 3))
+        };
+        
+        foreach (var house in houses)
+        {
+            buildingManager.AddVillage(house);
+        }
+
+        foreach (var road in roads)
+        {
+            buildingManager.AddRoad(road);
+        }
+
+        // Act
+        var blueLength = buildingManager.GetLengthOfLongestRoadForColour(PlayerColour.Blue);
+        var redLength = buildingManager.GetLengthOfLongestRoadForColour(PlayerColour.Red);
+        var greenLength = buildingManager.GetLengthOfLongestRoadForColour(PlayerColour.Green);
+        var yellowLength = buildingManager.GetLengthOfLongestRoadForColour(PlayerColour.Yellow);
+
+        // Assert
+        Assert.Equal(3, blueLength);
+        Assert.Equal(4, redLength);
+        Assert.Equal(6, greenLength);
+        Assert.Equal(7, yellowLength);
+    }
 }

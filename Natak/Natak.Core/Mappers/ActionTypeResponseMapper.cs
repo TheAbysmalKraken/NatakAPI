@@ -22,7 +22,8 @@ public static class ActionTypeResponseMapper
         { ActionType.RollSeven, ActionTypeResponse.RollDice },
         { ActionType.AllResourcesDiscarded, ActionTypeResponse.DiscardResources },
         { ActionType.MoveThief, ActionTypeResponse.MoveThief },
-        { ActionType.StealResource, ActionTypeResponse.StealResource }
+        { ActionType.StealResource, ActionTypeResponse.StealResource },
+        { ActionType.BuyGrowthCard, ActionTypeResponse.BuyGrowthCard }
     };
 
     public static ActionTypeResponse? FromDomain(ActionType actionType)

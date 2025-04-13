@@ -185,7 +185,8 @@ internal static class GameFactory
         var roadLocations = new List<(Point, Point)>
         {
             (new(2, 2), new(3, 2)),
-            (new(2, 3), new(1, 3))
+            (new(2, 3), new(1, 3)),
+            (new(1, 3), new(1, 4)),
         };
 
         foreach (var (firstPoint, secondPoint) in roadLocations)

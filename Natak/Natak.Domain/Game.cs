@@ -206,6 +206,13 @@ public sealed class Game
 
     public Result BuyGrowthCard()
     {
+        var moveStateResult = MoveState(ActionType.BuyGrowthCard);
+        
+        if (moveStateResult.IsFailure)
+        {
+            return moveStateResult;
+        }
+        
         return PurchaseHelper.BuyGrowthCard(CurrentPlayer, BankManager);
     }
 
@@ -384,7 +391,14 @@ public sealed class Game
         }
 
         GrowthCardPlayed = true;
-        roamingRoadsLeftToPlace = MAX_ROAD_BUILDING_ROADS;
+
+        var playerRemainingRoads = PlayerManager.CurrentPlayer.PieceManager.Roads;
+        
+        roamingRoadsLeftToPlace = Math.Min(
+            playerRemainingRoads,
+            MAX_ROAD_BUILDING_ROADS);
+        
+        CheckFinishedRoaming();
 
         return Result.Success();
     }
