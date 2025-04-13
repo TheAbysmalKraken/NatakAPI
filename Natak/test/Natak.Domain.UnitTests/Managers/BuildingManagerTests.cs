@@ -658,4 +658,37 @@ public sealed class BuildingManagerTests
         // Assert
         Assert.Equal(3, length);
     }
+    
+    [Fact]
+    public void GetLengthOfLongestRoadForColour_DoesNotCountRoadsOfDifferentColour()
+    {
+        // Arrange
+        var buildingManager = new BuildingManager();
+        const PlayerColour playerColour = PlayerColour.Blue;
+        const PlayerColour otherPlayerColour = PlayerColour.Red;
+        var roads = new List<Road>
+        {
+            new(playerColour, new Point(2, 0), new Point(3, 0)),
+            new(playerColour, new Point(3, 0), new Point(4, 0)),
+            new(playerColour, new Point(5, 0), new Point(4, 0)),
+            new(playerColour, new Point(5, 0), new Point(6, 0)),
+            new(playerColour, new Point(6, 0), new Point(6, 1)),
+            new(otherPlayerColour, new Point(6, 1), new Point(7, 1)),
+            new(otherPlayerColour, new Point(7, 1), new Point(8, 1)),
+        };
+        var house = new House(playerColour, HouseType.Village, new Point(2, 0));
+
+        buildingManager.AddVillage(house);
+
+        foreach (var road in roads)
+        {
+            buildingManager.AddRoad(road);
+        }
+
+        // Act
+        var length = buildingManager.GetLengthOfLongestRoadForColour(playerColour);
+
+        // Assert
+        Assert.Equal(5, length);
+    }
 }

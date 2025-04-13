@@ -214,12 +214,12 @@ public sealed class BuildingManager
 
         var roadsOfColour = GetRoads(colour);
 
-        var endRoads = roadsOfColour.Where(r => GetOccupiedRoadsAtPoint(r.FirstPoint).Count == 1
-                                                || GetOccupiedRoadsAtPoint(r.SecondPoint).Count == 1).ToList();
+        var endRoads = roadsOfColour.Where(r => GetRoadsOfColourAtPoint(r.FirstPoint, colour).Count == 1
+                                                || GetRoadsOfColourAtPoint(r.SecondPoint, colour).Count == 1).ToList();
 
         var endPoints = endRoads
             .Select(r =>
-                GetOccupiedRoadsAtPoint(r.FirstPoint).Count == 1
+                GetRoadsOfColourAtPoint(r.FirstPoint, colour).Count == 1
                     ? r.FirstPoint
                     : r.SecondPoint)
             .ToList();
@@ -330,7 +330,7 @@ public sealed class BuildingManager
             throw new ArgumentException($"{nameof(colour)} must not be {PlayerColour.None}.");
         }
 
-        var connectedRoads = GetOccupiedRoadsAtPoint(point);
+        var connectedRoads = GetRoadsOfColourAtPoint(point, colour);
 
         var connectedRoadsNotChecked = connectedRoads.Where(r => !checkedRoads.Contains(r)).ToList();
 
