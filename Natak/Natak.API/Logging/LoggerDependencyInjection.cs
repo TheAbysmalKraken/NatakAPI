@@ -9,7 +9,7 @@ public static class LoggerDependencyInjection
     {
         var logger = new LoggerConfiguration()
             .WriteTo.Console()
-            .WriteTo.File("logs/log.txt", LogEventLevel.Error)
+            .WriteTo.File("logs/log.txt")
             .CreateLogger();
 
         services.AddSerilog(logger);
