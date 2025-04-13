@@ -6,8 +6,5 @@ public sealed record Error(HttpStatusCode StatusCode, string Type, string Messag
 {
     public static Error None => new(HttpStatusCode.OK, "Error.None", "No error.");
 
-    public override string ToString()
-    {
-        return $"[{Type}] {Message}";
-    }
+    public override string ToString() => $"[{StatusCode}/{Type}] {Message}";
 }

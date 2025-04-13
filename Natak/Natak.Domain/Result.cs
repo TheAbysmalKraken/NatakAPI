@@ -25,7 +25,7 @@ public class Result
     public static Result<TValue> Failure<TValue>(Error error) => new(default, false, error);
 }
 
-public class Result<TValue> : Result
+public class Result<TValue> : Result, IValueResult
 {
     private readonly TValue? value;
 
@@ -36,4 +36,14 @@ public class Result<TValue> : Result
 
     [NotNull]
     public TValue Value => IsSuccess ? value! : throw new InvalidOperationException("No value present");
+    
+    public object GetValue()
+    {
+        if (IsSuccess)
+        {
+            return value!;
+        }
+
+        throw new InvalidOperationException("No value present");
+    }
 }

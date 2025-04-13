@@ -14,11 +14,26 @@ public sealed class LoggingBehaviour<TRequest, TResponse>(
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        var result = await next();
+        var response = await next();
 
-        if (result is not Result { IsFailure: true } failureResult)
+        if (response is not Result { IsFailure: true } failureResult)
         {
-            return result;
+            if (response is IValueResult successResult)
+            {
+                logger.LogInformation("{RequestType} completed successfully. Request: {Request}. Response: {@Response}.",
+                    typeof(TRequest).Name,
+                    request,
+                    successResult.GetValue());
+            }
+            else
+            {
+                logger.LogInformation("{RequestType} completed successfully. Request: {Request}. Response: {@Response}.",
+                    typeof(TRequest).Name,
+                    request,
+                    response);
+            }
+            
+            return response;
         }
         
         var statusCode = failureResult.Error.StatusCode;
@@ -26,18 +41,20 @@ public sealed class LoggingBehaviour<TRequest, TResponse>(
         if (statusCode == HttpStatusCode.InternalServerError)
         {
             logger.LogError(
-                "{Request} failed: {Error}",
+                "{RequestType} failed. Request: {Request}. Error: {Error}.",
                 typeof(TRequest).Name,
+                request,
                 failureResult.Error);
         }
         else
         {
             logger.LogWarning(
-                "{Request} failed: {Error}",
+                "{RequestType} failed. Request: {Request}. Error: {Error}.",
                 typeof(TRequest).Name,
+                request,
                 failureResult.Error);
         }
 
-        return result;
+        return response;
     }
 }
