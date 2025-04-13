@@ -257,7 +257,7 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void PlaceRoad_Should_SetWinner_IfPlayerNeedsOnePoint_AndGetsLongestRoad()
+    public void PlaceRoad_Should_SetWinner_IfPlayerNeedsTwoPoints_AndGetsLongestRoad()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
@@ -272,7 +272,7 @@ public sealed class GameTests
         var game = GameFactory.Create(gameOptions);
 
         // Act
-        var result = game.PlaceRoad(new(1, 3), new(1, 4));
+        var result = game.PlaceRoad(new(1, 4), new(2, 4));
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -766,14 +766,14 @@ public sealed class GameTests
     }
 
     [Fact]
-    public void PlaySoldierCard_Should_SetWinner_IfPlayerNeedsOnePoint_AndGetsLargestArmy()
+    public void PlaySoldierCard_Should_SetWinner_IfPlayerNeedsTwoPoints_AndGetsLargestArmy()
     {
         // Arrange
         var gameOptions = new GameFactoryOptions
         {
             IsSetup = false,
             GivePlayersGrowthCards = true,
-            PlayersVisiblePoints = 9,
+            PlayersVisiblePoints = 8,
             PlayersHiddenPoints = 0,
             PrepareLargestArmy = true
         };
@@ -1298,8 +1298,7 @@ public sealed class GameTests
         };
         var game = GameFactory.Create(gameOptions);
         var player = game.PlayerManager.Players
-            .Where(p => p.Colour != game.CurrentPlayerColour)
-            .First();
+            .First(p => p.Colour != game.CurrentPlayerColour);
 
         // Act
         var result = game.StealResourceFromPlayer(player.Colour);
@@ -1323,8 +1322,7 @@ public sealed class GameTests
         var playerColour = game.PlayerManager.Players
             .Select(p => p.Colour)
             .Except(coloursOnPoint)
-            .Where(c => c != game.CurrentPlayerColour)
-            .First();
+            .First(c => c != game.CurrentPlayerColour);
 
         game.MoveThief(point);
 
@@ -1363,9 +1361,9 @@ public sealed class GameTests
                     continue;
                 }
 
-                playerColourToStealFrom = game.Board.GetHouseColoursOnTile(point)
-                    .Where(c => c != currentPlayerColour)
-                    .FirstOrDefault();
+                playerColourToStealFrom = game.Board
+                    .GetHouseColoursOnTile(point)
+                    .FirstOrDefault(c => c != currentPlayerColour);
 
                 if (playerColourToStealFrom != null)
                 {
