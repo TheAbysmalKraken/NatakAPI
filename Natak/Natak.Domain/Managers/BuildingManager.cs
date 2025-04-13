@@ -214,10 +214,7 @@ public sealed class BuildingManager
 
         var roadsOfColour = GetRoads(colour);
 
-        var endRoads = roadsOfColour.Where(r => GetRoadsOfColourAtPoint(r.FirstPoint, colour).Count == 1
-                                                || GetRoadsOfColourAtPoint(r.SecondPoint, colour).Count == 1).ToList();
-
-        var endPoints = endRoads
+        var endPoints = roadsOfColour
             .Select(r =>
                 GetRoadsOfColourAtPoint(r.FirstPoint, colour).Count == 1
                     ? r.FirstPoint
